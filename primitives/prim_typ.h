@@ -8,7 +8,7 @@
 #ifndef PRIM_TYP_H
 #define PRIM_TYP_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_tNew(expression*[], int, exprvals*, datatype*);
 void prim_tInt(expression*[], int, exprvals*, datatype*);

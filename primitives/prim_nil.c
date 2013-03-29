@@ -9,9 +9,9 @@
 
 #include "prim_nil.h"
 #include "prim_int.h"
-#include "constants.h"
-#include "constructors.h"
-#include "strings.h"
+#include "../source/constants.h"
+#include "../source/constructors.h"
+#include "../source/strings.h"
 
 /*! Converts the given nil value to its integer equivalent, 0 (nil)->int
     @param args         the list of arguments

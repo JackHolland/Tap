@@ -8,7 +8,7 @@
 #ifndef PRIM_FLO_H
 #define PRIM_FLO_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_fAdd(expression*[], int, exprvals*, datatype*);
 void prim_fSub(expression*[], int, exprvals*, datatype*);

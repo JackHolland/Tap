@@ -11,12 +11,11 @@
 
 #include "prim_int.h"
 #include "prim_flo.h"
-#include "constants.h"
-#include "structs.h"
-#include "typedefs.h"
-#include "engine.h"
-#include "constructors.h"
-#include "casting.h"
+#include "../source/constants.h"
+#include "../source/typedefs.h"
+#include "../source/engine.h"
+#include "../source/constructors.h"
+#include "../source/casting.h"
 
 /*! Throws an error with the given code and message (int, str)->nil
     @param args         the list of arguments

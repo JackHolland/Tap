@@ -8,7 +8,7 @@
 #ifndef PRIM_INT_H
 #define PRIM_INT_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_iError(expression*[], int, exprvals*, datatype*);
 void prim_iAdd(expression*[], int, exprvals*, datatype*);

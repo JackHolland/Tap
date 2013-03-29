@@ -8,7 +8,7 @@
 #ifndef PRIM_FUN_H
 #define PRIM_FUN_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_uArgs(expression*[], int, exprvals*, datatype*);
 void prim_uMinargs(expression*[], int, exprvals*, datatype*);

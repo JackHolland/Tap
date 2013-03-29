@@ -8,7 +8,7 @@
 #ifndef PRIM_LAZ_H
 #define PRIM_LAZ_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_lEval(expression*[], int, exprvals*, datatype*);
 void prim_lFunction(expression*[], int, exprvals*, datatype*);

@@ -8,7 +8,7 @@
 #ifndef PRIM_ARR_H
 #define PRIM_ARR_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_aGet(expression*[], int, exprvals*, datatype*);
 void prim_aSet(expression*[], int, exprvals*, datatype*);

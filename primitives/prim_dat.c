@@ -8,10 +8,10 @@
 #include <stdlib.h>
 
 #include "prim_dat.h"
-#include "constants.h"
-#include "casting.h"
-#include "constructors.h"
-#include "dates.h"
+#include "../source/constants.h"
+#include "../source/casting.h"
+#include "../source/constructors.h"
+#include "../source/dates.h"
 
 extern int monthdays[];
 

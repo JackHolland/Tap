@@ -8,7 +8,7 @@
 #ifndef PRIM_OBJ_H
 #define PRIM_OBJ_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_oObj(expression*[], int, exprvals*, datatype*);
 void prim_oTyp(expression*[], int, exprvals*, datatype*);

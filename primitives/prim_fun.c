@@ -9,10 +9,9 @@
 #include <string.h>
 
 #include "prim_fun.h"
-#include "constants.h"
-#include "structs.h"
-#include "engine.h"
-#include "constructors.h"
+#include "../source/constants.h"
+#include "../source/engine.h"
+#include "../source/constructors.h"
 
 /*! Returns the given function's arguments as an array of strings (fun)->arr
     @param args         the list of arguments

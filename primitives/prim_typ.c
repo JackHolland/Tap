@@ -9,12 +9,12 @@
 #include <string.h>
 
 #include "prim_typ.h"
-#include "constants.h"
-#include "engine.h"
-#include "constructors.h"
-#include "externs.h"
-#include "types.h"
-#include "strings.h"
+#include "../source/constants.h"
+#include "../source/engine.h"
+#include "../source/constructors.h"
+#include "../source/externs.h"
+#include "../source/types.h"
+#include "../source/strings.h"
 
 extern environment* environments[];
 extern uint cenvironment;

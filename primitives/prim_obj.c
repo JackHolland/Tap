@@ -6,8 +6,8 @@
 */
 
 #include "prim_obj.h"
-#include "constants.h"
-#include "constructors.h"
+#include "../source/constants.h"
+#include "../source/constructors.h"
 
 /*! Returns a copy of the given object (obj)->obj
     @param args         the list of arguments

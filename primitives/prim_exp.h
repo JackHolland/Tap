@@ -8,7 +8,7 @@
 #ifndef PRIM_EXP_H
 #define PRIM_EXP_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_eXYZ(expression*[], int, exprvals*, datatype*);
 

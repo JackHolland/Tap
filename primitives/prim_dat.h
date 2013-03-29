@@ -8,7 +8,7 @@
 #ifndef PRIM_DAT_H
 #define PRIM_DAT_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_dYear(expression*[], int, exprvals*, datatype*);
 void prim_dMonth(expression*[], int, exprvals*, datatype*);

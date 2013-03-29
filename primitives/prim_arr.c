@@ -9,11 +9,11 @@
 #include <string.h>
 
 #include "prim_arr.h"
-#include "constants.h"
-#include "engine.h"
-#include "constructors.h"
-#include "casting.h"
-#include "arrays.h"
+#include "../source/constants.h"
+#include "../source/engine.h"
+#include "../source/constructors.h"
+#include "../source/casting.h"
+#include "../source/arrays.h"
 
 /*! Returns from the given array the element at the given index (arr, int)->*
     @param args         the list of arguments

@@ -8,7 +8,7 @@
 #ifndef PRIM_STR_H
 #define PRIM_STR_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_sSet(expression*[], int, exprvals*, datatype*);
 void prim_sNewtype(expression*[], int, exprvals*, datatype*);

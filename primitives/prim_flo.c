@@ -9,11 +9,10 @@
 #include <math.h>
 
 #include "prim_int.h"
-#include "constants.h"
-#include "structs.h"
-#include "typedefs.h"
-#include "constructors.h"
-#include "casting.h"
+#include "../source/constants.h"
+#include "../source/typedefs.h"
+#include "../source/constructors.h"
+#include "../source/casting.h"
 
 /*! Adds up the given list of floats (flo...)->flo
     @param args         the list of arguments

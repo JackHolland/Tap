@@ -14,16 +14,16 @@
 
 #include "prim_flo.h"
 #include "prim_str.h"
-#include "constants.h"
-#include "dep_structs.h"
-#include "externs.h"
-#include "engine.h"
-#include "constructors.h"
-#include "casting.h"
-#include "strings.h"
-#include "arrays.h"
-#include "dates.h"
-#include "hashtable.h"
+#include "../source/constants.h"
+#include "../source/dep_structs.h"
+#include "../source/externs.h"
+#include "../source/engine.h"
+#include "../source/constructors.h"
+#include "../source/casting.h"
+#include "../source/strings.h"
+#include "../source/arrays.h"
+#include "../source/dates.h"
+#include "../source/hashtable.h"
 
 extern environment* environments[];
 extern uint cenvironment;

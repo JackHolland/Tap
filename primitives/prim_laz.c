@@ -10,10 +10,10 @@
 
 #include "prim_laz.h"
 #include "prim_int.h"
-#include "constants.h"
-#include "engine.h"
-#include "constructors.h"
-#include "strings.h"
+#include "../source/constants.h"
+#include "../source/engine.h"
+#include "../source/constructors.h"
+#include "../source/strings.h"
 
 /*! Evaluates the given lazy expression and returns the result (laz)->*
     @param args         the list of arguments

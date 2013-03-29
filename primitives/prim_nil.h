@@ -8,7 +8,7 @@
 #ifndef PRIM_NIL_H
 #define PRIM_NIL_H
 
-#include "structs.h"
+#include "../source/structs.h"
 
 void prim_nInt(expression*[], int, exprvals*, datatype*);
 void prim_nStr(expression*[], int, exprvals*, datatype*);
