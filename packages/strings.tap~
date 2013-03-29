@@ -1,0 +1,164 @@
+'''
+LANGUAGE	Tap v1.0
+FILE		strings.tap	
+BRIEF		The standard strings package
+UPDATED		2012-4-9
+LICENSE		Tap Usage Agreement <apptap.org/licensing>
+'''
+
+''' AUTHORS
+Jack Holland <jack@apptap.org>
+'''
+
+''' CHANGELOG
+2012-4-9 3:
+	First draft complete!
+	This is the first Tap file ever written.
+	Let's mark this monumental occasion with an exorbitant number of EXCLAMATION MARKS!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	Also, I definitely need to write an actual editor with Tap specific syntax highlighting.
+	
+	Actual changelog content:
+	0: new type: str-builder
+		0.0: added parent: general/obj
+		0.1: added requirement: lists/list
+		0.2: added requirement: collections/tuple
+		0.3: added property: pieces
+		0.4: added property: tail
+		0.5: added property: size
+		0.6: added property: string
+		0.7: added property: dirty
+		0.8: added property overwrite
+		0.9: added function: str-builder
+		0.10: added function: +
+		0.11: added alias: append for "+"
+		0.12: added function: replace that replaces the given index range with the given content
+		0.13: added function: "str" that computes an unbroken string from the list of string pieces
+		0.14: added function: "typ" that returns the type of str-builder
+'''
+
+''' COMMENTS
+The original version of this file is the first tap file ever written.
+'''
+
+''' TODO LIST
+Overwrite blank space if necessary
+Implement convenient injective functions
+'''
+
+''' UNFIXED BUGS
+
+'''
+
+!!! [(brackets and parentheses now)]
+!!! don't delete vars if refs
+!!! don't delete next of function returns for chaining
+!!! implement copy
+
+## The str-builder type creates a linked list of strings that can be simultaneously concatenated later for more efficient string concatenation
+(define-type "str-builder" [
+	(inherits general/obj)
+	(requires lists/list)
+	(requires collections/tuple)
+	(properties
+		(set list pieces nil) ## stores the list of strings
+		(set list tail nil) ## keeps track of the tail of "pieces" to avoid having to always recurse through pieces
+		(set int size 0) ## stores the combined size of all of the string pieces in the list
+		(set str string nil) ## stores the last computed string so repeated calls to "str" don't always recompute the string
+		(set int dirty true)) ## is true if "string" needs to be recomputed and false if it doesn't
+		(set int overwrite 0) ## keeps track of how many bytes should be overwritten (due to initial size being larger than content so far)
+	(functions
+		''' <constructor>
+		arguments:
+			int size specifies the initial size of this str-builder (only necessary when "content" isn't specified) (default: 0)
+			str content is an initial string to store in this str-builder (will increase specified "size" if necessary)
+		returns:
+			the new str-builder
+		effects:
+			creates a new str-builder with a size of "size" and a copy of "content"
+		complexity:
+			time: O(|content|)
+			space: O(|content|)
+		'''
+		(function str-builder [[int size] [str content]]
+			[(if (defined size) [(set pieces (new list (new string size) nil))])
+			 (set (this size) size)
+			 (if (defined content) [(+ this (copy content))])])
+		
+		''' +
+		arguments:
+			str content is the string to append to the end of this str-builder
+		returns:
+			this
+		effects:
+			appends a copy of "content" to the tail of this str-builder
+		complexity:
+			time: O(|content|)
+			space: O(|content|)
+		'''
+		(function + str-builder [(str content)]
+			[(set (tail next) (new list (copy content) nil))
+			 (set tail next)
+			 (set size (+ size content))
+			 (set dirty true)
+			 this])
+		(alias append +)
+		
+		''' replace
+		arguments:
+			int start 
+			int length 
+			str content 
+		returns:
+			this
+		effects:
+			
+		complexity:
+			time: O(|content|)
+			space: O(1)
+		'''
+		(function replace str-builder [(int start) (int length) (str content)]
+			[(if (and (>= start 0) (> length 0))
+				[(let [(piece-str (pieces val))]
+					[(if (> (size piece-str) start)
+						[(if (> (size piece-str) (+ start length))
+							[(replace piece-str start length content)
+							 this]
+							[(let [(cut-off (- (size piece-str) start))] [
+								(replace piece-str start cut-off (substr content 0 cut-off))
+								(replace next (- start cut-off) (- length cut-off) (substr content cut-off))])])])])]
+				[(set dirty true)
+				 this])])
+		
+		''' str
+		arguments:
+			none
+		returns:
+			a new string containing the concatenation of each string appended to this str-builder
+		effects:
+			the new string is cached so repeated calls are instant (as long as no new strings are appended or replaced in between calls)
+		complexity:
+			time (uncached): O(size)
+			time (cached): O(1)
+			space: O(1)
+		'''
+		(function str str-builder []
+			[(if dirty
+				[(set string (+ (function list return-append [] [(return list (return-append (list next)))])))
+				 (set pieces (new list string nil))
+				 (set tail pieces)
+				 (set dirty false)])
+			 string])
+		
+		''' typ
+		arguments:
+			none
+		returns:
+			
+		effects:
+			
+		complexity:
+			time: O(1)
+			space: O(1)
+		'''
+		(function typ str-builder [] [str-builder]))])
+		

@@ -1,0 +1,620 @@
+# depslib dependency file v1.0
+1299037612 source:c:\users\mark\code\websites\apptap.org\tap\main.c
+	<stdio.h>
+	<stdlib.h>
+	"engine.h"
+
+1299037612 
+
+1299036631 c:\users\mark\code\websites\apptap.org\tap\engine.c
+	<stdlib.h>
+	"structs.h"
+
+1299037118 "
+
+1299036501 c:\users\mark\code\websites\apptap.org\tap\structs.h
+
+1299037627 source:c:\users\mark\code\websites\apptap.org\tap\engine.c
+	<stdlib.h>
+	"structs.h"
+
+1299037118 c:\users\mark\code\websites\apptap.org\tap\engine.h
+	"structs.h"
+
+1299037612 source:/media/Windows7_OS/Users/Mark/Code/Websites/AppTap.org/Tap/main.c
+	<stdio.h>
+	<stdlib.h>
+	"engine.h"
+
+1299037118 /media/Windows7_OS/Users/Mark/Code/Websites/AppTap.org/Tap/engine.h
+	"structs.h"
+
+1299036501 /media/Windows7_OS/Users/Mark/Code/Websites/AppTap.org/Tap/structs.h
+
+1299039119 source:/media/Windows7_OS/Users/Mark/Code/Websites/AppTap.org/Tap/engine.c
+	<stdlib.h>
+	<string.h>
+	"structs.h"
+
+1314572113 source:/home/jack/Code/Tap/engine.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<time.h>
+	"engine.h"
+	"constants.h"
+	"externs.h"
+	"structs.h"
+	"typedefs.h"
+	"constructors.h"
+	"memory.h"
+	"strings.h"
+	"prim_int.h"
+	"prim_flt.h"
+	"prim_str.h"
+	"prim_arr.h"
+	"prim_laz.h"
+	"prim_typ.h"
+	"debug.h"
+
+1314593924 /home/jack/Code/Tap/structs.h
+	"typedefs.h"
+
+1314572062 source:/home/jack/Code/Tap/main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	"engine.h"
+
+1314596446 /home/jack/Code/Tap/engine.h
+	"structs.h"
+	"dep_structs.h"
+
+1184515939 /home/jack/Code/Tap/hash/dd_data_dictionary.h
+	"dd_types.h"
+	"dd_macros.h"
+	"dd_status_codes.h"
+	"dd_hash_functions.h"
+
+1184393128 /home/jack/Code/Tap/hash/dd_types.h
+	<stdbool.h>
+	<stdint.h>
+
+1184069284 /home/jack/Code/Tap/hash/dd_macros.h
+
+1184491282 /home/jack/Code/Tap/hash/dd_status_codes.h
+
+1184233604 /home/jack/Code/Tap/hash/dd_hash_functions.h
+	"dd_types.h"
+	"dd_macros.h"
+
+1184515639 source:/home/jack/Code/Tap/hash/dd_data_dictionary.c
+	<stddef.h>
+	<stdlib.h>
+	<unistd.h>
+	<gc.h>
+	<pthread.h>
+	"dd_types.h"
+	"dd_settings.pp"
+	"dd_hash_functions.h"
+	"dd_hashtable_size.h"
+	"dd_data_dictionary.h"
+
+1184402941 /home/jack/Code/Tap/hash/dd_settings.pp
+	"dd_settings.h"
+
+1184399352 /home/jack/Code/Tap/hash/dd_settings.h
+
+1184233701 /home/jack/Code/Tap/hash/dd_hashtable_size.h
+	"dd_types.h"
+	"dd_macros.h"
+
+1184087659 /home/jack/Code/Tap/hash/dd_dynamic_array.h
+	"dd_types.h"
+	"dd_status_codes.h"
+
+1184516131 /home/jack/Code/Tap/hash/dd_lib_info.h
+	"dd_types.h"
+	"dd_macros.h"
+
+1299531591 /home/jack/Code/Tap/hash/dd_sorted_keys.h
+	"dd_data_dictionary.h"
+
+1184233866 /home/jack/Code/Tap/hash/dd_symbol_table.h
+	"dd_types.h"
+	"dd_status_codes.h"
+	"dd_hash_functions.h"
+
+1314151161 source:/home/jack/Code/Tap/debug.c
+	<stdio.h>
+	"debug.h"
+	"constants.h"
+
+1314151138 /home/jack/Code/Tap/debug.h
+	"structs.h"
+
+1314593822 source:/home/jack/Code/Tap/hashtable.c
+	<stdlib.h>
+	<string.h>
+	"hashtable.h"
+	"constants.h"
+	"structs.h"
+	"strings.h"
+
+1314593910 /home/jack/Code/Tap/hashtable.h
+	"structs.h"
+	"typedefs.h"
+
+1310531200 /home/jack/Code/Tap/primitives.h
+	"structs.h"
+
+1310531316 source:/home/jack/Code/Tap/primitives.c
+	<stdlib.h>
+	<math.h>
+	"primitives.h"
+	"constants.h"
+	"structs.h"
+	"typedefs.h"
+	"casting.h"
+
+1314593972 /home/jack/Code/Tap/typedefs.h
+
+1314062680 /home/jack/Code/Tap/constants.h
+
+1314593822 /home/jack/Code/Tap/externs.h
+
+1314593822 /home/jack/Code/Tap/strings.h
+	"structs.h"
+
+1314593822 source:/home/jack/Code/Tap/strings.c
+	<stdlib.h>
+	<string.h>
+	"strings.h"
+	"constants.h"
+	"constructors.h"
+
+1310503408 /home/jack/Code/Tap/dep_structs.h
+	"hashtable.h"
+
+1314593822 source:/home/jack/Code/Tap/casting.c
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	"casting.h"
+	"constants.h"
+	"engine.h"
+	"constructors.h"
+
+1314593822 /home/jack/Code/Tap/casting.h
+	"structs.h"
+
+1311557714 /home/jack/Code/Tap/prim_int.h
+	"structs.h"
+
+1311561450 /home/jack/Code/Tap/prim_flt.h
+	"structs.h"
+
+1311661758 source:/home/jack/Code/Tap/prim_flt.c
+	<stdlib.h>
+	<math.h>
+	"prim_int.h"
+	"constants.h"
+	"structs.h"
+	"typedefs.h"
+	"casting.h"
+
+1314593822 source:/home/jack/Code/Tap/prim_int.c
+	<stdlib.h>
+	<math.h>
+	"prim_int.h"
+	"prim_flt.h"
+	"constants.h"
+	"structs.h"
+	"typedefs.h"
+	"engine.h"
+	"constructors.h"
+	"casting.h"
+
+1314067707 /home/jack/Code/Tap/prim_laz.h
+	"structs.h"
+
+1314593822 source:/home/jack/Code/Tap/prim_laz.c
+	<stdlib.h>
+	<string.h>
+	"prim_laz.h"
+	"prim_int.h"
+	"constants.h"
+	"engine.h"
+	"constructors.h"
+
+1313859275 source:/home/jack/Code/Tap/prim_arr.c
+	<stdlib.h>
+	<string.h>
+	"prim_arr.h"
+	"constants.h"
+	"engine.h"
+	"constructors.h"
+	"casting.h"
+	"arrays.h"
+
+1311573461 /home/jack/Code/Tap/prim_arr.h
+	"structs.h"
+
+1314068032 /home/jack/Code/Tap/prim_str.h
+	"structs.h"
+
+1314593822 source:/home/jack/Code/Tap/prim_str.c
+	<stdlib.h>
+	<math.h>
+	<string.h>
+	"prim_flt.h"
+	"prim_str.h"
+	"constants.h"
+	"dep_structs.h"
+	"externs.h"
+	"engine.h"
+	"constructors.h"
+	"casting.h"
+	"strings.h"
+	"arrays.h"
+	"hashtable.h"
+
+1314067962 source:/home/jack/Code/Tap/prim_typ.c
+	<stdlib.h>
+	<string.h>
+	"prim_typ.h"
+	"constants.h"
+	"engine.h"
+	"constructors.h"
+
+1314068025 /home/jack/Code/Tap/prim_typ.h
+	"structs.h"
+
+1314063525 source:/home/jack/Code/Tap/prim_nil.c
+	<string.h>
+	"prim_nil.h"
+	"prim_int.h"
+	"constants.h"
+	"constructors.h"
+	"strings.h"
+
+1313859131 source:/home/jack/Code/Tap/arrays.c
+	<stdlib.h>
+	"arrays.h"
+	"engine.h"
+	"constructors.h"
+
+1311729722 /home/jack/Code/Tap/arrays.h
+	"structs.h"
+
+1314593822 /home/jack/Code/Tap/constructors.h
+	"structs.h"
+	"dep_structs.h"
+
+1314593822 source:/home/jack/Code/Tap/constructors.c
+	<stdlib.h>
+	<string.h>
+	"constructors.h"
+	"constants.h"
+	"memory.h"
+
+1314593822 source:/home/jack/Code/Tap/prim_fun.c
+	<stdlib.h>
+	"prim_fun.h"
+	"constants.h"
+	"structs.h"
+	"engine.h"
+	"constructors.h"
+
+1313821249 /home/jack/Code/Tap/prim_fun.h
+	"structs.h"
+
+1314488746 /home/jack/Code/Tap/memory.h
+	"structs.h"
+
+1314572022 source:/home/jack/Code/Tap/memory.c
+	<stdlib.h>
+	"memory.h"
+	"constants.h"
+
+1311561647 /home/jack/Code/Tap/prim_nil.h
+	"structs.h"
+
+1340671794 source:/home/jack/Code/AppTap/Tap/arrays.c
+	<stdlib.h>
+	"arrays.h"
+	"engine.h"
+	"constructors.h"
+
+1340671812 /home/jack/Code/AppTap/Tap/arrays.h
+	"structs.h"
+
+1358354614 /home/jack/Code/AppTap/Tap/structs.h
+	"typedefs.h"
+
+1340671806 /home/jack/Code/AppTap/Tap/typedefs.h
+	"time.h"
+
+1351112115 /home/jack/Code/AppTap/Tap/engine.h
+	"structs.h"
+	"dep_structs.h"
+
+1351633843 /home/jack/Code/AppTap/Tap/dep_structs.h
+	"hashtable.h"
+
+1340671806 /home/jack/Code/AppTap/Tap/hashtable.h
+	"memory.h"
+	"structs.h"
+	"typedefs.h"
+
+1352779760 /home/jack/Code/AppTap/Tap/constructors.h
+	"structs.h"
+	"dep_structs.h"
+
+1340671808 source:/home/jack/Code/AppTap/Tap/debug.c
+	<stdio.h>
+	"debug.h"
+	"constants.h"
+
+1340671806 /home/jack/Code/AppTap/Tap/debug.h
+	"structs.h"
+	"dep_structs.h"
+
+1358354983 /home/jack/Code/AppTap/Tap/constants.h
+	<math.h>
+
+1358488663 source:/home/jack/Code/AppTap/Tap/engine.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<time.h>
+	"engine.h"
+	"constants.h"
+	"externs.h"
+	"structs.h"
+	"typedefs.h"
+	"constructors.h"
+	"memory.h"
+	"strings.h"
+	"dates.h"
+	"prim_nil.h"
+	"prim_exp.h"
+	"prim_laz.h"
+	"prim_int.h"
+	"prim_flo.h"
+	"prim_str.h"
+	"prim_arr.h"
+	"prim_dat.h"
+	"prim_obj.h"
+	"prim_fun.h"
+	"prim_typ.h"
+	"debug.h"
+
+1351633731 /home/jack/Code/AppTap/Tap/externs.h
+	"constants.h"
+
+1340671814 /home/jack/Code/AppTap/Tap/memory.h
+	"structs.h"
+
+1347557398 /home/jack/Code/AppTap/Tap/strings.h
+	"structs.h"
+
+1357405447 /home/jack/Code/AppTap/Tap/prim_int.h
+	"structs.h"
+
+1311561450 /home/jack/Code/AppTap/Tap/prim_flt.h
+	"structs.h"
+
+1351110960 /home/jack/Code/AppTap/Tap/prim_str.h
+	"structs.h"
+
+1340671794 /home/jack/Code/AppTap/Tap/prim_arr.h
+	"structs.h"
+
+1346732233 /home/jack/Code/AppTap/Tap/prim_laz.h
+	"structs.h"
+
+1357406365 /home/jack/Code/AppTap/Tap/prim_typ.h
+	"structs.h"
+
+1358539573 source:/home/jack/Code/AppTap/Tap/main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	"engine.h"
+	"constants.h"
+	"constructors.h"
+
+1357405805 source:/home/jack/Code/AppTap/Tap/memory.c
+	<stdlib.h>
+	"memory.h"
+	"constants.h"
+
+1340671794 source:/home/jack/Code/AppTap/Tap/prim_arr.c
+	<stdlib.h>
+	<string.h>
+	"prim_arr.h"
+	"constants.h"
+	"engine.h"
+	"constructors.h"
+	"casting.h"
+	"arrays.h"
+
+1351050431 /home/jack/Code/AppTap/Tap/casting.h
+	"structs.h"
+
+1333759502 source:/home/jack/Code/AppTap/Tap/prim_flt.c
+	<stdlib.h>
+	<math.h>
+	"prim_int.h"
+	"constants.h"
+	"structs.h"
+	"typedefs.h"
+	"casting.h"
+
+1351010700 source:/home/jack/Code/AppTap/Tap/prim_nil.c
+	<string.h>
+	"prim_nil.h"
+	"prim_int.h"
+	"constants.h"
+	"constructors.h"
+	"strings.h"
+
+1340671810 /home/jack/Code/AppTap/Tap/prim_nil.h
+	"structs.h"
+
+1358357553 source:/home/jack/Code/AppTap/Tap/prim_typ.c
+	<stdlib.h>
+	<string.h>
+	"prim_typ.h"
+	"constants.h"
+	"engine.h"
+	"constructors.h"
+	"externs.h"
+	"types.h"
+	"strings.h"
+
+1357417686 source:/home/jack/Code/AppTap/Tap/casting.c
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	"casting.h"
+	"constants.h"
+	"engine.h"
+	"constructors.h"
+	"strings.h"
+
+1358357443 source:/home/jack/Code/AppTap/Tap/constructors.c
+	<stdlib.h>
+	<string.h>
+	"constructors.h"
+	"constants.h"
+	"memory.h"
+	"strings.h"
+
+1351128437 source:/home/jack/Code/AppTap/Tap/hashtable.c
+	<stdlib.h>
+	<string.h>
+	"hashtable.h"
+	"constants.h"
+	"structs.h"
+	"strings.h"
+
+1348094914 source:/home/jack/Code/AppTap/Tap/prim_fun.c
+	<stdlib.h>
+	<string.h>
+	"prim_fun.h"
+	"constants.h"
+	"structs.h"
+	"engine.h"
+	"constructors.h"
+
+1348094552 /home/jack/Code/AppTap/Tap/prim_fun.h
+	"structs.h"
+
+1357405613 source:/home/jack/Code/AppTap/Tap/prim_int.c
+	<stdlib.h>
+	<string.h>
+	<math.h>
+	"prim_int.h"
+	"prim_flo.h"
+	"constants.h"
+	"structs.h"
+	"typedefs.h"
+	"engine.h"
+	"constructors.h"
+	"casting.h"
+
+1351143550 source:/home/jack/Code/AppTap/Tap/prim_laz.c
+	<stdlib.h>
+	<string.h>
+	"prim_laz.h"
+	"prim_int.h"
+	"constants.h"
+	"engine.h"
+	"constructors.h"
+	"strings.h"
+
+1358281593 source:/home/jack/Code/AppTap/Tap/prim_str.c
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<time.h>
+	<limits.h>
+	"prim_flo.h"
+	"prim_str.h"
+	"constants.h"
+	"dep_structs.h"
+	"externs.h"
+	"engine.h"
+	"constructors.h"
+	"casting.h"
+	"strings.h"
+	"arrays.h"
+	"dates.h"
+	"hashtable.h"
+
+1347557569 source:/home/jack/Code/AppTap/Tap/strings.c
+	<math.h>
+	<stdlib.h>
+	<string.h>
+	"strings.h"
+	"constants.h"
+	"constructors.h"
+
+1357405459 /home/jack/Code/AppTap/Tap/prim_flo.h
+	"structs.h"
+
+1357405608 source:/home/jack/Code/AppTap/Tap/prim_flo.c
+	<stdlib.h>
+	<math.h>
+	"prim_int.h"
+	"constants.h"
+	"structs.h"
+	"typedefs.h"
+	"constructors.h"
+	"casting.h"
+
+1340671804 /home/jack/Code/AppTap/Tap/prim_exp.h
+	"structs.h"
+
+1340671812 /home/jack/Code/AppTap/Tap/prim_dat.h
+	"structs.h"
+
+1348094676 /home/jack/Code/AppTap/Tap/prim_obj.h
+	"structs.h"
+
+1340671812 source:/home/jack/Code/AppTap/Tap/prim_dat.c
+	<stdlib.h>
+	"prim_dat.h"
+	"constants.h"
+	"casting.h"
+	"constructors.h"
+	"dates.h"
+
+1340671805 source:/home/jack/Code/AppTap/Tap/prim_exp.c
+	"prim_exp.h"
+
+1348116647 source:/home/jack/Code/AppTap/Tap/prim_obj.c
+	"prim_obj.h"
+	"constants.h"
+	"constructors.h"
+
+1340671814 source:/home/jack/Code/AppTap/Tap/dates.c
+	<stdio.h>
+	<time.h>
+	"dates.h"
+	"constants.h"
+	"memory.h"
+
+1340671796 /home/jack/Code/AppTap/Tap/dates.h
+	"structs.h"
+
+1358357549 /home/jack/Code/AppTap/Tap/types.h
+	"structs.h"
+
+1358358071 source:/home/jack/Code/AppTap/Tap/types.c
+	<string.h>
+	"types.h"
+
