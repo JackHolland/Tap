@@ -301,7 +301,7 @@ void prim_sFind (expression* args[], int numargs, exprvals* returnval, datatype*
 */
 void prim_sFindlast (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
     string* haystack = args[0]->ev.strval;
-    char* result;
+    char* result = NULL;
     if (args[1]->type == TYPE_INT) {
         result = strrchr(haystack->content, castToInt(args[1]));
     } else {
@@ -678,7 +678,7 @@ void prim_sStr (expression* args[], int numargs, exprvals* returnval, datatype* 
 */
 void prim_sArr (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
     string* str = args[0]->ev.strval;
-    string* delimeter;
+    string* delimeter = NULL;
     array* arrval;
     int dsize;
     int i;

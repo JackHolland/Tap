@@ -408,7 +408,7 @@ expression* evaluate (expression* head) {
             resetEnvironment(); // clear any variables created in the current environment and reset to the previous one
         } else if (head->type == TYPE_STR || head->type == TYPE_FUN) { // if the expression is a string or a function
             primfunction* pfunc = NULL; // a primitive function pointer
-            userfunction* ufunc; // a user function pointer
+            userfunction* ufunc = NULL; // a user function pointer
             hashlist* hl1; // hash elements list used for temporary storage
             hashlist* hl2;
             tempexpr1 = head->next;
@@ -895,7 +895,7 @@ void resetEnvironment () {
     @return         the value mapped to the name
 */
 expression* getVarValue (char* name) {
-    expression* found;
+    expression* found = NULL;
     int cenv = cenvironment;
     while (cenv >= 0) { // while there are more environments to check
         hashlist* list1 = (hashlist*)lookupHashes(environments[cenv]->variables, name); // look for the value with the given name/key
