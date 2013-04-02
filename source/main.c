@@ -21,9 +21,9 @@ extern errorlist* errors;
     @return         the return code of the program (EXIT_SUCCESS for a successful output, another code for an error)
 */
 int main (int argc, char* argv[]) {
-    if (argc >= 1 /*2*/) {
+    if (argc >= 2) {
         initializeGlobals();
-        expression* parsed = parse("(new-type \"blah\" [(required \"x\") (property \"y\" 3)]) ((new blah [(x 4)]) \"x\")" /*argv[1]*/);
+        expression* parsed = parse(argv[1]);
         expression* evaluated;
         if (errors == NULL) {
             evaluated = evaluate(parsed);

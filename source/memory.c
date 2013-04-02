@@ -101,3 +101,15 @@ static void freeExpr_ (expression* expr, int next) {
         free(expr); // free the expression itself
     }
 }
+
+/*! Frees from memory the given array and all its content
+    @param arr      the array to free from memory
+    @return         nothing
+*/
+void freeArray (array* arr) {
+	int i;
+	for (i = arr->start; i < arr->end; i++) {
+		freeExpr(arr->content[i]);
+	}
+	free(arr);
+}

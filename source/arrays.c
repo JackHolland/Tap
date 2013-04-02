@@ -8,7 +8,6 @@
 #include <stdlib.h>
 
 #include "arrays.h"
-#include "engine.h"
 #include "constructors.h"
 
 /*! Resizes the given array using the given start and end indices

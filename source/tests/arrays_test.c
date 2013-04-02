@@ -5,35 +5,38 @@
     (C) 2011 Jack Holland. All rights reserved.
 */
 
-#include <stdio.h>
-#include <string.h>
-
 #include "../../testing/cspec.h"
 #include "../../testing/cspec_output_header.h"
 #include "../../testing/cspec_output_unit.h"
 #include "../../testing/cspec_output_verbose.h"
 
-DESCRIBE(strcmp, "int strcmp ( const char * str1, const char * str2 )")
+#include "../arrays.h"
+#include "../constructors.h"
+#include "../constants.h"
 
-	IT( "returns 0 only when strings are equal" )
-		SHOULD_EQUAL( strcmp("hello", "hello"), 0)
-		SHOULD_NOT_BE_NULL( strcmp("hello", "world") )
+DESCRIBE(resizeArray, "array* resizeArray (array* arr, int start, int end)")
+	array* arr1 = newArray(3);
+	arr1->content[0] = newExpression_int(2);
+	arr1->content[1] = newExpression_int(3);
+	arr1->content[2] = newExpression_flo(4.0);
+	
+	IT("returns the same array with a smaller size when the size is reduced")
+		array* result = resizeArray(arr1, 0, 1);
+		SHOULD_EQUAL(result, arr1)
+		SHOULD_EQUAL(result->size, 2)
 	END_IT
-
-	IT( "returns a negative integer when str1 is less than str2"  )
-		SHOULD_BE_TRUE( strcmp("hello", "world") < 0 )
-		SHOULD_BE_TRUE( strcmp("0123", "1321431") < 0 )
+	
+	IT("returns a bigger array with new items set to nil when the size is increased")
+		array* result = resizeArray(arr1, 0, 3);
+		SHOULD_EQUAL(result->size, 3)
+		SHOULD_EQUAL(result->content[3]->type, TYPE_NIL)
 	END_IT
-
-	IT( "returns a positive integer if str1 is greater than str2"  )
-		SHOULD_BE_TRUE( strcmp("yellow", "world") > 0 )
-		SHOULD_BE_TRUE( strcmp("9", "789") > 0 )
-	END_IT
-
+	
+	freeArray(arr1);
 END_DESCRIBE
 
 int main () {
-	CSpec_Run(DESCRIPTION(strcmp), CSpec_NewOutputHeader());
+	CSpec_Run(DESCRIPTION(resizeArray), CSpec_NewOutputUnit());
 	
 	return 0;
 }

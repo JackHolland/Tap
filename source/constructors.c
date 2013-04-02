@@ -28,6 +28,26 @@ inline expression* newExpression_t (datatype type) {
     return newExpression_all(type, NULL, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
+/*! Creates a new expression struct with the given integer as its value
+    @param value    the integer to be stored in the expression
+    @return         the new expression struct
+*/
+inline expression* newExpression_int (long value) {
+	exprvals ev;
+	ev.intval = value;
+    return newExpression_all(TYPE_INT, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+}
+
+/*! Creates a new expression struct with the given float as its value
+    @param value    the float to be stored in the expression
+    @return         the new expression struct
+*/
+inline expression* newExpression_flo (double value) {
+	exprvals ev;
+	ev.floval = value;
+    return newExpression_all(TYPE_FLO, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+}
+
 /*! Creates a new expression struct with the given properties
     @param type     the type of data to be stored in the expression
     @param ev       the expression values union to be stored in the expression
