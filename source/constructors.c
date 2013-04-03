@@ -12,6 +12,9 @@
 #include "constants.h"
 #include "memory.h"
 #include "strings.h"
+#include "arrays.h"
+
+static array* copyArray_(array*, int);
 
 /*! Creates a new expression struct with the default properties
     @return     the new expression struct
@@ -157,8 +160,43 @@ array* newArray (int size) {
     array* arr = allocate(sizeof(array) + sizeof(expression*) * size); // allocate the needed memory
     arr->size = size; // set the expression's size to the given size
     arr->start = 0; // set the start and end points to cover the entire array
-    arr->end = size;
+    arr->end = size - 1;
     return arr;
+}
+
+/*! Copies the given array but uses the same element pointers
+    @param arr      the array to copy
+    @return         the new, duplicate array
+*/
+inline array* copyArray (array* arr) {
+	return copyArray_(arr, 0);
+}
+
+/*! Copies the given array and its elements
+    @param arr      the array to copy
+    @return         the new, duplicate array
+*/
+inline array* copyArrayDeep (array* arr) {
+	return copyArray_(arr, 1);
+}
+
+/*! A helper function for copyArray and copyArrayDeep
+    @param arr      the array to copy
+    @param deep     whether or not to free the expressions in the array
+    @return         the new, duplicate array
+*/
+static array* copyArray_ (array* arr, int deep) {
+	array* newarr = newArray(arrayUsedSize(arr));
+	int i;
+	int j;
+	for (i = arr->start, j = 0; i <= arr->end; i++, j++) {
+		if (deep) {
+			newarr->content[j] = copyExpression(arr->content[i]);
+		} else {
+			newarr->content[j] = arr->content[i];
+		}
+	}
+	return newarr;
 }
 
 /*! Creates a new object struct with the given type and properties list

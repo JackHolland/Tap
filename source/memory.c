@@ -70,12 +70,7 @@ static void freeExpr_ (expression* expr, int next) {
                 free(ev.strval); // free the string content
                 break;
             case TYPE_ARR:
-                if (ev.arrval->size > 0) {
-                    for (i = 0; i < ev.arrval->size; i++) { // free each expression element in the array
-                        freeExpr(ev.arrval->content[i]);
-                    }
-                }
-                free(ev.arrval); // free the array content
+                freeArray(ev.arrval);
                 break;
             //case TYPE_OBJ: TODO
             case TYPE_FUN:
@@ -108,7 +103,7 @@ static void freeExpr_ (expression* expr, int next) {
 */
 void freeArray (array* arr) {
 	int i;
-	for (i = arr->start; i < arr->end; i++) {
+	for (i = arr->start; i <= arr->end; i++) {
 		freeExpr(arr->content[i]);
 	}
 	free(arr);

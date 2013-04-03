@@ -20,6 +20,8 @@ expression* copyExpression(expression*);
 lazyexpr* newLazyexpr();
 string* newString(char*);
 array* newArray(int);
+array* copyArray(array*);
+array* copyArrayDeep(array*);
 object* newObject(datatype, property*);
 object* copyObject(object*);
 type* newType(datatype, char*, stringlist*, typelist*, property*);
