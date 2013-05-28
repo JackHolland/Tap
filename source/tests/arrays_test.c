@@ -19,6 +19,14 @@
 
 void freeIfDiffArrays(array*, array*);
 
+DESCRIBE(arrayUsedSize, "int arrayUsedSize (array* arr)")
+	array* arr1 = newArray(3);
+	IT("returns the size of the used portion of the array")
+		SHOULD_EQUAL(arrayUsedSize(arr1), 3)
+	END_IT
+	freeArray(arr1);
+END_DESCRIBE
+
 DESCRIBE(resizeArray, "array* resizeArray (array* arr, int start, int end)")
 	array* arr1 = newArray(3);
 	arr1->content[0] = newExpression_int(2);
@@ -49,6 +57,7 @@ DESCRIBE(resizeArray, "array* resizeArray (array* arr, int start, int end)")
 END_DESCRIBE
 
 int main () {
+	CSpec_Run(DESCRIPTION(arrayUsedSize), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(resizeArray), CSpec_NewOutputUnit());
 	
 	return 0;
