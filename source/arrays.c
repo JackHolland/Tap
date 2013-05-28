@@ -47,7 +47,6 @@ array* resizeArray (array* arr, int start, int end) {
 		}
 	} else {
 		for (i = 0; i < start; i++) {
-			printf("i: %d\n", arrstart);
 			freeExpr(arr->content[arrstart++]);
 		}
 	}

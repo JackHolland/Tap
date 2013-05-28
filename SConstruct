@@ -10,3 +10,4 @@ env.Program('tap', append(sources, 'source/main.c'))
 
 env.Append(LIBS = 'cspec', LIBPATH = 'testing/')
 env.Program('source/tests/arrays_test', append(sources, 'source/tests/arrays_test.c'))
+env.Program('source/tests/casting_test', append(sources, 'source/tests/casting_test.c'))

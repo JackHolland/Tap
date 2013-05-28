@@ -8,9 +8,7 @@
 #include <stdlib.h>
 
 #include "../../testing/cspec.h"
-#include "../../testing/cspec_output_header.h"
 #include "../../testing/cspec_output_unit.h"
-#include "../../testing/cspec_output_verbose.h"
 
 #include "../arrays.h"
 #include "../constructors.h"
@@ -24,7 +22,7 @@ DESCRIBE(arrayUsedSize, "int arrayUsedSize (array* arr)")
 	IT("returns the size of the used portion of the array")
 		SHOULD_EQUAL(arrayUsedSize(arr1), 3)
 	END_IT
-	freeArray(arr1);
+	freeArr(arr1);
 END_DESCRIBE
 
 DESCRIBE(resizeArray, "array* resizeArray (array* arr, int start, int end)")
@@ -41,7 +39,7 @@ DESCRIBE(resizeArray, "array* resizeArray (array* arr, int start, int end)")
 		SHOULD_EQUAL(result->content[0]->ev.intval, 2)
 		SHOULD_EQUAL(result->content[1]->ev.intval, 3)
 		freeIfDiffArrays(result, arr1);
-		freeArray(arr1);
+		freeArr(arr1);
 	END_IT
 	
 	IT("returns a bigger array with new items set to nil when the size is increased")
@@ -52,7 +50,7 @@ DESCRIBE(resizeArray, "array* resizeArray (array* arr, int start, int end)")
 		SHOULD_EQUAL(result->content[2]->ev.floval, 4.0)
 		SHOULD_EQUAL(result->content[3]->type, TYPE_NIL)
 		freeIfDiffArrays(arr2, result);
-		freeArray(result);
+		freeArr(result);
 	END_IT
 END_DESCRIBE
 

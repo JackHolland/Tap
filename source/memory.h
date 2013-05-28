@@ -13,6 +13,7 @@
 void* allocate(size_t);
 void freeExpr(expression*);
 void freeExprNR(expression*);
-void freeArray(array*);
+void freeStr(string*);
+void freeArr(array*);
 
 #endif

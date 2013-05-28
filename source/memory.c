@@ -66,11 +66,10 @@ static void freeExpr_ (expression* expr, int next) {
                 free(ev.lazval); // free the lazy expression content
                 break;
             case TYPE_STR:
-                free(ev.strval->content); // free the actual string contained in the string content
-                free(ev.strval); // free the string content
+                freeStr(ev.strval);
                 break;
             case TYPE_ARR:
-                freeArray(ev.arrval);
+                freeArr(ev.arrval);
                 break;
             //case TYPE_OBJ: TODO
             case TYPE_FUN:
@@ -97,11 +96,20 @@ static void freeExpr_ (expression* expr, int next) {
     }
 }
 
-/*! Frees from memory the given array and all its content
+/*! Frees from memory the given string and its content
+	@param str		the string to free from memory
+	@return			nothing
+*/
+void freeStr (string* str) {
+	free(str->content);
+	free(str);
+}
+
+/*! Frees from memory the given array and its content
     @param arr      the array to free from memory
     @return         nothing
 */
-void freeArray (array* arr) {
+void freeArr (array* arr) {
 	int i;
 	for (i = arr->start; i <= arr->end; i++) {
 		freeExpr(arr->content[i]);

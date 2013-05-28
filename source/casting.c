@@ -27,9 +27,9 @@ expression* castToNum (string* string, int base) {
         base = BASE;
     }
     int ucharmin = 'A';
-    int ucharmax = base + 'A';
+    int ucharmax = (base - 10) + 'A';
     int lcharmin = 'a';
-    int lcharmax = base + 'a';
+    int lcharmax = (base - 10) + 'a';
     double result = 0;
     int digit = 1;
     int situation = 0;
