@@ -400,13 +400,13 @@ expression* evaluate (expression* head) {
                     return evaluate(head);
                 } else {
                     head->next = NULL;
-                    freeExpr(head);
-                    tempexpr1 = evaluate(tempexpr1);
-                    return tempexpr1;
+                	freeExpr(head);
+                	tempexpr1 = evaluate(tempexpr1);
+                	return tempexpr1;
                 }
             }
             resetEnvironment(); // clear any variables created in the current environment and reset to the previous one
-        } else if (head->type == TYPE_STR || head->type == TYPE_FUN) { // if the expression is a string or a function
+        } else if ((head->type == TYPE_STR && head->flag == EFLAG_VAR) || head->type == TYPE_FUN) { // if the expression is a string or a function
             primfunction* pfunc = NULL; // a primitive function pointer
             userfunction* ufunc = NULL; // a user function pointer
             hashlist* hl1; // hash elements list used for temporary storage

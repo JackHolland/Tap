@@ -15,6 +15,8 @@ expression* newExpression();
 expression* newExpression_t(datatype);
 expression* newExpression_int(long);
 expression* newExpression_flo(double);
+expression* newExpression_str(string*);
+expression* newExpression_laz(expression*);
 expression* newExpression_all(datatype, exprvals*, expression*, linenum);
 expression* copyExpression(expression*);
 lazyexpr* newLazyexpr();

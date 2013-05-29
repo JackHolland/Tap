@@ -51,6 +51,27 @@ inline expression* newExpression_flo (double value) {
     return newExpression_all(TYPE_FLO, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
+/*! Creates a new expression struct with the given string as its value
+    @param value    the string to be stored in the expression
+    @return         the new expression struct
+*/
+inline expression* newExpression_str (string* value) {
+	exprvals ev;
+	ev.strval = value;
+    return newExpression_all(TYPE_STR, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+}
+
+/*! Creates a new lazy expression struct with the given expression as its value
+    @param value    the lazy expression to be stored in the expression
+    @return         the new expression struct
+*/
+inline expression* newExpression_laz (expression* value) {
+	exprvals ev;
+	ev.lazval = newLazyexpr();
+	ev.lazval->expval = value;
+    return newExpression_all(TYPE_LAZ, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+}
+
 /*! Creates a new expression struct with the given properties
     @param type     the type of data to be stored in the expression
     @param ev       the expression values union to be stored in the expression

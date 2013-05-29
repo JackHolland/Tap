@@ -105,7 +105,10 @@ int castToInt (expression* expr) {
             return atoi(expr->ev.strval->content);
         }
     } else if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression then evaluate it and try to cast it again
-        return castToInt(evaluateLazy(expr));
+    	expression* lazy = evaluateLazy(copyExpression(expr));
+        int result = castToInt(lazy);
+        freeExpr(lazy);
+        return result;
     }
     return NIL; // if the expression can't be cast as an integer then return nil
 }
@@ -115,20 +118,7 @@ int castToInt (expression* expr) {
     @return         the boolean value (0 or 1) of the given expression
 */
 expression* castToBoo (expression* expr) {
-    expression* result;
-    if (expr->type == TYPE_INT) {
-        result = newExpression_t(TYPE_INT);
-        result->ev.intval = expr->ev.intval;
-        return result;
-    } else if (expr->type == TYPE_LAZ) {
-        result = copyExpression(evaluateLazy(expr->ev.lazval->expval));
-        expression* tempexpr = result;
-        result = castToBoo(result);
-        freeExpr(tempexpr);
-        return result;
-    } else {
-        return newExpression_t(TYPE_NIL);
-    }
+	return newExpression_int(castToInt(expr) != 0);
 }
 
 /*! Returns the given float bankers'-rounded to the nearest digit of accuracy (returns an int if no accuracy specified)
