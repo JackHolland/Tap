@@ -116,3 +116,4 @@ void freeArr (array* arr) {
 	}
 	free(arr);
 }
+

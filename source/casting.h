@@ -11,7 +11,7 @@
 #include "structs.h"
 
 expression* castToNum(string*, int);
-int castToInt(expression*);
+long castToInt(expression*);
 expression* castToBoo(expression*);
 expression* fRound(double, int);
 double castToFlo(expression*);

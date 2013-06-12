@@ -6,6 +6,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "../../testing/cspec.h"
 #include "../../testing/cspec_output_unit.h"
@@ -61,7 +62,7 @@ DESCRIBE(castToNum, "expression* castToNum (string* string, int base)")
 	freeStr(str4);
 END_DESCRIBE
 
-DESCRIBE(castToInt, "int castToInt (expression* expr)")
+DESCRIBE(castToInt, "long castToInt (expression* expr)")
 	expression* expr;
 	
 	IT("returns the value of integer expressions")
@@ -136,10 +137,168 @@ DESCRIBE(castToBoo, "expression* castToBoo (expression* expr)")
 	END_IT
 END_DESCRIBE
 
+DESCRIBE(fRound, "expression* fRound (double result, int digits)")
+	expression* expr;
+	
+	IT("rounds floats to integers")
+		expr = fRound(101.3, -1);
+		SHOULD_EQUAL(expr->ev.intval, 101)
+		freeExpr(expr);
+		expr = fRound(34.5, -1);
+		SHOULD_EQUAL(expr->ev.intval, 34)
+		freeExpr(expr);
+		expr = fRound(35.5, -1);
+		SHOULD_EQUAL(expr->ev.intval, 36)
+		freeExpr(expr);
+	END_IT
+	
+	IT("rounds floats to arbitrary precisions")
+		expr = fRound(203.45, 1);
+		SHOULD_EQUAL(expr->ev.floval, 203.4)
+		freeExpr(expr);
+		expr = fRound(-0.5689, 3);
+		SHOULD_EQUAL(expr->ev.floval, -0.569)
+		freeExpr(expr);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(castToFlo, "double castToFlo (expression* expr)")
+	expression* expr;
+	
+	IT("returns the value of float expressions")
+		expr = newExpression_flo(37.2);
+		SHOULD_EQUAL(castToFlo(expr), 37.2)
+		freeExpr(expr);
+	END_IT
+	
+	IT("casts integers to their floating point equivalents")
+		expr = newExpression_int(-11);
+		SHOULD_EQUAL(castToFlo(expr), -11.0)
+		freeExpr(expr);
+	END_IT
+	
+	IT("casts numeric strings to floats and non-numeric strings to nil")
+		expr = newExpression_str(newString(strDup("82.8")));
+		SHOULD_EQUAL(castToFlo(expr), 82.8)
+		freeExpr(expr);
+		expr = newExpression_str(newString(strDup("abc")));
+		SHOULD_EQUAL(castToFlo(expr), NIL)
+		freeExpr(expr);
+	END_IT
+	
+	IT("evaluates lazy expressions and tries to cast their results to floats")
+		initializeGlobals();
+		expr = newExpression_laz(newExpression_flo(-78.9));
+		SHOULD_EQUAL(castToFlo(expr), -78.9)
+		freeExpr(expr);
+		expr = newExpression_laz(newExpression_str(newString(strDup("xyz"))));
+		SHOULD_EQUAL(castToFlo(expr), NIL)
+		freeExpr(expr);
+		freeGlobals();
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(castToStr, "string* castToStr (expression* expr)")
+	expression* expr;
+	string* result;
+	
+	IT("returns the value of string expressions")
+		expr = newExpression_str(newString(strDup("abcd")));
+		result = castToStr(expr);
+		SHOULD_EQUAL(strcmp(result->content, expr->ev.strval->content), 0)
+		freeStr(result);
+		freeExpr(expr);
+	END_IT
+	
+	IT("casts integers into their string equivalents")
+		expr = newExpression_int(7);
+		result = castToStr(expr);
+		SHOULD_EQUAL(strcmp(result->content, "7"), 0)
+		freeStr(result);
+		freeExpr(expr);
+	END_IT
+	
+	IT("casts floats into their string equivalents")
+		expr = newExpression_flo(22.0);
+		result = castToStr(expr);
+		SHOULD_EQUAL(strcmp(result->content, "22.000000"), 0)
+		freeStr(result);
+		freeExpr(expr);
+	END_IT
+	
+	IT("evaluates lazy expressions and tries to cast their results to strings")
+		initializeGlobals();
+		expr = newExpression_laz(newExpression_int(6));
+		result = castToStr(expr);
+		SHOULD_EQUAL(strcmp(result->content, "6"), 0)
+		freeStr(result);
+		freeExpr(expr);
+		freeGlobals();
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(castToStrWithBase, "string* castToStrWithBase (int intval, uint base)")
+	string* result;
+	
+	IT("casts base 10 integers into strings")
+		result = castToStrWithBase(5, 10);
+		SHOULD_EQUAL(strcmp(result->content, "5"), 0)
+		freeStr(result);
+		result = castToStrWithBase(23, 10);
+		SHOULD_EQUAL(strcmp(result->content, "23"), 0)
+		freeStr(result);
+		result = castToStrWithBase(-189, 10);
+		SHOULD_EQUAL(strcmp(result->content, "-189"), 0)
+		freeStr(result);
+	END_IT
+	
+	IT("casts integers in any base into strings")
+		result = castToStrWithBase(5, 2);
+		SHOULD_EQUAL(strcmp(result->content, "101"), 0)
+		freeStr(result);
+		result = castToStrWithBase(23, 16);
+		SHOULD_EQUAL(strcmp(result->content, "17"), 0)
+		freeStr(result);
+		result = castToStrWithBase(-189, 5);
+		SHOULD_EQUAL(strcmp(result->content, "-1224"), 0)
+		freeStr(result);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(alphaNumeric, "uint alphaNumeric (uint number)")
+	IT("returns '0' to '9' unmodified")
+		SHOULD_EQUAL(alphaNumeric('0'), '0')
+		SHOULD_EQUAL(alphaNumeric('9'), '9')
+	END_IT
+	
+	IT("returns the appropriate character for values above '9')")
+		SHOULD_EQUAL(alphaNumeric('9' + 1), 'A')
+		SHOULD_EQUAL(alphaNumeric('8' + 3), 'B')
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(castToArr, "array* castToArr (expression* expr)")
+	expression* expr;
+	array* result;
+	
+	IT("returns the value of array expressions")
+		expr = newExpression_arr(newArray(3));
+		result = castToArr(expr);
+		SHOULD_EQUAL(result->size, 3)
+		freeExpr(expr);
+	END_IT
+END_DESCRIBE
+
 int main () {
 	CSpec_Run(DESCRIPTION(castToNum), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(castToInt), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(castToBoo), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(fRound), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(castToFlo), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(castToStr), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(castToStrWithBase), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(alphaNumeric), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(castToArr), CSpec_NewOutputUnit());
 	
 	return 0;
 }

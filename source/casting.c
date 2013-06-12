@@ -86,15 +86,15 @@ expression* castToNum (string* string, int base) {
     @param expr     the expression to cast
     @return         the integer value of the given expression
 */
-int castToInt (expression* expr) {
+long castToInt (expression* expr) {
     if (expr->type == TYPE_INT) { // if the expression is an integer
         return expr->ev.intval; // return the integer
     } else if (expr->type == TYPE_FLO) { // if the expression is a float
         double floval = expr->ev.floval;
         if (floval < 0) { // if the float is negative then subtract 0.5 so the truncating rounding will be accurate
-            return (int)(floval - 0.5);
+            return (long)(floval - 0.5);
         }
-        return (int)(floval + 0.5); // if the float is positive then add 0.5 so the truncating rounding will be accurate
+        return (long)(floval + 0.5); // if the float is positive then add 0.5 so the truncating rounding will be accurate
     } else if (expr->type == TYPE_STR) { // if the expression is a string
         if (expr->flag == EFLAG_VAR) { // if the expression is a variable
             expression* value = getVarValue(expr->ev.strval->content); // get the value the string variable is mapped to
@@ -106,7 +106,7 @@ int castToInt (expression* expr) {
         }
     } else if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression then evaluate it and try to cast it again
     	expression* lazy = evaluateLazy(copyExpression(expr));
-        int result = castToInt(lazy);
+        long result = castToInt(lazy);
         freeExpr(lazy);
         return result;
     }
@@ -117,7 +117,7 @@ int castToInt (expression* expr) {
     @param expr     the expression to cast
     @return         the boolean value (0 or 1) of the given expression
 */
-expression* castToBoo (expression* expr) {
+inline expression* castToBoo (expression* expr) {
 	return newExpression_int(castToInt(expr) != 0);
 }
 
@@ -156,9 +156,9 @@ expression* fRound (double result, int digits) {
         intexpr->ev.intval = (int)result;
         return intexpr;
     } else {
-        expression* fltexpr = newExpression_t(TYPE_FLO);
-        fltexpr->ev.floval = result;
-        return fltexpr;
+        expression* floexpr = newExpression_t(TYPE_FLO);
+        floexpr->ev.floval = result;
+        return floexpr;
     }
 }
 
@@ -181,7 +181,10 @@ double castToFlo (expression* expr) {
             return atof(expr->ev.strval->content);
         }
     } else if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression then evaluate it and try to cast it again
-        return castToFlo(evaluateLazy(expr));
+    	expression* lazy = evaluateLazy(copyExpression(expr));
+        double result = castToFlo(lazy);
+        freeExpr(lazy);
+        return result;
     }
     return NIL; // if the expression can't be cast as a float then return nil
 }
@@ -211,7 +214,10 @@ string* castToStr (expression* expr) {
         sprintf(result, "%f", expr->ev.floval);
         return newString(result);
     } else if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression then evaluate it and try to cast it again
-        return castToStr(evaluateLazy(expr));
+    	expression* lazy = evaluateLazy(copyExpression(expr));
+        string* result = castToStr(lazy);
+        freeExpr(lazy);
+        return result;
     }
     return NIL; // if the expression can't be cast as a string then return nil
 }
@@ -294,14 +300,12 @@ uint alphaNumeric (uint number) {
 array* castToArr (expression* expr) {
     if (expr->type == TYPE_ARR) { // if the expression is an array then return it
         return expr->ev.arrval;
-    } else if (expr->type == TYPE_STR && expr->flag == EFLAG_NONE) { // if the expression is a variable
+    } else if (expr->type == TYPE_STR && expr->flag == EFLAG_VAR) { // if the expression is a variable
         expression* value = getVarValue(expr->ev.strval->content); // get the value the string variable is mapped to
         if (value != NULL) { // if the value was found then try to cast it to an array
             return castToArr(value);
         }
     }
-    // if the expression isn't an array
-    array* result = newArray(1); // create an array with a size of 1
-    result->content[0] = expr; // store the expression in the array
-    return result;
+    return NIL; // if the expression can't be cast as an array then return nil
 }
+

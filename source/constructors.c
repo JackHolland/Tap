@@ -61,6 +61,16 @@ inline expression* newExpression_str (string* value) {
     return newExpression_all(TYPE_STR, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
+/*! Creates a new expression struct with the given array as its value
+    @param value    the array to be stored in the expression
+    @return         the new expression struct
+*/
+inline expression* newExpression_arr (array* value) {
+	exprvals ev;
+	ev.arrval = value;
+    return newExpression_all(TYPE_ARR, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+}
+
 /*! Creates a new lazy expression struct with the given expression as its value
     @param value    the lazy expression to be stored in the expression
     @return         the new expression struct
