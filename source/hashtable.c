@@ -215,7 +215,7 @@ static void deleteHash_ (hashtable* table, int deletetable) {
             list = list->next; // advance to the next item
             free(temp->key); // free the memory of the string key
             if (temp->flag == HFLAG_PRIM) { // if the element is a primitive function then free it
-                typelist* types = ((primfunction*)temp->value)->types;
+                typelist* types = ((tap_prim_fun*)temp->value)->types;
                 while (types != NULL) {
                     typelist* tempat = types->next;
                     free(types);

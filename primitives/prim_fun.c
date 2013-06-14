@@ -21,7 +21,7 @@
     @return             nothing
 */
 void prim_uArgs (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
-    userfunction* fun = args[0]->ev.funval;
+    tap_fun* fun = args[0]->ev.funval;
     int fnumargs;
     if (fun->maxargs == ARGLEN_INF) {
         fnumargs = fun->minargs;
@@ -72,7 +72,7 @@ void prim_uMaxargs (expression* args[], int numargs, exprvals* returnval, dataty
     @return             nothing
 */
 void prim_uStr (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
-    /*userfunction* fun = args[0]->ev.funval;
+    /*tap_fun* fun = args[0]->ev.funval;
     uint size = 11;
     int i;
     for (i = 0; i < fun->numargs; ++i) {
@@ -93,7 +93,7 @@ void prim_uStr (expression* args[], int numargs, exprvals* returnval, datatype* 
 */
 void prim_uFun (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
     *returntype = TYPE_FUN;
-    userfunction* uf = args[0]->ev.funval;
+    tap_fun* uf = args[0]->ev.funval;
     returnval->funval = newUserfunction(NULL, uf->minargs, uf->maxargs, copyExpression(uf->body));
     memcpy(returnval->funval->args, uf->args, sizeof(uf->args));
 }

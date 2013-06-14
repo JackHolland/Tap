@@ -177,7 +177,7 @@ void prim_lIf (expression* args[], int numargs, exprvals* returnval, datatype* r
 void prim_lLaz (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
     *returntype = TYPE_LAZ;
     returnval->lazval = newLazyexpr();
-    lazyexpr* le = args[0]->ev.lazval;
+    tap_laz* le = args[0]->ev.lazval;
     returnval->lazval->expval = copyExpression(le->expval);
     expressionstack* oldref = le->refs;
     expressionstack** newref = &(returnval->lazval->refs);

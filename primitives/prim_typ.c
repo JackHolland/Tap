@@ -112,7 +112,7 @@ void prim_tNew (expression* args[], int numargs, exprvals* returnval, datatype* 
             }
         }
         if (valid) {
-            object* obj = newObject(args[0]->ev.intval, properties);
+            tap_obj* obj = newObject(args[0]->ev.intval, properties);
             *returntype = TYPE_OBJ;
             returnval->objval = obj;
         } else {

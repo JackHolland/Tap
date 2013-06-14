@@ -8,7 +8,7 @@
 #ifndef TYPEDEFS_H
 #define TYPEDEFS_H
 
-#include "time.h"
+#include <time.h>
 
 typedef unsigned int uint;
 typedef uint bool;
@@ -18,3 +18,4 @@ typedef time_t date;
 typedef struct tm tm;
 
 #endif
+

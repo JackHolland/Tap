@@ -407,8 +407,8 @@ expression* evaluate (expression* head) {
             }
             resetEnvironment(); // clear any variables created in the current environment and reset to the previous one
         } else if ((head->type == TYPE_STR && head->flag == EFLAG_VAR) || head->type == TYPE_FUN) { // if the expression is a string or a function
-            primfunction* pfunc = NULL; // a primitive function pointer
-            userfunction* ufunc = NULL; // a user function pointer
+            tap_prim_fun* pfunc = NULL; // a primitive function pointer
+            tap_fun* ufunc = NULL; // a user function pointer
             hashlist* hl1; // hash elements list used for temporary storage
             hashlist* hl2;
             tempexpr1 = head->next;
@@ -653,7 +653,7 @@ expression* evaluateArgument (expression* arg) {
 */
 expression* evaluateLazy (expression* expr) {
     if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression
-        lazyexpr* lazy = expr->ev.lazval;
+        tap_laz* lazy = expr->ev.lazval;
         expression* expval = lazy->expval; // change the expression's structure to a regular expression
         expr->ev.expval = expval;
         expr->type = TYPE_EXP;

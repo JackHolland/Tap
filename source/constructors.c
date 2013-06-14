@@ -138,7 +138,7 @@ expression* copyExpression (expression* expr) {
         if (expr->type == TYPE_EXP) { // copy the child expressions if the expression is a container expression
             ev1->expval = copyExpression(ev2->expval);
         } else if (expr->type == TYPE_LAZ) { // copy the lazy expression content if the expression is lazy
-            lazyexpr* lazy = newLazyexpr();
+            tap_laz* lazy = newLazyexpr();
             lazy->expval = copyExpression(ev2->lazval->expval);
             expressionstack* es2 = ev2->lazval->refs;
             if (es2 == NULL) {
@@ -165,8 +165,8 @@ expression* copyExpression (expression* expr) {
     @param size     the number of elements that initially can be stored in the array
     @return         the new array struct
 */
-lazyexpr* newLazyexpr () {
-    lazyexpr* le = allocate(sizeof(lazyexpr)); // allocate the needed memory
+tap_laz* newLazyexpr () {
+    tap_laz* le = allocate(sizeof(tap_laz)); // allocate the needed memory
     le->expval = NULL;
     le->refs = NULL;
     return le;
@@ -235,8 +235,8 @@ static array* copyArray_ (array* arr, int deep) {
     @param props    the object's list of properties
     @return         the new object struct
 */
-object* newObject (datatype type, property* props) {
-    object* obj = allocate(sizeof(object));
+tap_obj* newObject (datatype type, property* props) {
+    tap_obj* obj = allocate(sizeof(tap_obj));
     obj->type = type;
     obj->props = props;
     return obj;
@@ -246,7 +246,7 @@ object* newObject (datatype type, property* props) {
     @param obj      the object to copy
     @return         the new, duplicate object
 */
-object* copyObject (object* obj) {
+tap_obj* copyObject (tap_obj* obj) {
     property* props = copyProperty(obj->props);
     property* cprop = props->next;
     while (cprop != NULL) {
@@ -313,14 +313,14 @@ property* copyProperty (property* prop) {
     @param body         the list of expressions the function performs when called
     @return             the new user function struct
 */
-userfunction* newUserfunction (argument* args[], int minargs, int maxargs, expression* body) {
+tap_fun* newUserfunction (argument* args[], int minargs, int maxargs, expression* body) {
     int numargs;
     if (maxargs == ARGLEN_INF) {
         numargs = minargs;
     } else {
         numargs = maxargs;
     }
-    userfunction* uf = allocate(sizeof(userfunction) + sizeof(argument*) * numargs); // allocate the needed memory
+    tap_fun* uf = allocate(sizeof(tap_fun) + sizeof(argument*) * numargs); // allocate the needed memory
     uf->body = body; // set the function's body to the given body
     uf->minargs = minargs;
     uf->maxargs = maxargs;
@@ -335,7 +335,7 @@ userfunction* newUserfunction (argument* args[], int minargs, int maxargs, expre
     @param uf   the user function to copy
     @return     the new, duplicate user function
 */
-inline userfunction* copyUserfunction (userfunction* uf) {
+inline tap_fun* copyUserfunction (tap_fun* uf) {
     if (uf == NULL) {
         return NULL;
     } else {
@@ -455,8 +455,8 @@ inline expressionstack* newExpressionstack (expressionstack* current) {
 /*! Creates a function structure, which contains a reference to the primitive function and its return type
     @return     the new function structure
 */
-primfunction* newPrimFunction (void(*address)(expression*[], int, exprvals*, datatype*), int minargs, int maxargs, typelist* types) {
-    primfunction* func = allocate(sizeof(primfunction));
+tap_prim_fun* newPrimFunction (void(*address)(expression*[], int, exprvals*, datatype*), int minargs, int maxargs, typelist* types) {
+    tap_prim_fun* func = allocate(sizeof(tap_prim_fun));
     func->address = address;
     func->minargs = minargs;
     func->maxargs = maxargs;

@@ -12,31 +12,37 @@
 
 typedef union exprvals_ exprvals;
 typedef struct expression_ expression;
-typedef struct lazyexpr_ lazyexpr;
+typedef struct tap_laz_ tap_laz;
 typedef struct string_ string;
 typedef struct array_ array;
-typedef struct object_ object;
+typedef struct tap_obj_ tap_obj;
 typedef struct type_ type;
 typedef struct typedefs_ typedefs;
 typedef struct property_ property;
-typedef struct userfunction_ userfunction;
+typedef struct tap_fun_ tap_fun;
 typedef struct argument_ argument;
 typedef struct typelist_ typelist;
 typedef struct expressionstack_ expressionstack;
-typedef struct primfunction_ primfunction;
+typedef struct tap_prim_fun_ tap_prim_fun;
 typedef struct stringlist_ stringlist;
 typedef struct errorlist_ errorlist;
 
+typedef long tap_int;
+typedef double tap_flo;
+typedef string tap_str;
+typedef array tap_arr;
+typedef time_t tap_dat;
+
 union exprvals_ {
     expression* expval;
-    lazyexpr* lazval;
-    long intval;
-    double floval;
-    string* strval;
-    array* arrval;
-    date datval;
-    object* objval;
-    userfunction* funval;
+    tap_laz* lazval;
+    tap_int intval;
+    tap_flo floval;
+    tap_str* strval;
+    tap_arr* arrval;
+    tap_dat datval;
+    tap_obj* objval;
+    tap_fun* funval;
 };
 
 struct expression_ {
@@ -49,7 +55,7 @@ struct expression_ {
     uint refs;
 };
 
-struct lazyexpr_ {
+struct tap_laz_ {
     expression* expval;
     expressionstack* refs;
 };
@@ -66,7 +72,7 @@ struct array_ {
     expression* content[0];
 };
 
-struct object_ {
+struct tap_obj_ {
     datatype type;
     property* props;
 };
@@ -93,7 +99,7 @@ struct property_ {
     property* next;
 };
 
-struct userfunction_ {
+struct tap_fun_ {
     expression* body;
     int minargs;
     int maxargs;
@@ -116,7 +122,7 @@ struct expressionstack_ {
     expressionstack* next;
 };
 
-struct primfunction_ {
+struct tap_prim_fun_ {
     void(*address)(expression*[], int, exprvals*, datatype*);
     int minargs;
     int maxargs;
