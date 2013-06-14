@@ -12,13 +12,13 @@
 #include "dep_structs.h"
 
 expression* newExpression();
-expression* newExpression_t(datatype);
-expression* newExpression_int(tap_int);
-expression* newExpression_flo(tap_flo);
-expression* newExpression_str(string*);
-expression* newExpression_arr(array*);
-expression* newExpression_laz(expression*);
-expression* newExpression_all(datatype, exprvals*, expression*, linenum);
+expression* newExpressionOfType(datatype);
+expression* newExpressionInt(tap_int);
+expression* newExpressionFlo(tap_flo);
+expression* newExpressionStr(string*);
+expression* newExpressionArr(array*);
+expression* newExpressionLaz(expression*);
+expression* newExpressionAll(datatype, exprvals*, expression*, linenum);
 expression* copyExpression(expression*);
 tap_laz* newLazyexpr();
 string* newString(char*);

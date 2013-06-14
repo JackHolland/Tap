@@ -671,7 +671,7 @@ void prim_fStr (expression* args[], int numargs, exprvals* returnval, datatype* 
 */
 void prim_fArr (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
     array* result = newArray(1);
-    expression* floval = newExpression_t(TYPE_FLO);
+    expression* floval = newExpressionOfType(TYPE_FLO);
     floval->ev.floval = args[0]->ev.floval;
     result->content[0] = floval;
     *returntype = TYPE_STR;

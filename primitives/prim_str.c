@@ -54,7 +54,7 @@ void prim_sNewtype (expression* args[], int numargs, exprvals* returnval, dataty
     char* name = args[0]->ev.strval->content;
     datatype tid = TYPE_UNK;
     if (lookupHash(env->variables, name) == NULL) {
-        expression* expr = newExpression_t(TYPE_TYP);
+        expression* expr = newExpressionOfType(TYPE_TYP);
         expr->ev.intval = ctypeid;
         insertUserHash(env->variables, name, (void*)expr);
         stringlist* required = NULL;
@@ -189,7 +189,7 @@ void prim_sNewtype (expression* args[], int numargs, exprvals* returnval, dataty
         typedefs* td = newTypedefs(typ);
         td->next = env->types;
         env->types = td;
-        expression* typexpr = newExpression_t(TYPE_TYP);
+        expression* typexpr = newExpressionOfType(TYPE_TYP);
         typexpr->ev.intval = tid;
         addToEnvironment(name, typexpr);
     } else {
@@ -358,7 +358,7 @@ void prim_sFindall (expression* args[], int numargs, exprvals* returnval, dataty
                 if (csize >= size) {
                     result = resizeArray(result, 0, result->size * increaseby);
                 }
-                expression* expr = newExpression_t(TYPE_INT);
+                expression* expr = newExpressionOfType(TYPE_INT);
                 expr->ev.intval = i;
                 result->content[csize++] = expr;
                 ++realsize;
@@ -376,7 +376,7 @@ void prim_sFindall (expression* args[], int numargs, exprvals* returnval, dataty
                 if (csize >= size) {
                     result = resizeArray(result, 0, result->size * increaseby);
                 }
-                expression* expr = newExpression_t(TYPE_INT);
+                expression* expr = newExpressionOfType(TYPE_INT);
                 expr->ev.intval = i;
                 result->content[csize++] = expr;
                 ++realsize;
@@ -529,9 +529,9 @@ void prim_sInsert (expression* args[], int numargs, exprvals* returnval, datatyp
     @return             nothing
 */
 void prim_sRemove (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
-    expression* result = newExpression_t(TYPE_STR);
+    expression* result = newExpressionOfType(TYPE_STR);
     result->ev.strval = newString(strDup(args[0]->ev.strval->content));
-    expression* empty = newExpression_t(TYPE_STR);
+    expression* empty = newExpressionOfType(TYPE_STR);
     empty->ev.strval = newString("");
     expression* newargs[3];
     newargs[0] = result;
@@ -627,7 +627,7 @@ void prim_sInt (expression* args[], int numargs, exprvals* returnval, datatype* 
     prim_sFlo(args, numargs, returnval, returntype);
     if (*returntype != TYPE_NIL){
         expression* newargs[1];
-        newargs[0] = newExpression_t(TYPE_FLO);
+        newargs[0] = newExpressionOfType(TYPE_FLO);
         newargs[0]->ev.floval = returnval->floval;
         prim_fRound(newargs, 1, returnval, returntype);
         free(newargs[0]);

@@ -28,7 +28,7 @@ int main (int argc, char* argv[]) {
         if (errors == NULL) {
             evaluated = evaluate(parsed);
         } else {
-            evaluated = newExpression_t(TYPE_NIL);
+            evaluated = newExpressionOfType(TYPE_NIL);
         }
         char* printed = printExpression(evaluated);
         char* errortext = printErrors();

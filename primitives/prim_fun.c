@@ -32,7 +32,7 @@ void prim_uArgs (expression* args[], int numargs, exprvals* returnval, datatype*
     expression* expr;
     int i;
     for (i = 0; i < fnumargs; ++i) {
-        expr = newExpression_t(TYPE_STR);
+        expr = newExpressionOfType(TYPE_STR);
         expr->ev.strval = newString(printArg(fun->args[i]));
         result->content[i] = expr;
     }

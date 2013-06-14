@@ -991,7 +991,7 @@ void prim_iStr (expression* args[], int numargs, exprvals* returnval, datatype* 
 */
 void prim_iArr (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
     array* result = newArray(1);
-    expression* intval = newExpression_t(TYPE_INT);
+    expression* intval = newExpressionOfType(TYPE_INT);
     intval->ev.intval = args[0]->ev.intval;
     result->content[0] = intval;
     *returntype = TYPE_ARR;

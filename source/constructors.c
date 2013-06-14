@@ -16,70 +16,70 @@
 
 static array* copyArray_(array*, int);
 
-/*! Creates a new expression struct with the default properties
+/*! Creates a new expression struct with the default properties (i.e. a nil expression)
     @return     the new expression struct
 */
 inline expression* newExpression () {
-    return newExpression_t(TYPE_NIL); // set the value to nil until a real value is given
+    return newExpressionOfType(TYPE_NIL); // set the value to nil until a real value is given
 }
 
 /*! Creates a new expression struct with the given type
     @param type     the type of data to be stored in the expression
     @return         the new expression struct
 */
-inline expression* newExpression_t (datatype type) {
-    return newExpression_all(type, NULL, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+inline expression* newExpressionOfType (datatype type) {
+    return newExpressionAll(type, NULL, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
 /*! Creates a new expression struct with the given integer as its value
     @param value    the integer to be stored in the expression
     @return         the new expression struct
 */
-inline expression* newExpression_int (long value) {
+inline expression* newExpressionInt (long value) {
 	exprvals ev;
 	ev.intval = value;
-    return newExpression_all(TYPE_INT, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+    return newExpressionAll(TYPE_INT, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
 /*! Creates a new expression struct with the given float as its value
     @param value    the float to be stored in the expression
     @return         the new expression struct
 */
-inline expression* newExpression_flo (double value) {
+inline expression* newExpressionFlo (double value) {
 	exprvals ev;
 	ev.floval = value;
-    return newExpression_all(TYPE_FLO, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+    return newExpressionAll(TYPE_FLO, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
 /*! Creates a new expression struct with the given string as its value
     @param value    the string to be stored in the expression
     @return         the new expression struct
 */
-inline expression* newExpression_str (string* value) {
+inline expression* newExpressionStr (string* value) {
 	exprvals ev;
 	ev.strval = value;
-    return newExpression_all(TYPE_STR, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+    return newExpressionAll(TYPE_STR, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
 /*! Creates a new expression struct with the given array as its value
     @param value    the array to be stored in the expression
     @return         the new expression struct
 */
-inline expression* newExpression_arr (array* value) {
+inline expression* newExpressionArr (array* value) {
 	exprvals ev;
 	ev.arrval = value;
-    return newExpression_all(TYPE_ARR, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+    return newExpressionAll(TYPE_ARR, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
 /*! Creates a new lazy expression struct with the given expression as its value
     @param value    the lazy expression to be stored in the expression
     @return         the new expression struct
 */
-inline expression* newExpression_laz (expression* value) {
+inline expression* newExpressionLaz (expression* value) {
 	exprvals ev;
 	ev.lazval = newLazyexpr();
 	ev.lazval->expval = value;
-    return newExpression_all(TYPE_LAZ, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+    return newExpressionAll(TYPE_LAZ, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
 /*! Creates a new expression struct with the given properties
@@ -89,7 +89,7 @@ inline expression* newExpression_laz (expression* value) {
     @param line     the line which the expression is on
     @return         the new expression struct
 */
-expression* newExpression_all (datatype type, exprvals* ev, expression* next, linenum line) {
+expression* newExpressionAll (datatype type, exprvals* ev, expression* next, linenum line) {
     expression* expr = allocate(sizeof(expression)); // allocate the needed memory
     expr->type = type; // set the type to the given type
     if (ev != NULL) { // set the expression's value to the given exprvals
@@ -110,7 +110,7 @@ expression* copyExpression (expression* expr) {
     if (expr == NULL) { // if the expression is null then just return null
         return NULL;
     } else {
-        expression* duplicate = newExpression_all(expr->type, NULL, copyExpression(expr->next), expr->line); // create a new expression with identical properties to the original one
+        expression* duplicate = newExpressionAll(expr->type, NULL, copyExpression(expr->next), expr->line); // create a new expression with identical properties to the original one
         exprvals* ev1 = &(duplicate->ev);
         exprvals* ev2 = &(expr->ev);
         int i;

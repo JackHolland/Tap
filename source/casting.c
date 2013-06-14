@@ -21,7 +21,7 @@
     @return         the integer value of the given expression
 */
 expression* castToNum (string* string, int base) {
-    expression* numexpr = newExpression_t(TYPE_NIL);
+    expression* numexpr = newExpressionOfType(TYPE_NIL);
     char* content = string->content;
     if (base == 0) {
         base = BASE;
@@ -118,7 +118,7 @@ long castToInt (expression* expr) {
     @return         the boolean value (0 or 1) of the given expression
 */
 inline expression* castToBoo (expression* expr) {
-	return newExpression_int(castToInt(expr) != 0);
+	return newExpressionInt(castToInt(expr) != 0);
 }
 
 /*! Returns the given float bankers'-rounded to the nearest digit of accuracy (returns an int if no accuracy specified)
@@ -152,11 +152,11 @@ expression* fRound (double result, int digits) {
     }
     result /= scale;
     if (digits == -1) {
-        expression* intexpr = newExpression_t(TYPE_INT);
+        expression* intexpr = newExpressionOfType(TYPE_INT);
         intexpr->ev.intval = (int)result;
         return intexpr;
     } else {
-        expression* floexpr = newExpression_t(TYPE_FLO);
+        expression* floexpr = newExpressionOfType(TYPE_FLO);
         floexpr->ev.floval = result;
         return floexpr;
     }

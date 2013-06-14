@@ -43,7 +43,7 @@ array* resizeArray (array* arr, int start, int end) {
 	}
 	if (start < 0) {
 		for (i = start; i < 0; i++) {
-			newarr->content[index++] = newExpression_t(TYPE_NIL);
+			newarr->content[index++] = newExpressionOfType(TYPE_NIL);
 		}
 	} else {
 		for (i = 0; i < start; i++) {
@@ -53,7 +53,7 @@ array* resizeArray (array* arr, int start, int end) {
 	if (arrspan < end) {
 		int tempindex = index + 1;
 		for (i = arrspan; i < end; i++) {
-			newarr->content[arrspan + tempindex++] = newExpression_t(TYPE_NIL);
+			newarr->content[arrspan + tempindex++] = newExpressionOfType(TYPE_NIL);
 		}
 	} else {
 		for (i = end; i < arrspan; i++) {

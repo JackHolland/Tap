@@ -66,35 +66,35 @@ DESCRIBE(castToInt, "long castToInt (expression* expr)")
 	expression* expr;
 	
 	IT("returns the value of integer expressions")
-		expr = newExpression_int(14);
+		expr = newExpressionInt(14);
 		SHOULD_EQUAL(castToInt(expr), 14)
 		freeExpr(expr);
 	END_IT
 	
 	IT("rounds floats to their nearest integer equivalents")
-		expr = newExpression_flo(10.4);
+		expr = newExpressionFlo(10.4);
 		SHOULD_EQUAL(castToInt(expr), 10)
 		freeExpr(expr);
-		expr = newExpression_flo(-23.8);
+		expr = newExpressionFlo(-23.8);
 		SHOULD_EQUAL(castToInt(expr), -24)
 		freeExpr(expr);
 	END_IT
 	
 	IT("casts integral strings to integers and non-integral strings to nil")
-		expr = newExpression_str(newString(strDup("45")));
+		expr = newExpressionStr(newString(strDup("45")));
 		SHOULD_EQUAL(castToInt(expr), 45)
 		freeExpr(expr);
-		expr = newExpression_str(newString(strDup("abc")));
+		expr = newExpressionStr(newString(strDup("abc")));
 		SHOULD_EQUAL(castToInt(expr), NIL)
 		freeExpr(expr);
 	END_IT
 	
 	IT("evaluates lazy expressions and tries to cast their results to integers")
 		initializeGlobals();
-		expr = newExpression_laz(newExpression_int(3));
+		expr = newExpressionLaz(newExpressionInt(3));
 		SHOULD_EQUAL(castToInt(expr), 3)
 		freeExpr(expr);
-		expr = newExpression_laz(newExpression_str(newString(strDup("xyz"))));
+		expr = newExpressionLaz(newExpressionStr(newString(strDup("xyz"))));
 		SHOULD_EQUAL(castToInt(expr), NIL)
 		freeExpr(expr);
 		freeGlobals();
@@ -106,12 +106,12 @@ DESCRIBE(castToBoo, "expression* castToBoo (expression* expr)")
 	expression* result;
 	
 	IT("casts integers to booleans")
-		expr = newExpression_int(8);
+		expr = newExpressionInt(8);
 		result = castToBoo(expr);
 		SHOULD_EQUAL(result->ev.intval, 1)
 		freeExpr(result);
 		freeExpr(expr);
-		expr = newExpression_int(0);
+		expr = newExpressionInt(0);
 		result = castToBoo(expr);
 		SHOULD_EQUAL(result->ev.intval, 0)
 		freeExpr(result);
@@ -119,7 +119,7 @@ DESCRIBE(castToBoo, "expression* castToBoo (expression* expr)")
 	END_IT
 	
 	IT("tries to cast strings to booleans")
-		expr = newExpression_str(newString(strDup("1")));
+		expr = newExpressionStr(newString(strDup("1")));
 		result = castToBoo(expr);
 		SHOULD_EQUAL(result->ev.intval, 1)
 		freeExpr(result);
@@ -128,7 +128,7 @@ DESCRIBE(castToBoo, "expression* castToBoo (expression* expr)")
 	
 	IT("tries to cast lazy expressions to booleans")
 		initializeGlobals();
-		expr = newExpression_laz(newExpression_str(newString(strDup("-10"))));
+		expr = newExpressionLaz(newExpressionStr(newString(strDup("-10"))));
 		result = castToBoo(expr);
 		SHOULD_EQUAL(result->ev.intval, 1)
 		freeExpr(result);
@@ -166,32 +166,32 @@ DESCRIBE(castToFlo, "double castToFlo (expression* expr)")
 	expression* expr;
 	
 	IT("returns the value of float expressions")
-		expr = newExpression_flo(37.2);
+		expr = newExpressionFlo(37.2);
 		SHOULD_EQUAL(castToFlo(expr), 37.2)
 		freeExpr(expr);
 	END_IT
 	
 	IT("casts integers to their floating point equivalents")
-		expr = newExpression_int(-11);
+		expr = newExpressionInt(-11);
 		SHOULD_EQUAL(castToFlo(expr), -11.0)
 		freeExpr(expr);
 	END_IT
 	
 	IT("casts numeric strings to floats and non-numeric strings to nil")
-		expr = newExpression_str(newString(strDup("82.8")));
+		expr = newExpressionStr(newString(strDup("82.8")));
 		SHOULD_EQUAL(castToFlo(expr), 82.8)
 		freeExpr(expr);
-		expr = newExpression_str(newString(strDup("abc")));
+		expr = newExpressionStr(newString(strDup("abc")));
 		SHOULD_EQUAL(castToFlo(expr), NIL)
 		freeExpr(expr);
 	END_IT
 	
 	IT("evaluates lazy expressions and tries to cast their results to floats")
 		initializeGlobals();
-		expr = newExpression_laz(newExpression_flo(-78.9));
+		expr = newExpressionLaz(newExpressionFlo(-78.9));
 		SHOULD_EQUAL(castToFlo(expr), -78.9)
 		freeExpr(expr);
-		expr = newExpression_laz(newExpression_str(newString(strDup("xyz"))));
+		expr = newExpressionLaz(newExpressionStr(newString(strDup("xyz"))));
 		SHOULD_EQUAL(castToFlo(expr), NIL)
 		freeExpr(expr);
 		freeGlobals();
@@ -203,7 +203,7 @@ DESCRIBE(castToStr, "string* castToStr (expression* expr)")
 	string* result;
 	
 	IT("returns the value of string expressions")
-		expr = newExpression_str(newString(strDup("abcd")));
+		expr = newExpressionStr(newString(strDup("abcd")));
 		result = castToStr(expr);
 		SHOULD_EQUAL(strcmp(result->content, expr->ev.strval->content), 0)
 		freeStr(result);
@@ -211,7 +211,7 @@ DESCRIBE(castToStr, "string* castToStr (expression* expr)")
 	END_IT
 	
 	IT("casts integers into their string equivalents")
-		expr = newExpression_int(7);
+		expr = newExpressionInt(7);
 		result = castToStr(expr);
 		SHOULD_EQUAL(strcmp(result->content, "7"), 0)
 		freeStr(result);
@@ -219,7 +219,7 @@ DESCRIBE(castToStr, "string* castToStr (expression* expr)")
 	END_IT
 	
 	IT("casts floats into their string equivalents")
-		expr = newExpression_flo(22.0);
+		expr = newExpressionFlo(22.0);
 		result = castToStr(expr);
 		SHOULD_EQUAL(strcmp(result->content, "22.000000"), 0)
 		freeStr(result);
@@ -228,7 +228,7 @@ DESCRIBE(castToStr, "string* castToStr (expression* expr)")
 	
 	IT("evaluates lazy expressions and tries to cast their results to strings")
 		initializeGlobals();
-		expr = newExpression_laz(newExpression_int(6));
+		expr = newExpressionLaz(newExpressionInt(6));
 		result = castToStr(expr);
 		SHOULD_EQUAL(strcmp(result->content, "6"), 0)
 		freeStr(result);
@@ -282,7 +282,7 @@ DESCRIBE(castToArr, "array* castToArr (expression* expr)")
 	array* result;
 	
 	IT("returns the value of array expressions")
-		expr = newExpression_arr(newArray(3));
+		expr = newExpressionArr(newArray(3));
 		result = castToArr(expr);
 		SHOULD_EQUAL(result->size, 3)
 		freeExpr(expr);

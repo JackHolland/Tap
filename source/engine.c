@@ -58,7 +58,7 @@ expression* parse (char* text) {
 */
 static expression* parse_ (char* text, uint startindex, linenum startline) {
     linenum endline = startline; // the last line parsed so far
-    expression* head = newExpression_t(TYPE_EXP); // list of expressions
+    expression* head = newExpressionOfType(TYPE_EXP); // list of expressions
     head->line = startline;
     expression* tail = NULL; // the last expression parsed
     expression* tempexpr = NULL;
@@ -117,12 +117,12 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
                 if (!emptyparse) {
                     if (ascii == '[') { // if the expression is lazy
                         // add a lazy expression inside the last one parsed for the content inside its parentheses
-                        tempexpr = newExpression_t(TYPE_LAZ);
+                        tempexpr = newExpressionOfType(TYPE_LAZ);
                         tempexpr->ev.lazval = newLazyexpr();
                         (*current)->next = tempexpr;
                     } else { // if the expression is regular or an array
                         // add an expression inside the last one parsed for the content inside its parentheses
-                        (*current)->next = newExpression_t(TYPE_EXP);
+                        (*current)->next = newExpressionOfType(TYPE_EXP);
                     }
                     current = (expression**)&((*current)->next); // set the current expression to this inner one
                     (*current)->line = endline; // set the expression's line to the current one
@@ -215,7 +215,7 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
     free(head);
     head = tempexpr;
     if (head == NULL) { // if nothing was parsed
-        head = newExpression_t(TYPE_NIL); // set the head to a dummy value
+        head = newExpressionOfType(TYPE_NIL); // set the head to a dummy value
     } else if (head->ev.expval == NULL) { // if the head expression was never filled with content
         head->type = TYPE_NIL; // mark the head as nil so it isn't evaluated
     }
@@ -233,7 +233,7 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
     @todo               errors
 */
 expression* parsePiece (char* text, expression** tail, linenum startline, uint startindex, int ascii, int iscont) {
-    expression* expr = newExpression_t(TYPE_NIL); // create a new expression with a value of nil
+    expression* expr = newExpressionOfType(TYPE_NIL); // create a new expression with a value of nil
     expression* head = expr; // store the head of the list so it can be returned at the end
     expression* last = NULL; // used to trim off the last nil expression after parsing the whole piece
     int size = strlen(text); // the size of the given text
@@ -526,7 +526,7 @@ expression* evaluate (expression* head) {
                         for (i = 0; i < numargs; ++i) { // add the arguments to the new environment's variables table
                             insertUserHash(environments[cenvironment]->variables, ufunc->args[i]->name->content, args[i]);
                         }
-                        expression* cfunction = newExpression_t(TYPE_FUN); // insert the special variable "here" that refers to the current function
+                        expression* cfunction = newExpressionOfType(TYPE_FUN); // insert the special variable "here" that refers to the current function
                         cfunction->ev.funval = copyUserfunction(ufunc);
                         insertUserHash(environments[cenvironment]->variables, "here", cfunction);
                         environments[cenvironment]->numvars += numargs; // indicate how many variables there are in the new environment
@@ -535,7 +535,7 @@ expression* evaluate (expression* head) {
                             resetEnvironment(); // reset the environment to its previous state
                         }
                     } else {
-                        tempexpr1 = newExpression_t(TYPE_NIL);
+                        tempexpr1 = newExpressionOfType(TYPE_NIL);
                     }
                     freeExpr(head); // free the head and set it to the result of the function call
                     head = tempexpr1;
@@ -554,7 +554,7 @@ expression* evaluate (expression* head) {
                 head->next = NULL; // remove the now-obsolete arguments list
             } else { // return nil if the function can't be called
                 addError(newErrorlist(ERR_UNDEFINED_FUN, newString(printExpression(head)), 1, 0));
-                head = newExpression_t(TYPE_NIL);
+                head = newExpressionOfType(TYPE_NIL);
             }
         } else if (head->type == TYPE_OBJ) {
             expression* propname = evaluateArgument(head->next);
@@ -573,7 +573,7 @@ expression* evaluate (expression* head) {
                 }
                 addError(newErrorlist(ERR_UNDEFINED_PROP, newString(strDup(pnstr)), 1, 1));
                 freeExpr(head);
-                return newExpression_t(TYPE_NIL);
+                return newExpressionOfType(TYPE_NIL);
             } else {
                 ///error
             }
@@ -591,7 +591,7 @@ expression* evaluate (expression* head) {
                 } else {
                     addError(newErrorlist(ERR_OUT_OF_BOUNDS, newString(printExpression(indexexpr)), 1, 1));
                     freeExpr(head);
-                    return newExpression_t(TYPE_NIL);
+                    return newExpressionOfType(TYPE_NIL);
                 }
             } else {
                 ///error
@@ -638,7 +638,7 @@ expression* evaluateArgument (expression* arg) {
         tempexpr1 = copyExpression(getVarValue(var->content));
         if (tempexpr1 == NULL) {
             addError(newErrorlist(ERR_UNDEFINED_VAR, copyString(var), 0, 0));
-            return newExpression_t(TYPE_NIL);
+            return newExpressionOfType(TYPE_NIL);
         } else {
             freeExprNR(arg);
             return tempexpr1;
@@ -972,7 +972,7 @@ expression* storeExprValue (expression* expr, char* text, int start, int end, ex
         } else {
             free(strval); // free the string value from memory
         }
-        expr->next = newExpression_t(TYPE_NIL); // set the new expression to a value of nil
+        expr->next = newExpressionOfType(TYPE_NIL); // set the new expression to a value of nil
     }
     (*last) = expr;
     return expr->next;
@@ -1369,90 +1369,90 @@ void initializeGlobals () {
 
     // initialize default variables
     expression* expr;
-    expr = newExpression_t(TYPE_NIL);
+    expr = newExpressionOfType(TYPE_NIL);
     insertUserHash(cenv, "nil", expr);
-    expr = newExpression_t(TYPE_INT);
+    expr = newExpressionOfType(TYPE_INT);
     expr->ev.intval = 1;
     insertUserHash(cenv, "true", expr);
-    expr = newExpression_t(TYPE_INT);
+    expr = newExpressionOfType(TYPE_INT);
     expr->ev.intval = 0;
     insertUserHash(cenv, "false", expr);
-    expr = newExpression_t(TYPE_INT);
+    expr = newExpressionOfType(TYPE_INT);
     expr->ev.intval = ERR_GENERAL;
     insertUserHash(cenv, "general-error", expr);
-    expr = newExpression_t(TYPE_INT);
+    expr = newExpressionOfType(TYPE_INT);
     expr->ev.intval = ERR_INVALID_ARG;
     insertUserHash(cenv, "inval-arg-error", expr);
-    expr = newExpression_t(TYPE_INT);
+    expr = newExpressionOfType(TYPE_INT);
     expr->ev.intval = ERR_INVALID_NUM_ARGS;
     insertUserHash(cenv, "inval-num-args-error", expr);
-    expr = newExpression_t(TYPE_FLO);
+    expr = newExpressionOfType(TYPE_FLO);
     expr->ev.floval = PI;
     insertUserHash(cenv, "pi", expr);
-    expr = newExpression_t(TYPE_FLO);
+    expr = newExpressionOfType(TYPE_FLO);
     expr->ev.floval = E;
     insertUserHash(cenv, "e", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_NIL;
     insertUserHash(cenv, "nil", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_EXP;
     insertUserHash(cenv, "exp", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_EXP;
     insertUserHash(cenv, "expression", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_LAZ;
     insertUserHash(cenv, "laz", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_LAZ;
     insertUserHash(cenv, "lazy-expression", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_INT;
     insertUserHash(cenv, "int", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_INT;
     insertUserHash(cenv, "integer", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_FLO;
     insertUserHash(cenv, "flo", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_FLO;
     insertUserHash(cenv, "float", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_STR;
     insertUserHash(cenv, "str", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_STR;
     insertUserHash(cenv, "string", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_ARR;
     insertUserHash(cenv, "arr", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_ARR;
     insertUserHash(cenv, "array", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_DAT;
     insertUserHash(cenv, "dat", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_DAT;
     insertUserHash(cenv, "date", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_OBJ;
     insertUserHash(cenv, "obj", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_OBJ;
     insertUserHash(cenv, "object", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_FUN;
     insertUserHash(cenv, "fun", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_FUN;
     insertUserHash(cenv, "function", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_TYP;
     insertUserHash(cenv, "typ", expr);
-    expr = newExpression_t(TYPE_TYP);
+    expr = newExpressionOfType(TYPE_TYP);
     expr->ev.intval = TYPE_TYP;
     insertUserHash(cenv, "type", expr);
 

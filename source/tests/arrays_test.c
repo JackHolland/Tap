@@ -27,9 +27,9 @@ END_DESCRIBE
 
 DESCRIBE(resizeArray, "array* resizeArray (array* arr, int start, int end)")
 	array* arr1 = newArray(3);
-	arr1->content[0] = newExpression_int(2);
-	arr1->content[1] = newExpression_int(3);
-	arr1->content[2] = newExpression_flo(4.0);
+	arr1->content[0] = newExpressionInt(2);
+	arr1->content[1] = newExpressionInt(3);
+	arr1->content[2] = newExpressionFlo(4.0);
 	array* arr2 = copyArrayDeep(arr1);
 	
 	IT("returns the same array with a smaller size when the size is reduced")
