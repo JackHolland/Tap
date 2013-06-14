@@ -1,7 +1,7 @@
 /*! AppTap.org Tap Processor
     @author Jack Holland <jack@apptap.org>
     @file   arrays_test.c
-    @brief  All of the array functions
+    @brief  Tests for arrays.c
     (C) 2011 Jack Holland. All rights reserved.
 */
 
