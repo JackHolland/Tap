@@ -10,7 +10,7 @@
 #include "memory.h"
 #include "constants.h"
 
-static void freeExpr_(expression*, int);
+static bool freeExpr_(expression*, bool);
 
 /*! Attempts to allocate the amount of memory specified by the given size and errors out if the memory could not be allocated
     @param size     how much memory to allocate (in bytes)
@@ -27,26 +27,26 @@ inline void* allocate (size_t size) {
 
 /*! Frees from memory the given expression and all its associated content
     @param expr     the expression to free from memory
-    @return         nothing
+    @return         0
 */
-inline void freeExpr (expression* expr) {
+inline bool freeExpr (expression* expr) {
     freeExpr_(expr, 1);
 }
 
 /*! Frees from memory the given expression and all its child content (does not free the next expression)
     @param expr     the expression to free from memory
-    @return         nothing
+    @return         0
 */
-inline void freeExprNR (expression* expr) {
+inline bool freeExprNR (expression* expr) {
     freeExpr_(expr, 0);
 }
 
 /*! A helper function for freeExpr and freeExprNR
     @param expr     the expression to free from memory
     @param next     whether to free the next expression as well as the given one
-    @return         nothing
+    @return         0
 */
-static void freeExpr_ (expression* expr, int next) {
+static bool freeExpr_ (expression* expr, bool next) {
     if (expr != NULL) { // if the expression isn't null
         exprvals ev = expr->ev;
         expressionstack* es;
@@ -94,26 +94,32 @@ static void freeExpr_ (expression* expr, int next) {
         }
         free(expr); // free the expression itself
     }
+    
+    return 0;
 }
 
 /*! Frees from memory the given string and its content
 	@param str		the string to free from memory
-	@return			nothing
+	@return			0
 */
-void freeStr (string* str) {
+bool freeStr (string* str) {
 	free(str->content);
 	free(str);
+	
+	return 0;
 }
 
 /*! Frees from memory the given array and its content
     @param arr      the array to free from memory
-    @return         nothing
+    @return         0
 */
-void freeArr (array* arr) {
+bool freeArr (array* arr) {
 	int i;
 	for (i = arr->start; i <= arr->end; i++) {
 		freeExpr(arr->content[i]);
 	}
 	free(arr);
+	
+	return 0;
 }
 

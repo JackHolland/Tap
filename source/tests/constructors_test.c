@@ -14,10 +14,8 @@
 #include "../constants.h"
 
 DESCRIBE(newExpression, "expression* newExpression ()")
-	expression* expr;
-	
 	IT("Creates a nil expression")
-		expr = newExpression();
+		expression* expr = newExpression();
 		SHOULD_EQUAL(expr->type, TYPE_NIL)
 		freeExpr(expr);
 	END_IT
@@ -63,3 +61,4 @@ int main () {
 	
 	return 0;
 }
+

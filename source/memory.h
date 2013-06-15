@@ -11,9 +11,9 @@
 #include "structs.h"
 
 void* allocate(size_t);
-void freeExpr(expression*);
-void freeExprNR(expression*);
-void freeStr(string*);
-void freeArr(array*);
+bool freeExpr(expression*);
+bool freeExprNR(expression*);
+bool freeStr(string*);
+bool freeArr(array*);
 
 #endif
