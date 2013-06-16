@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <time.h>
 #include <limits.h>
 
 #include "prim_flo.h"
@@ -713,203 +712,13 @@ void prim_sArr (expression* args[], int numargs, exprvals* returnval, datatype* 
     @return             nothing
 */
 void prim_sDat (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
-    char* str = args[0]->ev.strval->content;
-    date dat;
-    if (strcmp(str, "now") == 0) {
-        dat = time(NULL);
-    } else {
-        int size = args[0]->ev.strval->size;
-        while (size > 0 && str[size - 1] == ' ') {
-            --size;
-        }
-        int pos = 0;
-        while (size > pos && str[pos] == ' ') {
-            ++pos;
-        }
-        int valid = 1;
-        tm timestruct;
-        memset(&timestruct, 0, sizeof(timestruct));
-        if (size > pos + 2 && isNumber(str[pos])) {
-            if (isNumber(str[pos + 1]) && str[pos + 2] == '/') {
-                timestruct.tm_mon = (str[pos] - '0') * 10 + (str[pos + 1] - '0') - 1;
-                pos += 3;
-            } else if (str[pos + 1] == '/') {
-                timestruct.tm_mon = (str[pos] - '0') - 1;
-                pos += 2;
-            } else {
-                valid = 0;
-            }
-            if (size > pos && isNumber(str[pos])) {
-                if (isNumber(str[pos + 1]) && (size == pos + 2 || (size > pos + 2 && (str[pos + 2] == '/' || str[pos + 2] == ' ')))) {
-                    timestruct.tm_mday = (str[pos] - '0') * 10 + (str[pos + 1] - '0') - 1;
-                    pos += 3;
-                } else if (size == pos + 1 || (size > pos + 1 && str[pos + 1] == '/')) {
-                    timestruct.tm_mday = (str[pos] - '0') - 1;
-                    pos += 2;
-                } else {
-                    valid = 0;
-                }
-                int yearchars = 0;
-                while (size > pos + yearchars && isNumber(str[pos + yearchars])) {
-                    ++yearchars;
-                }
-                if (yearchars == 2 || yearchars == 4) {
-                    int i;
-                    static int powers[4] = {1, 10, 100, 1000};
-                    for (i = 0; i < yearchars; ++i) {
-                        timestruct.tm_year += (str[pos + yearchars - i - 1] - '0') * powers[i];
-                    }
-                    if (yearchars == 2) {
-                        if (timestruct.tm_year > CURRENT_YEAR) {
-                            timestruct.tm_year -= 70;
-                        } else {
-                            timestruct.tm_year += 30;
-                        }
-                    } else {
-                        timestruct.tm_year -= YEAR_ZERO;
-                    }
-                    pos += yearchars;
-                    i = 0;
-                    while (size > pos + i && str[pos + i] == ' ') {
-                        ++i;
-                    }
-                    if (i > 0) {
-                        pos += i;
-                        if (size > pos && isNumber(str[pos])) {
-                            if (size > pos + 2 && isNumber(str[pos + 1]) && str[pos + 2] == ':') {
-                                timestruct.tm_hour = (str[pos] - '0') * 10 + (str[pos + 1] - '0');
-                                pos += 3;
-                            } else if (size > pos + 1 && str[pos + 1] == ':') {
-                                timestruct.tm_hour = str[pos] - '0';
-                                pos += 2;
-                            } else {
-                                valid = 0;
-                            }
-                            if (size > pos && isNumber(str[pos])) {
-                                if (isNumber(str[pos + 1]) && (size == pos + 2 || (size > pos + 2 && (str[pos + 2] == ':' || str[pos + 2] == ' ')))) {
-                                    timestruct.tm_min = (str[pos] - '0') * 10 + (str[pos + 1] - '0');
-                                    pos += 3;
-                                } else if (size == pos + 1 || (size > pos + 1 && str[pos + 1] == ':')) {
-                                    timestruct.tm_min = str[pos] - '0';
-                                    pos += 2;
-                                } else {
-                                    valid = 0;
-                                }
-                                if (size > pos && isNumber(str[pos])) {
-                                    if (size > pos + 1 && isNumber(str[pos + 1])) {
-                                        timestruct.tm_sec = (str[pos] - '0') * 10 + (str[pos + 1] - '0');
-                                        pos += 2;
-                                    } else {
-                                        timestruct.tm_sec = str[pos] - '0';
-                                        pos += 1;
-                                    }
-                                    while (pos < size && str[pos] == ' ') {
-                                        ++pos;
-                                    }
-                                }
-                                if (size > pos + 1) {
-                                    if ((str[pos] == 'p' || str[pos] == 'P') && (str[pos + 1] == 'm' || str[pos + 1] == 'M')) {
-                                        timestruct.tm_hour += 12;
-                                    } else if (!((str[pos] == 'a' || str[pos] == 'A') && (str[pos + 1] == 'm' || str[pos + 1] == 'M'))) {
-                                        valid = 0;
-                                    }
-                                    if (size != pos + 2) {
-                                        valid = 0;
-                                    }
-                                } else {
-                                    valid = size == pos;
-                                }
-                            } else {
-                                valid = size == pos;
-                            }
-                        } else {
-                            valid = size == pos;
-                        }
-                    }
-                } else {
-                    valid = yearchars == 0;
-                }
-            } else {
-                valid = size == pos;
-            }
-        } else {
-            valid = size == pos;
-        }
-        if (valid) {
-            switch (timestruct.tm_mon) {
-                case 0:
-                case 2:
-                case 4:
-                case 6:
-                case 7:
-                case 9:
-                case 11:
-                    if (timestruct.tm_mday > 31) {
-                        valid = 0;
-                    }
-                    break;
-                case 1:
-                    if (leapYear(timestruct.tm_year) && timestruct.tm_mday > 29) {
-                        valid = 0;
-                    } else if (timestruct.tm_mday > 28) {
-                        valid = 0;
-                    }
-                    break;
-                case 3:
-                case 5:
-                case 8:
-                case 10:
-                    if (timestruct.tm_mday > 30) {
-                        valid = 0;
-                    }
-                    break;
-                default:
-                    valid = 0;
-            }
-            if (timestruct.tm_hour > HOUR_IN_DAY - 1 || timestruct.tm_min > MIN_IN_HOUR || timestruct.tm_sec > SEC_IN_MIN) {
-                valid = 0;
-            }
-        }
-        if (valid) {
-            dat = timestruct.tm_sec + (timestruct.tm_min * SEC_IN_MIN) + (timestruct.tm_hour * SEC_IN_HOUR) + (timestruct.tm_mday * SEC_IN_DAY);
-            int year = timestruct.tm_year + YEAR_ZERO;
-            int month = timestruct.tm_mon - 1;
-            int monthdays = 0;
-            while (month >= 0) {
-                switch (month) {
-                    case 0:
-                    case 2:
-                    case 4:
-                    case 6:
-                    case 7:
-                    case 9:
-                    case 11:
-                        monthdays += 31;
-                        break;
-                    case 1:
-                        if (leapYear(year)) {
-                            monthdays += 29;
-                        } else {
-                            monthdays += 28;
-                        }
-                        break;
-                    case 3:
-                    case 5:
-                    case 8:
-                    case 10:
-                        monthdays += 30;
-                        break;
-                }
-                --month;
-            }
-            dat += (monthdays + (timestruct.tm_year * DAYS_IN_YEAR) + ((timestruct.tm_year + 2) / 4) - ((timestruct.tm_year + 30)  / 100) + ((timestruct.tm_year + 330) / 400)) * SEC_IN_DAY;
-        } else {
-            *returntype = TYPE_NIL;
-            return;
-        }
+	date dat = newDate(args[0]->ev.strval);
+	if (dat == NIL) {
+		*returntype = TYPE_NIL;
+	} else {
+    	*returntype = TYPE_DAT;
+    	returnval->datval = dat;
     }
-    *returntype = TYPE_DAT;
-    returnval->datval = dat;
 }
 
 /*! Returns type string (str)->typ
@@ -923,3 +732,4 @@ void prim_sTyp (expression* args[], int numargs, exprvals* returnval, datatype* 
     *returntype = TYPE_TYP;
     returnval->intval = TYPE_STR;
 }
+

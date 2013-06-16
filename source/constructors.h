@@ -13,6 +13,7 @@
 
 expression* newExpression();
 expression* newExpressionOfType(datatype);
+expression* newExpressionNil();
 expression* newExpressionInt(tap_int);
 expression* newExpressionFlo(tap_flo);
 expression* newExpressionStr(string*);
@@ -25,13 +26,14 @@ string* newString(char*);
 array* newArray(int);
 array* copyArray(array*);
 array* copyArrayDeep(array*);
+date newDate(string*);
 tap_obj* newObject(datatype, property*);
 tap_obj* copyObject(tap_obj*);
 type* newType(datatype, char*, stringlist*, typelist*, property*);
 property* newProperty(char*, typelist*, int, int, expression*);
 property* copyProperty(property*);
-tap_fun* newUserfunction(argument*[], int, int, expression*);
-tap_fun* copyUserfunction(tap_fun*);
+tap_fun* newTapFunction(argument*[], int, int, expression*);
+tap_fun* copyTapFunction(tap_fun*);
 argument* newArgument(string*, typelist*, expression*);
 argument* copyArgument(argument*);
 typelist* newTypelist(datatype);

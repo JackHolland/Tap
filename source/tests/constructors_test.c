@@ -22,7 +22,14 @@ DESCRIBE(newExpression, "expression* newExpression ()")
 END_DESCRIBE
 
 DESCRIBE(newExpressionOfType, "expression* newExpressionOfType (datatype type)")
-	
+	IT("Creates an expression with the given type")
+		expression* expr1 = newExpressionOfType(TYPE_INT);
+		SHOULD_EQUAL(expr1->ev.intval, 0)
+		expression* expr2 = newExpressionOfType(TYPE_ARR);
+		SHOULD_EQUAL(expr2->ev.arrval->size, 0)
+		freeExpr(expr1);
+		freeExpr(expr2);
+	END_IT
 END_DESCRIBE
 
 DESCRIBE(newExpressionInt, "expression* newExpressionInt (tap_int)")

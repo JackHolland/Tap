@@ -94,7 +94,7 @@ void prim_uStr (expression* args[], int numargs, exprvals* returnval, datatype* 
 void prim_uFun (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
     *returntype = TYPE_FUN;
     tap_fun* uf = args[0]->ev.funval;
-    returnval->funval = newUserfunction(NULL, uf->minargs, uf->maxargs, copyExpression(uf->body));
+    returnval->funval = newTapFunction(NULL, uf->minargs, uf->maxargs, copyExpression(uf->body));
     memcpy(returnval->funval->args, uf->args, sizeof(uf->args));
 }
 

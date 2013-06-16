@@ -527,7 +527,7 @@ expression* evaluate (expression* head) {
                             insertUserHash(environments[cenvironment]->variables, ufunc->args[i]->name->content, args[i]);
                         }
                         expression* cfunction = newExpressionOfType(TYPE_FUN); // insert the special variable "here" that refers to the current function
-                        cfunction->ev.funval = copyUserfunction(ufunc);
+                        cfunction->ev.funval = copyTapFunction(ufunc);
                         insertUserHash(environments[cenvironment]->variables, "here", cfunction);
                         environments[cenvironment]->numvars += numargs; // indicate how many variables there are in the new environment
                         tempexpr1 = evaluateLazy(copyExpression(ufunc->body)); // evaluate the function in the new environment

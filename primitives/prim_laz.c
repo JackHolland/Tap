@@ -120,7 +120,7 @@ void prim_lFunction (expression* args[], int numargs, exprvals* returnval, datat
         tempexpr1 = tempexpr1->next;
     }
     *returntype = TYPE_FUN;
-    returnval->funval = newUserfunction(fargs, minargs, maxargs, copyExpression(args[1]));
+    returnval->funval = newTapFunction(fargs, minargs, maxargs, copyExpression(args[1]));
 }
 
 /*! Ands each given evaluated lazy expression as a boolean with the next evaluated lazy expression as a boolean (laz...)->int

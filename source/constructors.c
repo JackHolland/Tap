@@ -13,6 +13,7 @@
 #include "memory.h"
 #include "strings.h"
 #include "arrays.h"
+#include "dates.h"
 
 static array* copyArray_(array*, int);
 
@@ -28,7 +29,49 @@ inline expression* newExpression () {
     @return         the new expression struct
 */
 inline expression* newExpressionOfType (datatype type) {
-    return newExpressionAll(type, NULL, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+	exprvals ev;
+	switch(type) {
+		case TYPE_NIL:
+			break;
+		case TYPE_EXP:
+			ev.expval = NULL;
+			break;
+		case TYPE_LAZ:
+			ev.lazval = newLazyexpr();
+			break;
+		case TYPE_INT:
+			ev.intval = 0;
+			break;
+		case TYPE_FLO:
+			ev.floval = 0;
+			break;
+		case TYPE_STR:
+			ev.strval = newString(strDup(""));
+			break;
+		case TYPE_ARR:
+			ev.arrval = newArray(0);
+			break;
+		case TYPE_DAT:
+			ev.datval = time(NULL);
+			break;
+		case TYPE_OBJ:
+			// TODO
+			break;
+		case TYPE_FUN:
+			ev.funval = newTapFunction(NULL, 0, 0, newExpressionNil());
+			break;
+		case TYPE_TYP:
+			ev.intval = TYPE_UNK;
+			break;
+	}
+    return newExpressionAll(type, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+}
+
+/*! Creates a new expression struct of type nil
+    @return         the new expression struct
+*/
+inline expression* newExpressionNil () {
+	return newExpressionAll(TYPE_NIL, NULL, NULL, 0);
 }
 
 /*! Creates a new expression struct with the given integer as its value
@@ -126,7 +169,7 @@ expression* copyExpression (expression* expr) {
                 break;
             case TYPE_FUN:
                 // copy the function's properties, arguments, and body
-                ev1->funval = newUserfunction(ev2->funval->args, ev2->funval->minargs, ev2->funval->maxargs, copyExpression(ev2->funval->body));
+                ev1->funval = newTapFunction(ev2->funval->args, ev2->funval->minargs, ev2->funval->maxargs, copyExpression(ev2->funval->body));
                 break;
             default: // if the original expression value is a primitive then copy it to the new expression value
                 ev1->intval = ev2->intval;
@@ -230,6 +273,208 @@ static array* copyArray_ (array* arr, int deep) {
 	return newarr;
 }
 
+/*! Creates a new date by parsing the given string
+    @param str      the string to parse into a date
+    @return         the new date or NIL if the date parsing failed
+*/
+date newDate (string* str) {
+	char* sdate = str->content;
+    if (strcmp(sdate, "now") == 0) {
+        return time(NULL);
+    } else {
+    	date dat;
+        int size = str->size;
+        while (size > 0 && sdate[size - 1] == ' ') {
+            --size;
+        }
+        int pos = 0;
+        while (size > pos && sdate[pos] == ' ') {
+            ++pos;
+        }
+        int valid = 1;
+        tm timestruct;
+        memset(&timestruct, 0, sizeof(timestruct));
+        if (size > pos + 2 && isNumber(sdate[pos])) {
+            if (isNumber(sdate[pos + 1]) && sdate[pos + 2] == '/') {
+                timestruct.tm_mon = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0') - 1;
+                pos += 3;
+            } else if (sdate[pos + 1] == '/') {
+                timestruct.tm_mon = (sdate[pos] - '0') - 1;
+                pos += 2;
+            } else {
+                valid = 0;
+            }
+            if (size > pos && isNumber(sdate[pos])) {
+                if (isNumber(sdate[pos + 1]) && (size == pos + 2 || (size > pos + 2 && (sdate[pos + 2] == '/' || sdate[pos + 2] == ' ')))) {
+                    timestruct.tm_mday = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0') - 1;
+                    pos += 3;
+                } else if (size == pos + 1 || (size > pos + 1 && sdate[pos + 1] == '/')) {
+                    timestruct.tm_mday = (sdate[pos] - '0') - 1;
+                    pos += 2;
+                } else {
+                    valid = 0;
+                }
+                int yearchars = 0;
+                while (size > pos + yearchars && isNumber(sdate[pos + yearchars])) {
+                    ++yearchars;
+                }
+                if (yearchars == 2 || yearchars == 4) {
+                    int i;
+                    static int powers[4] = {1, 10, 100, 1000};
+                    for (i = 0; i < yearchars; ++i) {
+                        timestruct.tm_year += (sdate[pos + yearchars - i - 1] - '0') * powers[i];
+                    }
+                    if (yearchars == 2) {
+                        if (timestruct.tm_year > CURRENT_YEAR) {
+                            timestruct.tm_year -= 70;
+                        } else {
+                            timestruct.tm_year += 30;
+                        }
+                    } else {
+                        timestruct.tm_year -= YEAR_ZERO;
+                    }
+                    pos += yearchars;
+                    i = 0;
+                    while (size > pos + i && sdate[pos + i] == ' ') {
+                        ++i;
+                    }
+                    if (i > 0) {
+                        pos += i;
+                        if (size > pos && isNumber(sdate[pos])) {
+                            if (size > pos + 2 && isNumber(sdate[pos + 1]) && sdate[pos + 2] == ':') {
+                                timestruct.tm_hour = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0');
+                                pos += 3;
+                            } else if (size > pos + 1 && sdate[pos + 1] == ':') {
+                                timestruct.tm_hour = sdate[pos] - '0';
+                                pos += 2;
+                            } else {
+                                valid = 0;
+                            }
+                            if (size > pos && isNumber(sdate[pos])) {
+                                if (isNumber(sdate[pos + 1]) && (size == pos + 2 || (size > pos + 2 && (sdate[pos + 2] == ':' || sdate[pos + 2] == ' ')))) {
+                                    timestruct.tm_min = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0');
+                                    pos += 3;
+                                } else if (size == pos + 1 || (size > pos + 1 && sdate[pos + 1] == ':')) {
+                                    timestruct.tm_min = sdate[pos] - '0';
+                                    pos += 2;
+                                } else {
+                                    valid = 0;
+                                }
+                                if (size > pos && isNumber(sdate[pos])) {
+                                    if (size > pos + 1 && isNumber(sdate[pos + 1])) {
+                                        timestruct.tm_sec = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0');
+                                        pos += 2;
+                                    } else {
+                                        timestruct.tm_sec = sdate[pos] - '0';
+                                        pos += 1;
+                                    }
+                                    while (pos < size && sdate[pos] == ' ') {
+                                        ++pos;
+                                    }
+                                }
+                                if (size > pos + 1) {
+                                    if ((sdate[pos] == 'p' || sdate[pos] == 'P') && (sdate[pos + 1] == 'm' || sdate[pos + 1] == 'M')) {
+                                        timestruct.tm_hour += 12;
+                                    } else if (!((sdate[pos] == 'a' || sdate[pos] == 'A') && (sdate[pos + 1] == 'm' || sdate[pos + 1] == 'M'))) {
+                                        valid = 0;
+                                    }
+                                    if (size != pos + 2) {
+                                        valid = 0;
+                                    }
+                                } else {
+                                    valid = size == pos;
+                                }
+                            } else {
+                                valid = size == pos;
+                            }
+                        } else {
+                            valid = size == pos;
+                        }
+                    }
+                } else {
+                    valid = yearchars == 0;
+                }
+            } else {
+                valid = size == pos;
+            }
+        } else {
+            valid = size == pos;
+        }
+        if (valid) {
+            switch (timestruct.tm_mon) {
+                case 0:
+                case 2:
+                case 4:
+                case 6:
+                case 7:
+                case 9:
+                case 11:
+                    if (timestruct.tm_mday > 31) {
+                        valid = 0;
+                    }
+                    break;
+                case 1:
+                    if (leapYear(timestruct.tm_year) && timestruct.tm_mday > 29) {
+                        valid = 0;
+                    } else if (timestruct.tm_mday > 28) {
+                        valid = 0;
+                    }
+                    break;
+                case 3:
+                case 5:
+                case 8:
+                case 10:
+                    if (timestruct.tm_mday > 30) {
+                        valid = 0;
+                    }
+                    break;
+                default:
+                    valid = 0;
+            }
+            if (timestruct.tm_hour > HOUR_IN_DAY - 1 || timestruct.tm_min > MIN_IN_HOUR || timestruct.tm_sec > SEC_IN_MIN) {
+                valid = 0;
+            }
+        }
+        if (valid) {
+            dat = timestruct.tm_sec + (timestruct.tm_min * SEC_IN_MIN) + (timestruct.tm_hour * SEC_IN_HOUR) + (timestruct.tm_mday * SEC_IN_DAY);
+            int year = timestruct.tm_year + YEAR_ZERO;
+            int month = timestruct.tm_mon - 1;
+            int monthdays = 0;
+            while (month >= 0) {
+                switch (month) {
+                    case 0:
+                    case 2:
+                    case 4:
+                    case 6:
+                    case 7:
+                    case 9:
+                    case 11:
+                        monthdays += 31;
+                        break;
+                    case 1:
+                        if (leapYear(year)) {
+                            monthdays += 29;
+                        } else {
+                            monthdays += 28;
+                        }
+                        break;
+                    case 3:
+                    case 5:
+                    case 8:
+                    case 10:
+                        monthdays += 30;
+                        break;
+                }
+                --month;
+            }
+            dat += (monthdays + (timestruct.tm_year * DAYS_IN_YEAR) + ((timestruct.tm_year + 2) / 4) - ((timestruct.tm_year + 30)  / 100) + ((timestruct.tm_year + 330) / 400)) * SEC_IN_DAY;
+        } else {
+            return NULL;
+        }
+        return dat;
+    }
+}
+
 /*! Creates a new object struct with the given type and properties list
     @param type     the object's type
     @param props    the object's list of properties
@@ -313,7 +558,7 @@ property* copyProperty (property* prop) {
     @param body         the list of expressions the function performs when called
     @return             the new user function struct
 */
-tap_fun* newUserfunction (argument* args[], int minargs, int maxargs, expression* body) {
+tap_fun* newTapFunction (argument* args[], int minargs, int maxargs, expression* body) {
     int numargs;
     if (maxargs == ARGLEN_INF) {
         numargs = minargs;
@@ -335,7 +580,7 @@ tap_fun* newUserfunction (argument* args[], int minargs, int maxargs, expression
     @param uf   the user function to copy
     @return     the new, duplicate user function
 */
-inline tap_fun* copyUserfunction (tap_fun* uf) {
+inline tap_fun* copyTapFunction (tap_fun* uf) {
     if (uf == NULL) {
         return NULL;
     } else {
@@ -350,7 +595,7 @@ inline tap_fun* copyUserfunction (tap_fun* uf) {
         for (i = 0; i < numargs; ++i) {
             args[i] = copyArgument(uf->args[i]);
         }
-        return newUserfunction(args, uf->minargs, uf->maxargs, copyExpression(uf->body));
+        return newTapFunction(args, uf->minargs, uf->maxargs, copyExpression(uf->body));
     }
 }
 
