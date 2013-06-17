@@ -135,7 +135,9 @@ inline expression* newExpressionLaz (expression* value) {
 expression* newExpressionAll (datatype type, exprvals* ev, expression* next, linenum line) {
     expression* expr = allocate(sizeof(expression)); // allocate the needed memory
     expr->type = type; // set the type to the given type
-    if (ev != NULL) { // set the expression's value to the given exprvals
+    if (ev == NULL) { // initialize the expression's value to NIL if one isn't given
+    	expr->ev.intval = NIL;
+    } else { // set the expression's value to the given exprvals
         memcpy(&(expr->ev), ev, sizeof(ev));
     }
     expr->next = next;
