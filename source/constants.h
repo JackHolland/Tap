@@ -8,13 +8,11 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include <math.h>
-
 #define NIL 0 // nil/null/void
 #define BASE 10 // the default base for functions like round, etc.
 #define PI 3.1415926535897932384626433832795028841971693993751058209749 // pi (ratio of a circle's circumference to its diameter)
 #define E 2.7182818284590452353602874713526624977572470936999595749669 // e (the number such that f(x) = e^x equals f'(x), f''(x), etc.)
-#define CURRENT_YEAR 12 // the last two digits of the current year (find a better solution than using this?)
+#define CURRENT_YEAR 12 // the last two digits of the current year
 #define SEC_IN_MIN 60 // seconds in a minute
 #define SEC_IN_HOUR 3600 // seconds in an hour
 #define SEC_IN_DAY 86400L // seconds in a day
@@ -99,3 +97,4 @@
 #define EXIT_OUT_OF_MEMORY 2
 
 #endif
+

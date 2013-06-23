@@ -184,7 +184,7 @@ void prim_sNewtype (expression* args[], int numargs, exprvals* returnval, dataty
         }
         tid = ctypeid;
         char* name = args[0]->ev.strval->content;
-        type* typ = newType(ctypeid++, strDup(name), required, inherits, properties);
+        type* typ = newType(ctypeid++, name, required, inherits, properties);
         typedefs* td = newTypedefs(typ);
         td->next = env->types;
         env->types = td;

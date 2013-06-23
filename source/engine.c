@@ -63,10 +63,10 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
     expression* tail = NULL; // the last expression parsed
     expression* tempexpr = NULL;
     expression** current = (expression**)&head; // the current expression
-    expressionstack* rootes = newExpressionstack(NULL); // the root expression in the stack
+    exprstack* rootes = newExprstack(NULL); // the root expression in the stack
     rootes->expr = *current;
-    expressionstack* es = rootes; // the current expression in the stack
-    expressionstack* tempes; // a temporary storage when deleting items on the stack
+    exprstack* es = rootes; // the current expression in the stack
+    exprstack* tempes; // a temporary storage when deleting items on the stack
     uint lastdelim = startindex; // last delimeter in the stack
     int currentdelim = -1; // the ascii value of the most recent delimeter
     uint size = strlen(text); // the size of the given text
@@ -128,7 +128,7 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
                     (*current)->line = endline; // set the expression's line to the current one
                 }
                 es->expr = *current; // add the current expression to the expression stack
-                es = newExpressionstack(es); // push a new expressionstack onto the end of the stack
+                es = newExprstack(es); // push a new exprstack onto the end of the stack
                 lastdelim = i + 1; // set the last delimeter to the current index
                 situation = 0; // use the current expression for the next call to parsePiece
                 break;
@@ -658,8 +658,8 @@ expression* evaluateLazy (expression* expr) {
         expr->ev.expval = expval;
         expr->type = TYPE_EXP;
         expval = evaluate(expr); // evaluate the expression as a regular expression
-        expressionstack* es1 = lazy->refs; // the lazy expression's references
-        expressionstack* es2;
+        exprstack* es1 = lazy->refs; // the lazy expression's references
+        exprstack* es2;
         while (es1 != NULL) { // while there are more references
             if (es1->expr->refs > 0) { // decrement references that still exist
                 --(es1->expr->refs);
@@ -966,7 +966,7 @@ expression* storeExprValue (expression* expr, char* text, int start, int end, ex
             } else {
                 expr->ev.strval = newString(strval);
                 if (expr->flag == EFLAG_NONE && lazy) { // if the string is a variable and is inside a lazy expression
-                    //expr->expr->lazval->refs = newExpressionstack(expr->expr->lazval->refs); // add a reference to it to the lazy expression list
+                    //expr->expr->lazval->refs = newExprstack(expr->expr->lazval->refs); // add a reference to it to the lazy expression list
                 }
             }
         } else {

@@ -9,6 +9,7 @@
 
 #include "memory.h"
 #include "constants.h"
+#include "constructors.h"
 
 static bool freeExpr_(expression*, bool);
 
@@ -49,21 +50,12 @@ inline bool freeExprNR (expression* expr) {
 static bool freeExpr_ (expression* expr, bool next) {
     if (expr != NULL) { // if the expression isn't null
         exprvals ev = expr->ev;
-        expressionstack* es;
-        int i;
-        argument* arg;
         switch (expr->type) { // depending on the expression's type
             case TYPE_EXP:
                 freeExpr(ev.expval); // recursively call this function with the expression's child expression
                 break;
             case TYPE_LAZ:
-                freeExpr(ev.lazval->expval); // recursively call this function with the lazy expression's child expression
-                while (ev.lazval->refs != NULL) { // free the lazy expression's reference stack
-                    es = ev.lazval->refs->next;
-                    free(ev.lazval->refs);
-                    ev.lazval->refs = es;
-                }
-                free(ev.lazval); // free the lazy expression content
+                freeLaz(ev.lazval);
                 break;
             case TYPE_STR:
                 freeStr(ev.strval);
@@ -71,22 +63,10 @@ static bool freeExpr_ (expression* expr, bool next) {
             case TYPE_ARR:
                 freeArr(ev.arrval);
                 break;
-            //case TYPE_OBJ: TODO
+            case TYPE_OBJ:
+            	freeObj(ev.objval);
             case TYPE_FUN:
-                freeExpr(ev.funval->body); // free the function body expression
-                int numargs;
-                if (ev.funval->maxargs == ARGLEN_INF) {
-                    numargs = ev.funval->minargs;
-                } else {
-                    numargs = ev.funval->maxargs;
-                }
-                for (i = 0; i < numargs; ++i) { // free the function arguments
-                    arg = ev.funval->args[i];
-                    free(arg->name->content);
-                    free(arg->name);
-                    free(arg);
-                }
-                free(ev.funval); // free the function content
+                freeFun(ev.funval);
                 break;
         }
         if (next) { // if the next expression should be freed
@@ -96,6 +76,24 @@ static bool freeExpr_ (expression* expr, bool next) {
     }
     
     return 0;
+}
+
+/*! Frees from memory the given array and its content
+    @param le       the lazy expression to free from memory
+    @return         0
+*/
+bool freeLaz (tap_laz* laz) {
+	freeExpr(laz->expval);
+	exprstack* es1 = laz->refs;
+	exprstack* es2;
+	while (es1 != NULL) {
+		es2 = es1->next;
+		freeExpr(es1->expr);
+		es1 = es2;
+	}
+	free(laz);
+	
+	return 0;
 }
 
 /*! Frees from memory the given string and its content
@@ -123,20 +121,139 @@ bool freeArr (array* arr) {
 	return 0;
 }
 
-/*! Frees from memory the given array and its content
-    @param le       the lazy expression to free from memory
+/*! Frees from memory the given object and its content
+    @param obj      the object to free from memory
     @return         0
 */
-bool freeLaz (tap_laz* laz) {
-	freeExpr(laz->expval);
-	expressionstack* es1 = laz->refs;
-	expressionstack* es2;
-	while (es1 != NULL) {
-		es2 = es1->next;
-		freeExpr(es1->expr);
-		es1 = es2;
+bool freeObj (tap_obj* obj) {
+	property* prop1 = obj->props;
+	property* prop2;
+	while (prop1 != NULL) {
+		prop2 = prop1->next;
+		freeProp(prop1);
+		prop1 = prop2;
 	}
-	free(laz);
+	free(obj);
+	
+	return 0;
+}
+
+/*! Frees from memory the given property and its content
+    @param prop     the property to free from memory
+    @return         0
+*/
+bool freeProp (property* prop) {
+	free(prop->name);
+	freeTypelist(prop->types);
+	freeExpr(prop->value);
+	if (prop->next != NULL) {
+		freeProp(prop->next);
+	}
+	free(prop);
+	
+	return 0;
+}
+
+/*! Frees from memory the given function and its content
+    @param fun      the function to free from memory
+    @return         0
+*/
+bool freeFun (tap_fun* fun) {
+	freeExpr(fun->body);
+    int numargs;
+    if (fun->maxargs == ARGLEN_INF) {
+        numargs = fun->minargs;
+    } else {
+        numargs = fun->maxargs;
+    }
+    int i;
+    for (i = 0; i < numargs; ++i) {
+        freeArg(fun->args[i]);
+    }
+    free(fun);
+    
+    return 0;
+}
+
+/*! Frees from memory the given argument
+	@param arg		the argument to free from memory
+	@return			0
+*/
+bool freeArg (argument* arg) {
+	freeStr(arg->name);
+	freeTypelist(arg->types);
+	freeExpr(arg->initial);
+	free(arg);
+	
+	return 0;
+}
+
+/*! Frees from memory the given list of types
+	@param tl		the list of types to free from memory
+	@return			0
+*/
+bool freeTypelist (typelist* tl) {
+	typelist* next_tl;
+	while (tl != NULL) {
+		next_tl = tl->next;
+		free(tl);
+		tl = next_tl;
+	}
+	
+	return 0;
+}
+
+/*! Frees from memory the given composite type
+	@param typ		the type to free from memory
+	@return			0
+*/
+bool freeCompTyp (type* typ) {
+	free(typ->name);
+	freeStringlist(typ->required);
+	freeTypelist(typ->inherits);
+	freeProp(typ->properties);
+	free(typ);
+	
+	return 0;
+}
+
+/*! Frees from memory the given list of strings
+	@param sl		the list of strings to free from memory
+	@return			0
+*/
+bool freeStringlist (stringlist* sl) {
+	stringlist* next_sl;
+	while (sl != NULL) {
+		next_sl = sl->next;
+		free(sl);
+		sl = next_sl;
+	}
+	
+	return 0;
+}
+
+/*! Frees from memory the given list of composite type definitions
+	@param td		the list of type definitions
+	@return			0
+*/
+bool freeTypedefs (typedefs* td) {
+	freeCompTyp(td->type);
+	if (td->next != NULL) {
+		freeTypedefs(td);
+	}
+	
+	return 0;
+}
+
+/*! Frees from memory the given stack of expressions
+	@param es		the stack of expressions
+	@return			0
+*/
+bool freeExprstack (exprstack* es) {
+	freeExpr(es->expr);
+	if (es->next != NULL) {
+		freeExprstack(es->next);
+	}
 	
 	return 0;
 }

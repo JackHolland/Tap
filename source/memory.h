@@ -13,8 +13,17 @@
 void* allocate(size_t);
 bool freeExpr(expression*);
 bool freeExprNR(expression*);
+bool freeLaz(tap_laz*);
 bool freeStr(string*);
 bool freeArr(array*);
-bool freeLaz(tap_laz*);
+bool freeObj(tap_obj*);
+bool freeProp(property*);
+bool freeFun(tap_fun*);
+bool freeArg(argument*);
+bool freeTypelist(typelist*);
+bool freeCompTyp(type*);
+bool freeStringlist(stringlist*);
+bool freeTypedefs(typedefs*);
+bool freeExprstack(exprstack*);
 
 #endif

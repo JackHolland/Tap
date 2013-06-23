@@ -195,16 +195,16 @@ expression* copyExpression (expression* expr) {
         } else if (expr->type == TYPE_LAZ) { // copy the lazy expression content if the expression is lazy
             tap_laz* lazy = newLazyExpression();
             lazy->expval = copyExpression(ev2->lazval->expval);
-            expressionstack* es2 = ev2->lazval->refs;
+            exprstack* es2 = ev2->lazval->refs;
             if (es2 == NULL) {
                 lazy->refs = NULL;
             } else {
-                lazy->refs = allocate(sizeof(expressionstack));
-                expressionstack* es1 = lazy->refs;
+                lazy->refs = allocate(sizeof(exprstack));
+                exprstack* es1 = lazy->refs;
                 while (es2 != NULL) {
                     es1->expr = es2->expr;
                     if (es2->next != NULL) {
-                        es1->next = allocate(sizeof(expressionstack));
+                        es1->next = allocate(sizeof(exprstack));
                         es1 = es1->next;
                     }
                     es2 = es2->next;
@@ -294,7 +294,7 @@ date newDate (string* str) {
     if (strcmp(sdate, "now") == 0) {
         return time(NULL);
     } else {
-    	date dat;
+    	date dat = 0;
         int size = str->size;
         while (size > 0 && sdate[size - 1] == ' ') {
             --size;
@@ -317,12 +317,12 @@ date newDate (string* str) {
                 valid = 0;
             }
             if (size > pos && isNumber(sdate[pos])) {
-                if (isNumber(sdate[pos + 1]) && (size == pos + 2 || (size > pos + 2 && (sdate[pos + 2] == '/' || sdate[pos + 2] == ' ')))) {
-                    timestruct.tm_mday = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0') - 1;
-                    pos += 3;
-                } else if (size == pos + 1 || (size > pos + 1 && sdate[pos + 1] == '/')) {
-                    timestruct.tm_mday = (sdate[pos] - '0') - 1;
+            	if (size == pos + 1 || (size > pos + 1 && sdate[pos + 1] == '/')) {
+                    timestruct.tm_mday = (sdate[pos] - '0');
                     pos += 2;
+                } else if (isNumber(sdate[pos + 1]) && (size == pos + 2 || (size > pos + 2 && (sdate[pos + 2] == '/' || sdate[pos + 2] == ' ')))) {
+                    timestruct.tm_mday = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0');
+                    pos += 3;
                 } else {
                     valid = 0;
                 }
@@ -363,39 +363,41 @@ date newDate (string* str) {
                                 valid = 0;
                             }
                             if (size > pos && isNumber(sdate[pos])) {
-                                if (isNumber(sdate[pos + 1]) && (size == pos + 2 || (size > pos + 2 && (sdate[pos + 2] == ':' || sdate[pos + 2] == ' ')))) {
+                                if (size > pos + 1 && isNumber(sdate[pos + 1])) {
                                     timestruct.tm_min = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0');
-                                    pos += 3;
-                                } else if (size == pos + 1 || (size > pos + 1 && sdate[pos + 1] == ':')) {
-                                    timestruct.tm_min = sdate[pos] - '0';
                                     pos += 2;
                                 } else {
-                                    valid = 0;
+                                    timestruct.tm_min = sdate[pos] - '0';
+                                    pos += 2;
                                 }
-                                if (size > pos && isNumber(sdate[pos])) {
-                                    if (size > pos + 1 && isNumber(sdate[pos + 1])) {
-                                        timestruct.tm_sec = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0');
-                                        pos += 2;
-                                    } else {
-                                        timestruct.tm_sec = sdate[pos] - '0';
-                                        pos += 1;
-                                    }
-                                    while (pos < size && sdate[pos] == ' ') {
-                                        ++pos;
-                                    }
-                                }
-                                if (size > pos + 1) {
-                                    if ((sdate[pos] == 'p' || sdate[pos] == 'P') && (sdate[pos + 1] == 'm' || sdate[pos + 1] == 'M')) {
-                                        timestruct.tm_hour += 12;
-                                    } else if (!((sdate[pos] == 'a' || sdate[pos] == 'A') && (sdate[pos + 1] == 'm' || sdate[pos + 1] == 'M'))) {
-                                        valid = 0;
-                                    }
-                                    if (size != pos + 2) {
-                                        valid = 0;
-                                    }
-                                } else {
-                                    valid = size == pos;
-                                }
+                                if (sdate[pos] == ':') {
+                                	++pos;
+		                            if (size > pos && isNumber(sdate[pos])) {
+		                                if (size > pos + 1 && isNumber(sdate[pos + 1])) {
+		                                    timestruct.tm_sec = (sdate[pos] - '0') * 10 + (sdate[pos + 1] - '0');
+		                                    pos += 2;
+		                                } else {
+		                                    timestruct.tm_sec = sdate[pos] - '0';
+		                                    pos += 1;
+		                                }
+		                                while (pos < size && sdate[pos] == ' ') {
+		                                    ++pos;
+		                                }
+		                            }
+		                        } else {
+		                            if (size > pos + 1) {
+		                                if ((sdate[pos] == 'p' || sdate[pos] == 'P') && (sdate[pos + 1] == 'm' || sdate[pos + 1] == 'M')) {
+		                                    timestruct.tm_hour += 12;
+		                                } else if (!((sdate[pos] == 'a' || sdate[pos] == 'A') && (sdate[pos + 1] == 'm' || sdate[pos + 1] == 'M'))) {
+		                                    valid = 0;
+		                                }
+		                                if (size != pos + 2) {
+		                                    valid = 0;
+		                                }
+		                            } else {
+		                                valid = size == pos;
+		                            }
+		                        }
                             } else {
                                 valid = size == pos;
                             }
@@ -426,7 +428,7 @@ date newDate (string* str) {
                     }
                     break;
                 case 1:
-                    if (leapYear(timestruct.tm_year) && timestruct.tm_mday > 29) {
+                    if (leapYear(timestruct.tm_year + YEAR_ZERO) && timestruct.tm_mday > 29) {
                         valid = 0;
                     } else if (timestruct.tm_mday > 28) {
                         valid = 0;
@@ -448,8 +450,7 @@ date newDate (string* str) {
             }
         }
         if (valid) {
-            dat = timestruct.tm_sec + (timestruct.tm_min * SEC_IN_MIN) + (timestruct.tm_hour * SEC_IN_HOUR) + (timestruct.tm_mday * SEC_IN_DAY);
-            int year = timestruct.tm_year + YEAR_ZERO;
+            dat = timestruct.tm_sec + (timestruct.tm_min * SEC_IN_MIN) + (timestruct.tm_hour * SEC_IN_HOUR) + ((timestruct.tm_mday - 1) * SEC_IN_DAY);
             int month = timestruct.tm_mon - 1;
             int monthdays = 0;
             while (month >= 0) {
@@ -464,11 +465,7 @@ date newDate (string* str) {
                         monthdays += 31;
                         break;
                     case 1:
-                        if (leapYear(year)) {
-                            monthdays += 29;
-                        } else {
-                            monthdays += 28;
-                        }
+                        monthdays += 28;
                         break;
                     case 3:
                     case 5:
@@ -479,7 +476,13 @@ date newDate (string* str) {
                 }
                 --month;
             }
-            dat += (monthdays + (timestruct.tm_year * DAYS_IN_YEAR) + ((timestruct.tm_year + 2) / 4) - ((timestruct.tm_year + 30)  / 100) + ((timestruct.tm_year + 330) / 400)) * SEC_IN_DAY;
+            int year_sign;
+            if (timestruct.tm_year >= 0) {
+            	year_sign = 1;
+            } else {
+            	year_sign = -1;
+            }
+            dat += (monthdays + (timestruct.tm_year * DAYS_IN_YEAR) + ((timestruct.tm_year + year_sign * 2) / 4) - ((timestruct.tm_year + year_sign * 30) / 100) + ((timestruct.tm_year + year_sign * 330) / 400)) * SEC_IN_DAY;
         } else {
             return NIL;
         }
@@ -523,7 +526,7 @@ tap_obj* copyObject (tap_obj* obj) {
 type* newType (datatype id, char* name, stringlist* required, typelist* inherits, property* properties) {
     type* typ = allocate(sizeof(type));
     typ->id = id;
-    typ->name = name;
+    typ->name = strDup(name);
     typ->required = required;
     typ->inherits = inherits;
     typ->properties = properties;
@@ -554,13 +557,7 @@ property* newProperty (char* name, typelist* types, int privacy, int range, expr
     @return         the new, duplicate property
 */
 property* copyProperty (property* prop) {
-    typelist* ats = copyTypelist(prop->types);
-    typelist* cat = ats->next;
-    while (cat != NULL) {
-        cat = copyTypelist(cat);
-        cat = cat->next;
-    }
-    return newProperty(strDup(prop->name), ats, prop->privacy, prop->range, prop->value);
+    return newProperty(strDup(prop->name), copyTypelistDeep(prop->types), prop->privacy, prop->range, copyExpression(prop->value));
 }
 
 /*! Creates a new user function struct with the given arguments, more arguments flag, and body
@@ -577,37 +574,37 @@ tap_fun* newTapFunction (argument* args[], int minargs, int maxargs, expression*
     } else {
         numargs = maxargs;
     }
-    tap_fun* uf = allocate(sizeof(tap_fun) + sizeof(argument*) * numargs); // allocate the needed memory
-    uf->body = body; // set the function's body to the given body
-    uf->minargs = minargs;
-    uf->maxargs = maxargs;
+    tap_fun* fun = allocate(sizeof(tap_fun) + sizeof(argument*) * numargs); // allocate the needed memory
+    fun->body = body; // set the function's body to the given body
+    fun->minargs = minargs;
+    fun->maxargs = maxargs;
     int i;
     for (i = 0; i < numargs; ++i) { // copy each of the given arguments to the user function's argument array
-        uf->args[i] = args[i];
+        fun->args[i] = args[i];
     }
-    return uf;
+    return fun;
 }
 
 /*! Copies the given user function with the given body, minimum and maximum arguments, and arguments list
-    @param uf   the user function to copy
-    @return     the new, duplicate user function
+    @param fun		the tap function to copy
+    @return     	the new tap function
 */
-tap_fun* copyTapFunction (tap_fun* uf) {
-    if (uf == NULL) {
+tap_fun* copyTapFunction (tap_fun* fun) {
+    if (fun == NULL) {
         return NULL;
     } else {
         int numargs;
-        if (uf->maxargs == ARGLEN_INF) {
-            numargs = uf->minargs;
+        if (fun->maxargs == ARGLEN_INF) {
+            numargs = fun->minargs;
         } else {
-            numargs = uf->maxargs;
+            numargs = fun->maxargs;
         }
         argument** args = allocate(sizeof(argument*) * numargs);
         int i;
         for (i = 0; i < numargs; ++i) {
-            args[i] = copyArgument(uf->args[i]);
+            args[i] = copyArgument(fun->args[i]);
         }
-        return newTapFunction(args, uf->minargs, uf->maxargs, copyExpression(uf->body));
+        return newTapFunction(args, fun->minargs, fun->maxargs, copyExpression(fun->body));
     }
 }
 
@@ -633,24 +630,24 @@ inline argument* copyArgument (argument* arg) {
     if (arg == NULL) {
         return NULL;
     } else {
-        return newArgument(copyString(arg->name), copyTypelists(arg->types), copyExpression(arg->initial));
+        return newArgument(copyString(arg->name), copyTypelistDeep(arg->types), copyExpression(arg->initial));
     }
 }
 
-/*! Creates a new argument type list struct with the given type as the first type of the list
+/*! Creates a new type list struct with the given type as the first type of the list
     @param name     the array of arguments the function accepts
     @param type     a flag indicating whether or not the function can accept more arguments after its listed ones
     @param initial  the list of expressions the function performs when called
     @return         the new user function struct
 */
 inline typelist* newTypelist (datatype type) {
-    typelist* at = allocate(sizeof(typelist));
-    at->type = type;
-    at->next = NULL;
-    return at;
+    typelist* tl = allocate(sizeof(typelist));
+    tl->type = type;
+    tl->next = NULL;
+    return tl;
 }
 
-/*! Creates a new argument type list struct with the given type as the first type of the list and the given typelist as the next argument
+/*! Creates a new type list struct with the given type as the first type of the list and the given list of types as the remaining list
     @param name     the array of arguments the function accepts
     @param type     a flag indicating whether or not the function can accept more arguments after its listed ones
     @param initial  the list of expressions the function performs when called
@@ -663,27 +660,27 @@ inline typelist* newTypelistWithNext (datatype type, typelist* next) {
     return at;
 }
 
-/*! Copies the given argument type with its type and next reference
+/*! Copies the given type list item with its type and next reference
     @param at   the argument type to copy
     @return     the new, duplicate argument type
 */
-inline typelist* copyTypelist (typelist* at) {
-    if (at == NULL) {
+inline typelist* copyTypelist (typelist* tl) {
+    if (tl == NULL) {
         return NULL;
     } else {
-        return newTypelistWithNext(at->type, at->next);
+        return newTypelistWithNext(tl->type, NULL);
     }
 }
 
-/*! Copies the given argument types
+/*! Copies the given list of types
     @param at   the argument types to copy
     @return     the new, duplicate argument types
 */
-inline typelist* copyTypelists (typelist* at) {
-    if (at == NULL) {
+inline typelist* copyTypelistDeep (typelist* tl) {
+    if (tl == NULL) {
         return NULL;
     } else {
-        return newTypelistWithNext(at->type, copyTypelists(at->next));
+        return newTypelistWithNext(tl->type, copyTypelistDeep(tl->next));
     }
 }
 
@@ -702,8 +699,8 @@ inline typedefs* newTypedefs (type* typ) {
     @param current  the expression stack to be pointed to
     @return         the new expression stack
 */
-inline expressionstack* newExpressionstack (expressionstack* current) {
-    expressionstack* es = allocate(sizeof(expressionstack));
+inline exprstack* newExprstack (exprstack* current) {
+    exprstack* es = allocate(sizeof(exprstack));
     es->expr = NULL;
     es->next = current;
     return es;

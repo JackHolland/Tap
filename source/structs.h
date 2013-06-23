@@ -22,7 +22,7 @@ typedef struct property_ property;
 typedef struct tap_fun_ tap_fun;
 typedef struct argument_ argument;
 typedef struct typelist_ typelist;
-typedef struct expressionstack_ expressionstack;
+typedef struct exprstack_ exprstack;
 typedef struct tap_prim_fun_ tap_prim_fun;
 typedef struct stringlist_ stringlist;
 typedef struct errorlist_ errorlist;
@@ -57,7 +57,7 @@ struct expression_ {
 
 struct tap_laz_ {
     expression* expval;
-    expressionstack* refs;
+    exprstack* refs;
 };
 
 struct string_ {
@@ -117,9 +117,9 @@ struct typelist_ {
     typelist* next;
 };
 
-struct expressionstack_ {
+struct exprstack_ {
     expression* expr;
-    expressionstack* next;
+    exprstack* next;
 };
 
 struct tap_prim_fun_ {

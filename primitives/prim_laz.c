@@ -179,8 +179,8 @@ void prim_lLaz (expression* args[], int numargs, exprvals* returnval, datatype* 
     returnval->lazval = newLazyExpression();
     tap_laz* le = args[0]->ev.lazval;
     returnval->lazval->expval = copyExpression(le->expval);
-    expressionstack* oldref = le->refs;
-    expressionstack** newref = &(returnval->lazval->refs);
+    exprstack* oldref = le->refs;
+    exprstack** newref = &(returnval->lazval->refs);
     while (oldref != NULL) {
         memcpy(*newref, oldref, sizeof(oldref));
         (*newref)->next = oldref->next;

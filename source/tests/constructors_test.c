@@ -163,7 +163,7 @@ DESCRIBE(copyArrayDeep, "array* copyArrayDeep (array* arr)")
 		arr1->content[0] = newExpressionInt(1);
 		arr1->content[1] = newExpressionStr(newString(strDup("2")));
 		arr1->content[2] = newExpressionTyp(TYPE_LAZ);
-		array* arr2 = copyArray(arr1);
+		array* arr2 = copyArrayDeep(arr1);
 		SHOULD_EQUAL(arr1->size, arr2->size)
 		SHOULD_NOT_EQUAL(arr1->content[0], arr2->content[0])
 		SHOULD_NOT_EQUAL(arr1->content[1], arr2->content[1])
@@ -177,39 +177,246 @@ DESCRIBE(copyArrayDeep, "array* copyArrayDeep (array* arr)")
 END_DESCRIBE
 
 DESCRIBE(newDate, "date newDate (string* str)")
-	date dat;
+	string* str1;
+	string* str2;
+	string* str3;
 	
 	IT("Returns the current time when given 'now'")
-		dat = newDate("now");
-		SHOULD_EQUAL(dat, time(NULL))
+		str1 = newString(strDup("now"));
+		SHOULD_EQUAL(newDate(str1), time(NULL))
+		freeStr(str1);
 	END_IT
 	
 	IT("Parses date strings")
-		
+		str1 = newString(strDup("10/3/1999"));
+		SHOULD_EQUAL(newDate(str1), 938908800)
+		freeStr(str1);
+		str2 = newString(strDup(" 5/1/2004"));
+		SHOULD_EQUAL(newDate(str2), 1083369600)
+		freeStr(str2);
+		str3 = newString(strDup("12/13/14 "));
+		SHOULD_EQUAL(newDate(str3), -1737331200)
+		freeStr(str3);
 	END_IT
 	
 	IT("Parses date and time strings")
-		
+		str1 = newString(strDup("3/24/1988 5:42am"));
+		SHOULD_EQUAL(newDate(str1), 575185320)
+		freeStr(str1);
+		str2 = newString(strDup("10/11/2000   15:12:34"));
+		SHOULD_EQUAL(newDate(str2), 971277154)
+		freeStr(str2);
 	END_IT
 END_DESCRIBE
 
-/*DESCRIBE(, "")
+DESCRIBE(newObject, "tap_obj* newObject (datatype type, property* props)")
+	IT("Creates a new object with the given type and properties")
+		expression* expr = newExpressionInt(5);
+		tap_obj* obj = newObject(TYPE_OBJ, newProperty("x", newTypelist(TYPE_INT), PROP_PRIVACY_PUBLIC, PROP_RANGE_LOCAL, expr));
+		SHOULD_EQUAL(obj->type, TYPE_OBJ)
+		SHOULD_EQUAL(strcmp(obj->props->name, "x"), 0)
+		freeExpr(expr);
+		freeObj(obj);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(copyObject, "tap_obj* copyObject (tap_obj* obj)")
+	IT("Copies the given object, copying its type and properties")
+		expression* expr = newExpressionFlo(-9.8);
+		tap_obj* obj1 = newObject(TYPE_OBJ, newProperty("y", newTypelist(TYPE_FLO), PROP_PRIVACY_PRIVATE, PROP_RANGE_GLOBAL, expr));
+		tap_obj* obj2 = copyObject(obj1);
+		SHOULD_NOT_EQUAL(obj1, obj2)
+		SHOULD_EQUAL(obj1->type, obj2->type)
+		SHOULD_NOT_EQUAL(obj1->props, obj2->props)
+		SHOULD_EQUAL(obj1->props->value->ev.intval, obj2->props->value->ev.intval)
+		freeExpr(expr);
+		freeObj(obj1);
+		freeObj(obj2);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newType, "type* newType (datatype id, char* name, stringlist* required, typelist* inherits, property* properties)")
+	IT("Creates a new composite type")
+		expression* expr = newExpressionNil();
+		type* comptyp = newType(TYPE_COMP_START, "comp", newStringlist(newString(strDup("fun1")), NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_NIL), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
+		SHOULD_EQUAL(strcmp(comptyp->name, "comp"), 0)
+		SHOULD_EQUAL(strcmp(comptyp->required->str->content, "fun1"), 0)
+		SHOULD_EQUAL(comptyp->inherits->type, TYPE_OBJ)
+		SHOULD_EQUAL(comptyp->properties->value->type, TYPE_NIL)
+		freeExpr(expr);
+		freeCompTyp(comptyp);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newProperty, "property* newProperty (char* name, typelist* types, int privacy, int range, expression* value)")
+	IT("Creates a new property")
+		expression* expr = newExpressionStr(newString(strDup("hi")));
+		property* prop = newProperty("sample-prop", newTypelist(TYPE_STR), PROP_PRIVACY_PRIVATE, PROP_RANGE_GLOBAL, expr);
+		SHOULD_EQUAL(strcmp(prop->name, "sample-prop"), 0)
+		SHOULD_EQUAL(prop->privacy & PROP_PRIVACY_PRIVATE, PROP_PRIVACY_PRIVATE)
+		SHOULD_EQUAL(prop->range & PROP_RANGE_GLOBAL, PROP_RANGE_GLOBAL) 
+		SHOULD_EQUAL(strcmp(prop->value->ev.strval->content, "hi"), 0)
+		freeExpr(expr);
+		freeProp(prop);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(copyProperty, "property* copyProperty (property* prop)")
+	IT("Copies the given property and its content")
+		expression* expr = newExpressionInt(101);
+		property* prop1 = newProperty("prop1", newTypelistWithNext(TYPE_INT, newTypelist(TYPE_FLO)), PROP_PRIVACY_PUBLIC, PROP_RANGE_GLOBAL, expr);
+		property* prop2 = copyProperty(prop1);
+		SHOULD_NOT_EQUAL(prop1, prop2)
+		SHOULD_EQUAL(strcmp(prop1->name, prop2->name), 0)
+		SHOULD_NOT_EQUAL(prop1->types, prop2->types)
+		SHOULD_EQUAL(prop1->types->type, prop2->types->type)
+		SHOULD_EQUAL(prop1->types->next->type, prop2->types->next->type)
+		SHOULD_EQUAL(prop1->privacy, prop2->privacy)
+		SHOULD_EQUAL(prop1->range, prop2->range)
+		SHOULD_NOT_EQUAL(prop1->value, prop2->value)
+		SHOULD_EQUAL(prop1->value->ev.intval, prop2->value->ev.intval)
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newTapFunction, "tap_fun* newTapFunction (argument* args[], int minargs, int maxargs, expression* body)")
+	IT("Creates a new tap function")
+		argument* args[2];
+		args[0] = newArgument(newString(strDup("x")), newTypelistWithNext(TYPE_INT, newTypelist(TYPE_FLO)), NULL);
+		args[1] = newArgument(newString(strDup("y")), newTypelistWithNext(TYPE_INT, newTypelist(TYPE_FLO)), NULL);
+		expression* body = newExpressionStr(newString(strDup("+")));
+		body->next = newExpressionStr(newString(strDup("x")));
+		body->next->next = newExpressionStr(newString(strDup("y")));
+		body = newExpressionLaz(body);
+		tap_fun* fun = newTapFunction(args, 2, 2, body);
+		SHOULD_EQUAL(fun->args[0], args[0])
+		SHOULD_EQUAL(fun->args[1], args[1])
+		SHOULD_EQUAL(fun->minargs, 2)
+		SHOULD_EQUAL(fun->maxargs, 2)
+		SHOULD_EQUAL(fun->body, body)
+		freeFun(fun);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newArgument, "argument* newArgument (string* name, typelist* types, expression* initial)")
+	IT("Creates a new argument")
+		expression* expr = newExpressionNil();
+		argument* arg = newArgument(newString(strDup("arg")), newTypelist(TYPE_NIL), expr);
+		SHOULD_EQUAL(strcmp(arg->name->content, "arg"), 0)
+		SHOULD_EQUAL(arg->types->type, TYPE_NIL)
+		SHOULD_EQUAL(arg->initial, expr)
+		freeArg(arg);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(copyArgument, "argument* copyArgument (argument* arg)")
+	IT("Copies the given argument and its content")
+		expression* expr = newExpressionInt(1);
+		argument* arg1 = newArgument(newString(strDup("name")), newTypelist(TYPE_INT), expr);
+		argument* arg2 = copyArgument(arg1);
+		SHOULD_NOT_EQUAL(arg1, arg2)
+		SHOULD_EQUAL(strcmp(arg1->name->content, arg2->name->content), 0)
+		SHOULD_NOT_EQUAL(arg1->types, arg2->types)
+		SHOULD_EQUAL(arg1->types->type, arg2->types->type)
+		SHOULD_NOT_EQUAL(arg1->initial, arg2->initial)
+		SHOULD_EQUAL(arg1->initial->ev.intval, arg2->initial->ev.intval)
+		freeArg(arg1);
+		freeArg(arg2);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newTypelist, "typelist* newTypelist (datatype type)")
+	IT("Creates a new list of types of length 1")
+		typelist* tl = newTypelist(TYPE_INT);
+		SHOULD_EQUAL(tl->type, TYPE_INT)
+		freeTypelist(tl);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newTypelistWithNext, "typelist* newTypelistWithNext (datatype type, typelist* next)")
+	IT("Creates a new list of types")
+		typelist* tl = newTypelistWithNext(TYPE_INT, newTypelistWithNext(TYPE_FLO, newTypelist(TYPE_ARR)));
+		SHOULD_EQUAL(tl->type, TYPE_INT)
+		SHOULD_EQUAL(tl->next->type, TYPE_FLO)
+		SHOULD_EQUAL(tl->next->next->type, TYPE_ARR)
+		freeTypelist(tl);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(copyTypelist, "typelist* copyTypelist (typelist* tl)")
+	IT("Copies the first item in the given list of types and its content")
+		typelist* tl1 = newTypelist(TYPE_NIL);
+		typelist* tl2 = newTypelistWithNext(TYPE_INT, tl1);
+		typelist* tl3 = copyTypelist(tl2);
+		SHOULD_NOT_EQUAL(tl2, tl3)
+		SHOULD_EQUAL(tl3->type, TYPE_INT)
+		SHOULD_EQUAL(tl3->next, NULL)
+		freeTypelist(tl2);
+		freeTypelist(tl3);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(copyTypelistDeep, "typelist* copyTypelistDeep (typelist* tl)")
+	IT("Copies the given list of types and their contents")
+		typelist* tl1 = newTypelistWithNext(TYPE_STR, newTypelist(TYPE_OBJ));
+		typelist* tl2 = copyTypelistDeep(tl1);
+		SHOULD_NOT_EQUAL(tl1, tl2)
+		SHOULD_EQUAL(tl1->type, tl2->type)
+		SHOULD_EQUAL(tl1->next->type, tl2->next->type)
+		freeTypelist(tl1);
+		freeTypelist(tl2);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newTypedefs, "typedefs* newTypedefs (type* typ)")
+	IT("Creates a new list of composite type definitions")
+		expression* expr = newExpressionInt(8);
+		type* typ = newType(TYPE_COMP_START, "blah", newStringlist(newString(strDup("bloog")), NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_INT), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
+		typedefs* td = newTypedefs(typ);
+		SHOULD_EQUAL(td->type, typ)
+		freeExpr(expr);
+		freeTypedefs(td);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newExprstack, "exprstack* newExprstack (exprstack* current)")
+	IT("Creates a new stack of expressions, adding to the given stack")
+		expression* expr1 = newExpressionInt(1);
+		expression* expr2 = newExpressionInt(2);
+		exprstack* es1 = newExprstack(NULL);
+		es1->expr = expr1;
+		exprstack* es2 = newExprstack(es1);
+		es2->expr = expr2;
+		SHOULD_EQUAL(es1->expr, expr1)
+		SHOULD_EQUAL(es1->next, NULL)
+		SHOULD_EQUAL(es2->expr, expr2)
+		SHOULD_EQUAL(es2->next, es1)
+		freeExprstack(es2);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newPrimFunction, "tap_prim_fun* newPrimFunction (void(*address)(expression*[], int, exprvals*, datatype*), int minargs, int maxargs, typelist* types)")
 	IT("")
 		
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(, "")
+DESCRIBE(newEnvironment, "environment* newEnvironment (hashtable* variables, int parent)")
 	IT("")
 		
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(, "")
+DESCRIBE(newStringlist, "newStringlist (string* str, stringlist* next)")
 	IT("")
 		
 	END_IT
-END_DESCRIBE*/
+END_DESCRIBE
+
+DESCRIBE(newErrorlist, "newErrorlist (uint code, string* message, linenum line, uint index)")
+	IT("")
+		
+	END_IT
+END_DESCRIBE
 
 int main () {
 	CSpec_Run(DESCRIPTION(newExpression), CSpec_NewOutputUnit());
@@ -228,7 +435,7 @@ int main () {
 	CSpec_Run(DESCRIPTION(copyArray), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(copyArrayDeep), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newDate), CSpec_NewOutputUnit());
-	/*CSpec_Run(DESCRIPTION(newObject), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(newObject), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(copyObject), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newType), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newProperty), CSpec_NewOutputUnit());
@@ -239,13 +446,13 @@ int main () {
 	CSpec_Run(DESCRIPTION(newTypelist), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newTypelistWithNext), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(copyTypelist), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(copyTypelists), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(copyTypelistDeep), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newTypedefs), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(newExpressionstack), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(newExprstack), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newPrimFunction), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newEnvironment), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newStringlist), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(newErrorlist), CSpec_NewOutputUnit());*/
+	CSpec_Run(DESCRIPTION(newErrorlist), CSpec_NewOutputUnit());
 	
 	return 0;
 }
