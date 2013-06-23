@@ -142,7 +142,7 @@ void prim_sNewtype (expression* args[], int numargs, exprvals* returnval, dataty
                                         for (i = arr->start; i < arr->end; ++i) {
                                             expression* proptyp = evaluateArgument(arr->content[i]);
                                             if (proptyp->type == TYPE_TYP) {
-                                                typelist* tl = newTypelist_n(proptyp->ev.intval, proptypes);
+                                                typelist* tl = newTypelistWithNext(proptyp->ev.intval, proptypes);
                                                 proptypes = tl;
                                                 freeExpr(proptyp);
                                             } else {

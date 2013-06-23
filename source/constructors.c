@@ -37,7 +37,7 @@ inline expression* newExpressionOfType (datatype type) {
 			ev.expval = NULL;
 			break;
 		case TYPE_LAZ:
-			ev.lazval = newLazyexpr();
+			ev.lazval = newLazyExpression();
 			break;
 		case TYPE_INT:
 			ev.intval = 0;
@@ -120,9 +120,19 @@ inline expression* newExpressionArr (array* value) {
 */
 inline expression* newExpressionLaz (expression* value) {
 	exprvals ev;
-	ev.lazval = newLazyexpr();
+	ev.lazval = newLazyExpression();
 	ev.lazval->expval = value;
     return newExpressionAll(TYPE_LAZ, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+}
+
+/*! Creates a new type struct with the given type as its value
+    @param value    the type to be stored in the expression
+    @return         the new expression struct
+*/
+inline expression* newExpressionTyp (datatype value) {
+	exprvals ev;
+	ev.intval = value;
+	return newExpressionAll(TYPE_TYP, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
 /*! Creates a new expression struct with the given properties
@@ -183,7 +193,7 @@ expression* copyExpression (expression* expr) {
         if (expr->type == TYPE_EXP) { // copy the child expressions if the expression is a container expression
             ev1->expval = copyExpression(ev2->expval);
         } else if (expr->type == TYPE_LAZ) { // copy the lazy expression content if the expression is lazy
-            tap_laz* lazy = newLazyexpr();
+            tap_laz* lazy = newLazyExpression();
             lazy->expval = copyExpression(ev2->lazval->expval);
             expressionstack* es2 = ev2->lazval->refs;
             if (es2 == NULL) {
@@ -210,7 +220,7 @@ expression* copyExpression (expression* expr) {
     @param size     the number of elements that initially can be stored in the array
     @return         the new array struct
 */
-tap_laz* newLazyexpr () {
+tap_laz* newLazyExpression () {
     tap_laz* le = allocate(sizeof(tap_laz)); // allocate the needed memory
     le->expval = NULL;
     le->refs = NULL;
@@ -471,7 +481,7 @@ date newDate (string* str) {
             }
             dat += (monthdays + (timestruct.tm_year * DAYS_IN_YEAR) + ((timestruct.tm_year + 2) / 4) - ((timestruct.tm_year + 30)  / 100) + ((timestruct.tm_year + 330) / 400)) * SEC_IN_DAY;
         } else {
-            return NULL;
+            return NIL;
         }
         return dat;
     }
@@ -582,7 +592,7 @@ tap_fun* newTapFunction (argument* args[], int minargs, int maxargs, expression*
     @param uf   the user function to copy
     @return     the new, duplicate user function
 */
-inline tap_fun* copyTapFunction (tap_fun* uf) {
+tap_fun* copyTapFunction (tap_fun* uf) {
     if (uf == NULL) {
         return NULL;
     } else {
@@ -646,7 +656,7 @@ inline typelist* newTypelist (datatype type) {
     @param initial  the list of expressions the function performs when called
     @return         the new user function struct
 */
-inline typelist* newTypelist_n (datatype type, typelist* next) {
+inline typelist* newTypelistWithNext (datatype type, typelist* next) {
     typelist* at = allocate(sizeof(typelist));
     at->type = type;
     at->next = next;
@@ -661,7 +671,7 @@ inline typelist* copyTypelist (typelist* at) {
     if (at == NULL) {
         return NULL;
     } else {
-        return newTypelist_n(at->type, at->next);
+        return newTypelistWithNext(at->type, at->next);
     }
 }
 
@@ -673,7 +683,7 @@ inline typelist* copyTypelists (typelist* at) {
     if (at == NULL) {
         return NULL;
     } else {
-        return newTypelist_n(at->type, copyTypelists(at->next));
+        return newTypelistWithNext(at->type, copyTypelists(at->next));
     }
 }
 

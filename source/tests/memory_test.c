@@ -52,12 +52,21 @@ DESCRIBE(freeArr, "bool freeArr (array* arr)")
 	END_IT
 END_DESCRIBE
 
+DESCRIBE(freeLaz, "bool freeLaz (tap_laz* laz)")
+	IT("frees the given lazy expression and its content")
+		tap_laz* laz = newLazyExpression();
+		laz->expval = newExpressionInt(3);
+		SHOULD_EQUAL(freeLaz(laz), 0)
+	END_IT
+END_DESCRIBE
+
 int main () {
 	CSpec_Run(DESCRIPTION(allocate), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freeExpr), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freeExprNR), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freeStr), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freeArr), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(freeLaz), CSpec_NewOutputUnit());
 	
 	return 0;
 }

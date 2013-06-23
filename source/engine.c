@@ -118,7 +118,7 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
                     if (ascii == '[') { // if the expression is lazy
                         // add a lazy expression inside the last one parsed for the content inside its parentheses
                         tempexpr = newExpressionOfType(TYPE_LAZ);
-                        tempexpr->ev.lazval = newLazyexpr();
+                        tempexpr->ev.lazval = newLazyExpression();
                         (*current)->next = tempexpr;
                     } else { // if the expression is regular or an array
                         // add an expression inside the last one parsed for the content inside its parentheses
@@ -1139,17 +1139,17 @@ void initializeGlobals () {
     insertPrimHash(cenv, "::", newPrimFunction(&prim_nTyp, 1, 1, newTypelist(TYPE_NIL)));
 
     insertPrimHash(cenv, "eval", newPrimFunction(&prim_lEval, 1, 1, newTypelist(TYPE_LAZ)));
-    insertPrimHash(cenv, "function", newPrimFunction(&prim_lFunction, 2, 2, newTypelist_n(TYPE_LAZ, newTypelist(TYPE_LAZ))));
-    insertPrimHash(cenv, "lambda", newPrimFunction(&prim_lFunction, 2, 2, newTypelist_n(TYPE_LAZ, newTypelist(TYPE_LAZ))));
+    insertPrimHash(cenv, "function", newPrimFunction(&prim_lFunction, 2, 2, newTypelistWithNext(TYPE_LAZ, newTypelist(TYPE_LAZ))));
+    insertPrimHash(cenv, "lambda", newPrimFunction(&prim_lFunction, 2, 2, newTypelistWithNext(TYPE_LAZ, newTypelist(TYPE_LAZ))));
     insertPrimHash(cenv, "&&", newPrimFunction(&prim_lAnd, 1, ARGLEN_INF, newTypelist(TYPE_LAZ)));
     insertPrimHash(cenv, "||", newPrimFunction(&prim_lOr, 1, ARGLEN_INF, newTypelist(TYPE_LAZ)));
     insertPrimHash(cenv, "^^", newPrimFunction(&prim_lXor, 1, ARGLEN_INF, newTypelist(TYPE_LAZ)));
-    insertPrimHash(cenv, "if", newPrimFunction(&prim_lIf, 2, ARGLEN_INF, newTypelist_n(TYPE_LAZ, newTypelist(TYPE_UNK))));
+    insertPrimHash(cenv, "if", newPrimFunction(&prim_lIf, 2, ARGLEN_INF, newTypelistWithNext(TYPE_LAZ, newTypelist(TYPE_UNK))));
     insertPrimHash(cenv, "typ", newPrimFunction(&prim_lTyp, 1, 1, newTypelist(TYPE_LAZ)));
     insertPrimHash(cenv, "type", newPrimFunction(&prim_lTyp, 1, 1, newTypelist(TYPE_LAZ)));
     insertPrimHash(cenv, "::", newPrimFunction(&prim_lTyp, 1, 1, newTypelist(TYPE_LAZ)));
 
-    insertPrimHash(cenv, "error", newPrimFunction(&prim_iError, 2, 2, newTypelist_n(TYPE_INT, newTypelist(TYPE_STR))));
+    insertPrimHash(cenv, "error", newPrimFunction(&prim_iError, 2, 2, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_STR))));
     insertPrimHash(cenv, "+", newPrimFunction(&prim_iAdd, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "-", newPrimFunction(&prim_iSub, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "*", newPrimFunction(&prim_iMul, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
@@ -1171,7 +1171,7 @@ void initializeGlobals () {
     insertPrimHash(cenv, "asin", newPrimFunction(&prim_iAsin, 1, 1, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "acos", newPrimFunction(&prim_iAcos, 1, 1, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "atan", newPrimFunction(&prim_iAtan, 1, 1, newTypelist(TYPE_INT)));
-    insertPrimHash(cenv, "atan2", newPrimFunction(&prim_iAtan2, 2, 2, newTypelist_n(TYPE_INT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "atan2", newPrimFunction(&prim_iAtan2, 2, 2, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_INT))));
     insertPrimHash(cenv, "sinh", newPrimFunction(&prim_iSinh, 1, 1, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "cosh", newPrimFunction(&prim_iCosh, 1, 1, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "tanh", newPrimFunction(&prim_iTanh, 1, 1, newTypelist(TYPE_INT)));
@@ -1181,9 +1181,9 @@ void initializeGlobals () {
     insertPrimHash(cenv, "&", newPrimFunction(&prim_iBand, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "|", newPrimFunction(&prim_iBor, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "^", newPrimFunction(&prim_iBxor, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
-    insertPrimHash(cenv, "<<", newPrimFunction(&prim_iLshift, 2, 2, newTypelist_n(TYPE_INT, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, ">>", newPrimFunction(&prim_iRashift, 2, 2, newTypelist_n(TYPE_INT, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, ">>>", newPrimFunction(&prim_iRlshift, 2, 2, newTypelist_n(TYPE_INT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "<<", newPrimFunction(&prim_iLshift, 2, 2, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, ">>", newPrimFunction(&prim_iRashift, 2, 2, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, ">>>", newPrimFunction(&prim_iRlshift, 2, 2, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_INT))));
     insertPrimHash(cenv, "!", newPrimFunction(&prim_iLnot, 1, 1, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "&&", newPrimFunction(&prim_iLand, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "||", newPrimFunction(&prim_iLor, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
@@ -1194,7 +1194,7 @@ void initializeGlobals () {
     insertPrimHash(cenv, "!=", newPrimFunction(&prim_iNequal, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, ">=", newPrimFunction(&prim_iMequal, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, ">", newPrimFunction(&prim_iMore, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
-    insertPrimHash(cenv, "if", newPrimFunction(&prim_iIf, 2, ARGLEN_INF, newTypelist_n(TYPE_INT, newTypelist(TYPE_UNK))));
+    insertPrimHash(cenv, "if", newPrimFunction(&prim_iIf, 2, ARGLEN_INF, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_UNK))));
     insertPrimHash(cenv, "random", newPrimFunction(&prim_iRand, 1, 1, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "seed-random", newPrimFunction(&prim_iSrand, 1, 1, newTypelist(TYPE_INT)));
     insertPrimHash(cenv, "from-ascii", newPrimFunction(&prim_iFascii, 1, 1, newTypelist(TYPE_INT)));
@@ -1232,7 +1232,7 @@ void initializeGlobals () {
     insertPrimHash(cenv, "asin", newPrimFunction(&prim_fAsin, 1, 1, newTypelist(TYPE_FLO)));
     insertPrimHash(cenv, "acos", newPrimFunction(&prim_fAcos, 1, 1, newTypelist(TYPE_FLO)));
     insertPrimHash(cenv, "atan", newPrimFunction(&prim_fAtan, 1, 1, newTypelist(TYPE_FLO)));
-    insertPrimHash(cenv, "atan2", newPrimFunction(&prim_fAtan2, 2, 2, newTypelist_n(TYPE_FLO, newTypelist(TYPE_FLO))));
+    insertPrimHash(cenv, "atan2", newPrimFunction(&prim_fAtan2, 2, 2, newTypelistWithNext(TYPE_FLO, newTypelist(TYPE_FLO))));
     insertPrimHash(cenv, "sinh", newPrimFunction(&prim_fSinh, 1, 1, newTypelist(TYPE_FLO)));
     insertPrimHash(cenv, "cosh", newPrimFunction(&prim_fCosh, 1, 1, newTypelist(TYPE_FLO)));
     insertPrimHash(cenv, "tanh", newPrimFunction(&prim_fTanh, 1, 1, newTypelist(TYPE_FLO)));
@@ -1256,26 +1256,26 @@ void initializeGlobals () {
     insertPrimHash(cenv, "type", newPrimFunction(&prim_fTyp, 1, 1, newTypelist(TYPE_FLO)));
     insertPrimHash(cenv, "::", newPrimFunction(&prim_fTyp, 1, 1, newTypelist(TYPE_FLO)));
 
-    insertPrimHash(cenv, "set", newPrimFunction(&prim_sSet, 2, 2, newTypelist_n(TYPE_STR, newTypelist(TYPE_UNK))));
-    insertPrimHash(cenv, "new-type", newPrimFunction(&prim_sNewtype, 2, 2, newTypelist_n(TYPE_STR, newTypelist(TYPE_LAZ))));
+    insertPrimHash(cenv, "set", newPrimFunction(&prim_sSet, 2, 2, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_UNK))));
+    insertPrimHash(cenv, "new-type", newPrimFunction(&prim_sNewtype, 2, 2, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_LAZ))));
     insertPrimHash(cenv, "print", newPrimFunction(&prim_sPrint, 1, 1, newTypelist(TYPE_STR)));
     insertPrimHash(cenv, "copy", newPrimFunction(&prim_sCopy, 1, 1, newTypelist(TYPE_STR)));
     insertPrimHash(cenv, "size", newPrimFunction(&prim_sSize, 1, 1, newTypelist(TYPE_STR)));
-    insertPrimHash(cenv, "char", newPrimFunction(&prim_sChar, 2, 2, newTypelist_n(TYPE_STR, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, "substr", newPrimFunction(&prim_sSubstr, 2, 3, newTypelist_n(TYPE_STR, newTypelist_n(TYPE_INT, newTypelist(TYPE_INT)))));
-    insertPrimHash(cenv, "find", newPrimFunction(&prim_sFind, 2, 2, newTypelist_n(TYPE_STR, newTypelist(TYPE_UNK))));
-    insertPrimHash(cenv, "find-last", newPrimFunction(&prim_sFindlast, 2, 2, newTypelist_n(TYPE_STR, newTypelist(TYPE_UNK))));
-    insertPrimHash(cenv, "find-all", newPrimFunction(&prim_sFindall, 2, 2, newTypelist_n(TYPE_STR, newTypelist(TYPE_UNK))));
-    insertPrimHash(cenv, "contains", newPrimFunction(&prim_sContains, 1, 2, newTypelist_n(TYPE_STR, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "char", newPrimFunction(&prim_sChar, 2, 2, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "substr", newPrimFunction(&prim_sSubstr, 2, 3, newTypelistWithNext(TYPE_STR, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_INT)))));
+    insertPrimHash(cenv, "find", newPrimFunction(&prim_sFind, 2, 2, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_UNK))));
+    insertPrimHash(cenv, "find-last", newPrimFunction(&prim_sFindlast, 2, 2, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_UNK))));
+    insertPrimHash(cenv, "find-all", newPrimFunction(&prim_sFindall, 2, 2, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_UNK))));
+    insertPrimHash(cenv, "contains", newPrimFunction(&prim_sContains, 1, 2, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_INT))));
     insertPrimHash(cenv, "+", newPrimFunction(&prim_sConcat, 1, ARGLEN_INF, newTypelist(TYPE_STR)));
     insertPrimHash(cenv, "concat", newPrimFunction(&prim_sConcat, 1, ARGLEN_INF, newTypelist(TYPE_STR)));
-    insertPrimHash(cenv, "replace", newPrimFunction(&prim_sReplace, 3, 3, newTypelist_n(TYPE_STR, newTypelist_n(TYPE_STR, newTypelist(TYPE_STR)))));
-    ///insertPrimHash(cenv, "replace-at", newPrimFunction(&prim_sReplaceat, 3, 4, newTypelist_n(TYPE_STR, newTypelist_n(TYPE_STR, newTypelist_n(TYPE_INT, newTypelist(TYPE_INT)))));
-    insertPrimHash(cenv, "insert", newPrimFunction(&prim_sInsert, 3, 3, newTypelist_n(TYPE_STR, newTypelist_n(TYPE_STR, newTypelist(TYPE_STR)))));
-    ///insertPrimHash(cenv, "insert-at", newPrimFunction(&prim_sInsertat, 3, 3, newTypelist(TYPE_STR, newTypelist_n(TYPE_STR, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, "-", newPrimFunction(&prim_sRemove, 3, 3, newTypelist_n(TYPE_STR, newTypelist_n(TYPE_UNK, newTypelist(TYPE_UNK)))));
-    insertPrimHash(cenv, "remove", newPrimFunction(&prim_sRemove, 3, 3, newTypelist_n(TYPE_STR, newTypelist_n(TYPE_UNK, newTypelist(TYPE_UNK)))));
-    ///insertPrimHash(cenv, "remove-at", newPrimFunction(&prim_sRemoveat, 2, 3, newTypelist(TYPE_STR, newTypelist_n(TYPE_INT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "replace", newPrimFunction(&prim_sReplace, 3, 3, newTypelistWithNext(TYPE_STR, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_STR)))));
+    ///insertPrimHash(cenv, "replace-at", newPrimFunction(&prim_sReplaceat, 3, 4, newTypelistWithNext(TYPE_STR, newTypelistWithNext(TYPE_STR, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_INT)))));
+    insertPrimHash(cenv, "insert", newPrimFunction(&prim_sInsert, 3, 3, newTypelistWithNext(TYPE_STR, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_STR)))));
+    ///insertPrimHash(cenv, "insert-at", newPrimFunction(&prim_sInsertat, 3, 3, newTypelist(TYPE_STR, newTypelistWithNext(TYPE_STR, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "-", newPrimFunction(&prim_sRemove, 3, 3, newTypelistWithNext(TYPE_STR, newTypelistWithNext(TYPE_UNK, newTypelist(TYPE_UNK)))));
+    insertPrimHash(cenv, "remove", newPrimFunction(&prim_sRemove, 3, 3, newTypelistWithNext(TYPE_STR, newTypelistWithNext(TYPE_UNK, newTypelist(TYPE_UNK)))));
+    ///insertPrimHash(cenv, "remove-at", newPrimFunction(&prim_sRemoveat, 2, 3, newTypelist(TYPE_STR, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_INT))));
     insertPrimHash(cenv, "reverse", newPrimFunction(&prim_sReverse, 1, 1, newTypelist(TYPE_STR)));
     insertPrimHash(cenv, "upper-case", newPrimFunction(&prim_sUpper, 1, 1, newTypelist(TYPE_STR)));
     insertPrimHash(cenv, "lower-case", newPrimFunction(&prim_sLower, 1, 1, newTypelist(TYPE_STR)));
@@ -1295,19 +1295,19 @@ void initializeGlobals () {
     insertPrimHash(cenv, "type", newPrimFunction(&prim_sTyp, 1, 1, newTypelist(TYPE_STR)));
     insertPrimHash(cenv, "::", newPrimFunction(&prim_sTyp, 1, 1, newTypelist(TYPE_STR)));
 
-    ///insertPrimHash(cenv, "@", newPrimFunction(&prim_aValue, 2, 3, newTypelist_n(TYPE_ARR, newTypelist_n(TYPE_INT, newTypelist(TYPE_UNK)))));
-    ///insertPrimHash(cenv, "@@", newPrimFunction(&prim_aValues, 3, 4, newTypelist_n(TYPE_ARR, newTypelist_n(TYPE_INT, newTypelist_n(TYPE_INT, newTypelist(TYPE_UNK)))));
-    insertPrimHash(cenv, "size", newPrimFunction(&prim_aSize, 1, 2, newTypelist_n(TYPE_ARR, newTypelist(TYPE_INT))));
+    ///insertPrimHash(cenv, "@", newPrimFunction(&prim_aValue, 2, 3, newTypelistWithNext(TYPE_ARR, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_UNK)))));
+    ///insertPrimHash(cenv, "@@", newPrimFunction(&prim_aValues, 3, 4, newTypelistWithNext(TYPE_ARR, newTypelistWithNext(TYPE_INT, newTypelistWithNext(TYPE_INT, newTypelist(TYPE_UNK)))));
+    insertPrimHash(cenv, "size", newPrimFunction(&prim_aSize, 1, 2, newTypelistWithNext(TYPE_ARR, newTypelist(TYPE_INT))));
     insertPrimHash(cenv, "+", newPrimFunction(&prim_aConcat, 1, ARGLEN_INF, newTypelist(TYPE_ARR)));
     /**insertPrimHash(cenv, "-", newPrimFunction(&prim_aRemove, 1, ARGLEN_INF, newTypelist(TYPE_ARR)));
-    insertPrimHash(cenv, "*", newPrimFunction(&prim_aMultiply, 2, 2, newTypelist_n(TYPE_ARR, newTypelist(TYPE_UNK))));
-    insertPrimHash(cenv, "trim-left", newPrimFunction(&prim_aTriml, 2, 2, newTypelist_n(TYPE_ARR, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, "trim-right", newPrimFunction(&prim_aTrimr, 2, 2, newTypelist_n(TYPE_ARR, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "*", newPrimFunction(&prim_aMultiply, 2, 2, newTypelistWithNext(TYPE_ARR, newTypelist(TYPE_UNK))));
+    insertPrimHash(cenv, "trim-left", newPrimFunction(&prim_aTriml, 2, 2, newTypelistWithNext(TYPE_ARR, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "trim-right", newPrimFunction(&prim_aTrimr, 2, 2, newTypelistWithNext(TYPE_ARR, newTypelist(TYPE_INT))));
     insertPrimHash(cenv, "reverse", newPrimFunction(&prim_aReverse, 1, 1, newTypelist(TYPE_ARR)));
-    insertPrimHash(cenv, "sort", newPrimFunction(&prim_aSort, 1, 2, newTypelist_n(TYPE_ARR, newTypelist(TYPE_FUN))));
-    insertPrimHash(cenv, "map", newPrimFunction(&prim_aMap, 2, 2, newTypelist_n(TYPE_ARR, newTypelist(TYPE_FUN))));
-    insertPrimHash(cenv, "filter", newPrimFunction(&prim_aFilter, 2, 2, newTypelist_n(TYPE_ARR, newTypelist(TYPE_FUN))));
-    insertPrimHash(cenv, "accum", newPrimFunction(&prim_aAccum, 3, 3, newTypelist_n(TYPE_ARR, newTypelist_n(TYPE_FUN, newTypelist(TYPE_UNK)))));*/
+    insertPrimHash(cenv, "sort", newPrimFunction(&prim_aSort, 1, 2, newTypelistWithNext(TYPE_ARR, newTypelist(TYPE_FUN))));
+    insertPrimHash(cenv, "map", newPrimFunction(&prim_aMap, 2, 2, newTypelistWithNext(TYPE_ARR, newTypelist(TYPE_FUN))));
+    insertPrimHash(cenv, "filter", newPrimFunction(&prim_aFilter, 2, 2, newTypelistWithNext(TYPE_ARR, newTypelist(TYPE_FUN))));
+    insertPrimHash(cenv, "accum", newPrimFunction(&prim_aAccum, 3, 3, newTypelistWithNext(TYPE_ARR, newTypelistWithNext(TYPE_FUN, newTypelist(TYPE_UNK)))));*/
     insertPrimHash(cenv, "str", newPrimFunction(&prim_aStr, 1, 1, newTypelist(TYPE_ARR)));
     insertPrimHash(cenv, "string", newPrimFunction(&prim_aStr, 1, 1, newTypelist(TYPE_ARR)));
     insertPrimHash(cenv, "typ", newPrimFunction(&prim_aTyp, 1, 1, newTypelist(TYPE_ARR)));
@@ -1326,12 +1326,12 @@ void initializeGlobals () {
     insertPrimHash(cenv, "day-of-week", newPrimFunction(&prim_dDayOfWeek, 1, 1, newTypelist(TYPE_DAT)));
     insertPrimHash(cenv, "leap-year?", newPrimFunction(&prim_dLeapYear, 1, 1, newTypelist(TYPE_DAT)));
     insertPrimHash(cenv, "days-in-month", newPrimFunction(&prim_dDaysInMonth, 1, 1, newTypelist(TYPE_DAT)));
-    insertPrimHash(cenv, "+years", newPrimFunction(&prim_dAddYears, 2, 2, newTypelist_n(TYPE_DAT, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, "+months", newPrimFunction(&prim_dAddMonths, 2, 2, newTypelist_n(TYPE_DAT, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, "+days", newPrimFunction(&prim_dAddDays, 2, 2, newTypelist_n(TYPE_DAT, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, "+hours", newPrimFunction(&prim_dAddHours, 2, 2, newTypelist_n(TYPE_DAT, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, "+minutes", newPrimFunction(&prim_dAddMinutes, 2, 2, newTypelist_n(TYPE_DAT, newTypelist(TYPE_INT))));
-    insertPrimHash(cenv, "+seconds", newPrimFunction(&prim_dAddSeconds, 2, 2, newTypelist_n(TYPE_DAT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "+years", newPrimFunction(&prim_dAddYears, 2, 2, newTypelistWithNext(TYPE_DAT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "+months", newPrimFunction(&prim_dAddMonths, 2, 2, newTypelistWithNext(TYPE_DAT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "+days", newPrimFunction(&prim_dAddDays, 2, 2, newTypelistWithNext(TYPE_DAT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "+hours", newPrimFunction(&prim_dAddHours, 2, 2, newTypelistWithNext(TYPE_DAT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "+minutes", newPrimFunction(&prim_dAddMinutes, 2, 2, newTypelistWithNext(TYPE_DAT, newTypelist(TYPE_INT))));
+    insertPrimHash(cenv, "+seconds", newPrimFunction(&prim_dAddSeconds, 2, 2, newTypelistWithNext(TYPE_DAT, newTypelist(TYPE_INT))));
     insertPrimHash(cenv, "int", newPrimFunction(&prim_dInt, 1, 1, newTypelist(TYPE_DAT)));
     insertPrimHash(cenv, "integer", newPrimFunction(&prim_dInt, 1, 1, newTypelist(TYPE_DAT)));
     insertPrimHash(cenv, "str", newPrimFunction(&prim_dStr, 1, 1, newTypelist(TYPE_DAT)));
@@ -1356,9 +1356,9 @@ void initializeGlobals () {
     insertPrimHash(cenv, "type", newPrimFunction(&prim_uTyp, 1, 1, newTypelist(TYPE_FUN)));
     insertPrimHash(cenv, "::", newPrimFunction(&prim_uTyp, 1, 1, newTypelist(TYPE_FUN)));
 
-    insertPrimHash(cenv, "new", newPrimFunction(&prim_tNew, 1, 2, newTypelist_n(TYPE_TYP, newTypelist(TYPE_LAZ))));
-    insertPrimHash(cenv, "obj", newPrimFunction(&prim_tNew, 1, 2, newTypelist_n(TYPE_TYP, newTypelist(TYPE_LAZ))));
-    insertPrimHash(cenv, "object", newPrimFunction(&prim_tNew, 1, 2, newTypelist_n(TYPE_TYP, newTypelist(TYPE_LAZ))));
+    insertPrimHash(cenv, "new", newPrimFunction(&prim_tNew, 1, 2, newTypelistWithNext(TYPE_TYP, newTypelist(TYPE_LAZ))));
+    insertPrimHash(cenv, "obj", newPrimFunction(&prim_tNew, 1, 2, newTypelistWithNext(TYPE_TYP, newTypelist(TYPE_LAZ))));
+    insertPrimHash(cenv, "object", newPrimFunction(&prim_tNew, 1, 2, newTypelistWithNext(TYPE_TYP, newTypelist(TYPE_LAZ))));
     insertPrimHash(cenv, "int", newPrimFunction(&prim_tInt, 1, 1, newTypelist(TYPE_TYP)));
     insertPrimHash(cenv, "integer", newPrimFunction(&prim_tInt, 1, 1, newTypelist(TYPE_TYP)));
     insertPrimHash(cenv, "str", newPrimFunction(&prim_tStr, 1, 1, newTypelist(TYPE_TYP)));

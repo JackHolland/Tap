@@ -17,12 +17,12 @@ static bool freeExpr_(expression*, bool);
     @return         the location of the newly allocated memory
 */
 inline void* allocate (size_t size) {
-    void* location = malloc(size); // attempt to allocate the amount of memory specified by the given size
-    if (location == NULL) { // if the memory could not be allocated
-        exit(EXIT_OUT_OF_MEMORY); // exit with the code representing an out of memory error
-    } else { // if the memory was successfully allocated
-        return location; // return the location of the newly allocated memory
-    }
+	void* location = malloc(size); // attempt to allocate the amount of memory specified by the given size
+	if (location == NULL) { // if the memory could not be allocated
+		exit(EXIT_OUT_OF_MEMORY); // exit with the code representing an out of memory error
+	} else { // if the memory was successfully allocated
+		return location; // return the location of the newly allocated memory
+	}
 }
 
 /*! Frees from memory the given expression and all its associated content
@@ -30,7 +30,7 @@ inline void* allocate (size_t size) {
     @return         0
 */
 inline bool freeExpr (expression* expr) {
-    freeExpr_(expr, 1);
+	return freeExpr_(expr, 1);
 }
 
 /*! Frees from memory the given expression and all its child content (does not free the next expression)
@@ -38,7 +38,7 @@ inline bool freeExpr (expression* expr) {
     @return         0
 */
 inline bool freeExprNR (expression* expr) {
-    freeExpr_(expr, 0);
+	return freeExpr_(expr, 0);
 }
 
 /*! A helper function for freeExpr and freeExprNR
@@ -119,6 +119,24 @@ bool freeArr (array* arr) {
 		freeExpr(arr->content[i]);
 	}
 	free(arr);
+	
+	return 0;
+}
+
+/*! Frees from memory the given array and its content
+    @param le       the lazy expression to free from memory
+    @return         0
+*/
+bool freeLaz (tap_laz* laz) {
+	freeExpr(laz->expval);
+	expressionstack* es1 = laz->refs;
+	expressionstack* es2;
+	while (es1 != NULL) {
+		es2 = es1->next;
+		freeExpr(es1->expr);
+		es1 = es2;
+	}
+	free(laz);
 	
 	return 0;
 }

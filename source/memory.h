@@ -15,5 +15,6 @@ bool freeExpr(expression*);
 bool freeExprNR(expression*);
 bool freeStr(string*);
 bool freeArr(array*);
+bool freeLaz(tap_laz*);
 
 #endif
