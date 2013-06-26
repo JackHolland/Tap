@@ -258,3 +258,25 @@ bool freeExprstack (exprstack* es) {
 	return 0;
 }
 
+/*! Frees from memory the given tap primitive function
+	@param fun		the primitive function
+	@return			0
+*/
+bool freePrimFun (tap_prim_fun* fun) {
+	free(fun);
+	
+	return 0;
+}
+
+/*! Frees from memory the given environment
+	@param env		the environment
+	@return			0
+*/
+bool freeEnv (environment* env) {
+	deleteHash(env->variables)
+	freeTypelist(env->types);
+	free(env);
+	
+	return 0;
+}
+

@@ -14,6 +14,7 @@
 #include "../constructors.h"
 #include "../constants.h"
 #include "../strings.h"
+#include "../../primitives/prim_int.h"
 
 DESCRIBE(newExpression, "expression* newExpression ()")
 	IT("Creates a nil expression")
@@ -395,14 +396,24 @@ DESCRIBE(newExprstack, "exprstack* newExprstack (exprstack* current)")
 END_DESCRIBE
 
 DESCRIBE(newPrimFunction, "tap_prim_fun* newPrimFunction (void(*address)(expression*[], int, exprvals*, datatype*), int minargs, int maxargs, typelist* types)")
-	IT("")
-		
+	IT("Creates a new primitive tap function")
+		tap_prim_fun* fun = newPrimFunction(prim_iAdd, 1, ARGLEN_INF, newTypelist(TYPE_INT));
+		SHOULD_EQUAL(fun->address, prim_iAdd)
+		SHOULD_EQUAL(fun->minargs, 1)
+		SHOULD_EQUAL(fun->maxargs, ARGLEN_INF)
+		SHOULD_EQUAL(fun->types->type, TYPE_INT)
+		freePrimFun(fun);
 	END_IT
 END_DESCRIBE
 
 DESCRIBE(newEnvironment, "environment* newEnvironment (hashtable* variables, int parent)")
-	IT("")
-		
+	IT("Creates a new environment")
+		environment* env = newEnvironment(newHashtable(100), 0);
+		SHOULD_NOT_EQUAL(env->variables, NULL)
+		insertPrimHash(env->variables, "+", newPrimFunction(&prim_iAdd, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
+		SHOULD_EQUAL(env->numvars, 1)
+		SHOULD_EQUAL(env->types, NULL)
+		freeEnv(env);
 	END_IT
 END_DESCRIBE
 
