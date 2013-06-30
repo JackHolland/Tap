@@ -225,6 +225,7 @@ bool freeStringlist (stringlist* sl) {
 	stringlist* next_sl;
 	while (sl != NULL) {
 		next_sl = sl->next;
+		freeStr(sl->str);
 		free(sl);
 		sl = next_sl;
 	}
@@ -237,9 +238,12 @@ bool freeStringlist (stringlist* sl) {
 	@return			0
 */
 bool freeTypedefs (typedefs* td) {
-	freeCompTyp(td->type);
-	if (td->next != NULL) {
-		freeTypedefs(td);
+	typedefs* next_td;
+	while (td != NULL) {
+		next_td = td->next;
+		freeCompTyp(td->type);
+		free(td);
+		td = next_td;
 	}
 	
 	return 0;
@@ -250,9 +254,12 @@ bool freeTypedefs (typedefs* td) {
 	@return			0
 */
 bool freeExprstack (exprstack* es) {
-	freeExpr(es->expr);
-	if (es->next != NULL) {
-		freeExprstack(es->next);
+	exprstack* next_es;
+	while (es != NULL) {
+		next_es = es->next;
+		freeExpr(es->expr);
+		free(es);
+		es = next_es;
 	}
 	
 	return 0;
@@ -263,6 +270,7 @@ bool freeExprstack (exprstack* es) {
 	@return			0
 */
 bool freePrimFun (tap_prim_fun* fun) {
+	freeTypelist(fun->types);
 	free(fun);
 	
 	return 0;
@@ -273,8 +281,8 @@ bool freePrimFun (tap_prim_fun* fun) {
 	@return			0
 */
 bool freeEnv (environment* env) {
-	deleteHash(env->variables)
-	freeTypelist(env->types);
+	deleteHash(env->variables);
+	freeTypedefs(env->types);
 	free(env);
 	
 	return 0;

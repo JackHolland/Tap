@@ -247,6 +247,10 @@ array* newArray (int size) {
     arr->size = size; // set the expression's size to the given size
     arr->start = 0; // set the start and end points to cover the entire array
     arr->end = size - 1;
+    int i;
+    for (i = arr->start; i <= arr->end; i++) {
+    	arr->content[i] = NULL;
+    }
     return arr;
 }
 
@@ -557,7 +561,7 @@ property* newProperty (char* name, typelist* types, int privacy, int range, expr
     @return         the new, duplicate property
 */
 property* copyProperty (property* prop) {
-    return newProperty(strDup(prop->name), copyTypelistDeep(prop->types), prop->privacy, prop->range, copyExpression(prop->value));
+    return newProperty(prop->name, copyTypelistDeep(prop->types), prop->privacy, prop->range, prop->value);
 }
 
 /*! Creates a new user function struct with the given arguments, more arguments flag, and body

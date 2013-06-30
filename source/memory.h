@@ -9,9 +9,9 @@
 #define MEMORY_H
 
 #include "structs.h"
-#include "dep_structs.h"
 
 struct environment_;
+typedef struct environment_ environment;
 
 void* allocate(size_t);
 bool freeExpr(expression*);
@@ -29,6 +29,6 @@ bool freeStringlist(stringlist*);
 bool freeTypedefs(typedefs*);
 bool freeExprstack(exprstack*);
 bool freePrimFun(tap_prim_fun*);
-bool freeEnv(environment_*);
+bool freeEnv(environment*);
 
 #endif

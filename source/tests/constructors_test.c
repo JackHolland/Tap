@@ -173,7 +173,7 @@ DESCRIBE(copyArrayDeep, "array* copyArrayDeep (array* arr)")
 		SHOULD_EQUAL(strcmp(arr1->content[1]->ev.strval->content, arr2->content[1]->ev.strval->content), 0)
 		SHOULD_EQUAL(arr1->content[2]->ev.intval, arr2->content[2]->ev.intval)
 		freeArr(arr1);
-		free(arr2);
+		freeArr(arr2);
 	END_IT
 END_DESCRIBE
 
@@ -229,6 +229,8 @@ DESCRIBE(copyObject, "tap_obj* copyObject (tap_obj* obj)")
 		SHOULD_NOT_EQUAL(obj1, obj2)
 		SHOULD_EQUAL(obj1->type, obj2->type)
 		SHOULD_NOT_EQUAL(obj1->props, obj2->props)
+		SHOULD_NOT_EQUAL(obj1->props->name, obj2->props->name)
+		SHOULD_EQUAL(strcmp(obj1->props->name, obj2->props->name), 0)
 		SHOULD_EQUAL(obj1->props->value->ev.intval, obj2->props->value->ev.intval)
 		freeExpr(expr);
 		freeObj(obj1);
@@ -239,12 +241,14 @@ END_DESCRIBE
 DESCRIBE(newType, "type* newType (datatype id, char* name, stringlist* required, typelist* inherits, property* properties)")
 	IT("Creates a new composite type")
 		expression* expr = newExpressionNil();
-		type* comptyp = newType(TYPE_COMP_START, "comp", newStringlist(newString(strDup("fun1")), NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_NIL), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
+		string* str1 = newString(strDup("fun1"));
+		type* comptyp = newType(TYPE_COMP_START, "comp", newStringlist(str1, NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_NIL), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
 		SHOULD_EQUAL(strcmp(comptyp->name, "comp"), 0)
 		SHOULD_EQUAL(strcmp(comptyp->required->str->content, "fun1"), 0)
 		SHOULD_EQUAL(comptyp->inherits->type, TYPE_OBJ)
 		SHOULD_EQUAL(comptyp->properties->value->type, TYPE_NIL)
 		freeExpr(expr);
+		freeStr(str1);
 		freeCompTyp(comptyp);
 	END_IT
 END_DESCRIBE
@@ -276,6 +280,9 @@ DESCRIBE(copyProperty, "property* copyProperty (property* prop)")
 		SHOULD_EQUAL(prop1->range, prop2->range)
 		SHOULD_NOT_EQUAL(prop1->value, prop2->value)
 		SHOULD_EQUAL(prop1->value->ev.intval, prop2->value->ev.intval)
+		freeExpr(expr);
+		freeProp(prop1);
+		freeProp(prop2);
 	END_IT
 END_DESCRIBE
 
@@ -371,10 +378,12 @@ END_DESCRIBE
 DESCRIBE(newTypedefs, "typedefs* newTypedefs (type* typ)")
 	IT("Creates a new list of composite type definitions")
 		expression* expr = newExpressionInt(8);
-		type* typ = newType(TYPE_COMP_START, "blah", newStringlist(newString(strDup("bloog")), NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_INT), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
+		string* str1 = newString(strDup("bloog"));
+		type* typ = newType(TYPE_COMP_START, "blah", newStringlist(str1, NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_INT), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
 		typedefs* td = newTypedefs(typ);
 		SHOULD_EQUAL(td->type, typ)
 		freeExpr(expr);
+		freeStr(str1);
 		freeTypedefs(td);
 	END_IT
 END_DESCRIBE
@@ -411,15 +420,24 @@ DESCRIBE(newEnvironment, "environment* newEnvironment (hashtable* variables, int
 		environment* env = newEnvironment(newHashtable(100), 0);
 		SHOULD_NOT_EQUAL(env->variables, NULL)
 		insertPrimHash(env->variables, "+", newPrimFunction(&prim_iAdd, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
-		SHOULD_EQUAL(env->numvars, 1)
 		SHOULD_EQUAL(env->types, NULL)
 		freeEnv(env);
 	END_IT
 END_DESCRIBE
 
 DESCRIBE(newStringlist, "newStringlist (string* str, stringlist* next)")
-	IT("")
-		
+	IT("Creates a new list of strings")
+		string* str1 = newString(strDup("a"));
+		string* str2 = newString(strDup("b"));
+		string* str3 = newString(strDup("c"));
+		stringlist* sl = newStringlist(str1, newStringlist(str2, newStringlist(str3, NULL)));
+		SHOULD_EQUAL(strcmp(sl->str->content, "a"), 0)
+		SHOULD_EQUAL(strcmp(sl->next->str->content, "b"), 0)
+		SHOULD_EQUAL(strcmp(sl->next->next->str->content, "c"), 0)
+		freeStr(str1);
+		freeStr(str2);
+		freeStr(str3);
+		freeStringlist(sl);
 	END_IT
 END_DESCRIBE
 
