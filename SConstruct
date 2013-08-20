@@ -8,8 +8,9 @@ sources = ['source/arrays.c', 'source/casting.c', 'source/constructors.c', 'sour
 env = Environment(CC = 'gcc', CCFLAGS = ['-O2', '-Wall'], LINKFLAGS = '-lm')
 env.Program('tap', append(sources, 'source/main.c'))
 
-env.Append(LIBS = 'cspec', LIBPATH = 'testing/')
-env.Program('source/tests/arrays_test', append(sources, 'source/tests/arrays_test.c'))
-env.Program('source/tests/casting_test', append(sources, 'source/tests/casting_test.c'))
-env.Program('source/tests/constructors_test', append(sources, 'source/tests/constructors_test.c'))
-env.Program('source/tests/memory_test', append(sources, 'source/tests/memory_test.c'))
+if ARGUMENTS.get('testing', 0):
+	env.Append(LIBS = 'cspec', LIBPATH = 'testing/')
+	env.Program('source/tests/arrays_test', append(sources, 'source/tests/arrays_test.c'))
+	env.Program('source/tests/casting_test', append(sources, 'source/tests/casting_test.c'))
+	env.Program('source/tests/constructors_test', append(sources, 'source/tests/constructors_test.c'))
+	env.Program('source/tests/memory_test', append(sources, 'source/tests/memory_test.c'))

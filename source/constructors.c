@@ -762,3 +762,4 @@ errorlist* newErrorlist (uint code, string* message, linenum line, uint index) {
     sl->next = NULL;
     return sl;
 }
+

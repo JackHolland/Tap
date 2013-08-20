@@ -442,8 +442,15 @@ DESCRIBE(newStringlist, "newStringlist (string* str, stringlist* next)")
 END_DESCRIBE
 
 DESCRIBE(newErrorlist, "newErrorlist (uint code, string* message, linenum line, uint index)")
-	IT("")
-		
+	IT("Creates a new list of errors")
+		string* message = newString(strDup("An error occurred"));
+		errorlist* el = newErrorlist(ERR_GENERAL, message, 1, 1);
+		SHOULD_EQUAL(el->code, ERR_GENERAL)
+		SHOULD_EQUAL(strcmp(el->message->content, "An error occurred"), 0)
+		SHOULD_EQUAL(el->line, 1)
+		SHOULD_EQUAL(el->index, 1)
+		freeStr(message);
+		freeErrorlist(el);
 	END_IT
 END_DESCRIBE
 

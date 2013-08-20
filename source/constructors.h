@@ -49,3 +49,4 @@ stringlist* newStringlist(string*, stringlist*);
 errorlist* newErrorlist(uint, string*, linenum, uint);
 
 #endif
+

@@ -25,10 +25,11 @@ bool freeFun(tap_fun*);
 bool freeArg(argument*);
 bool freeTypelist(typelist*);
 bool freeCompTyp(type*);
-bool freeStringlist(stringlist*);
 bool freeTypedefs(typedefs*);
 bool freeExprstack(exprstack*);
 bool freePrimFun(tap_prim_fun*);
 bool freeEnv(environment*);
+bool freeStringlist(stringlist*);
+bool freeErrorlist(errorlist*);
 
 #endif

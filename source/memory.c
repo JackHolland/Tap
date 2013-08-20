@@ -217,22 +217,6 @@ bool freeCompTyp (type* typ) {
 	return 0;
 }
 
-/*! Frees from memory the given list of strings
-	@param sl		the list of strings to free from memory
-	@return			0
-*/
-bool freeStringlist (stringlist* sl) {
-	stringlist* next_sl;
-	while (sl != NULL) {
-		next_sl = sl->next;
-		freeStr(sl->str);
-		free(sl);
-		sl = next_sl;
-	}
-	
-	return 0;
-}
-
 /*! Frees from memory the given list of composite type definitions
 	@param td		the list of type definitions
 	@return			0
@@ -284,6 +268,37 @@ bool freeEnv (environment* env) {
 	deleteHash(env->variables);
 	freeTypedefs(env->types);
 	free(env);
+	
+	return 0;
+}
+
+/*! Frees from memory the given list of strings
+	@param sl		the list of strings to free from memory
+	@return			0
+*/
+bool freeStringlist (stringlist* sl) {
+	stringlist* next_sl;
+	while (sl != NULL) {
+		next_sl = sl->next;
+		freeStr(sl->str);
+		free(sl);
+		sl = next_sl;
+	}
+	
+	return 0;
+}
+
+/*! Frees from memory the given list of errors
+	@param sl		the list of strings to free from memory
+	@return			0
+*/
+bool freeErrorlist (errorlist* el) {
+	errorlist* next_el;
+	while (el != NULL) {
+		next_el = el->next;
+		free(el);
+		el = next_el;
+	}
 	
 	return 0;
 }

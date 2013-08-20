@@ -14,3 +14,4 @@ int arrayUsedSize(array*);
 array* resizeArray(array*, int, int);
 
 #endif
+

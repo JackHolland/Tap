@@ -97,11 +97,12 @@ int main () {
 	/*CSpec_Run(DESCRIPTION(freeArg), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freeTypelist), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freeCompTyp), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(freeStringlist), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freeTypedefs), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freeExprstack), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(freePrimFun), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(freeEnv), CSpec_NewOutputUnit());*/
+	CSpec_Run(DESCRIPTION(freeEnv), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(freeStringlist), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(freeErrorlist), CSpec_NewOutputUnit());*/
 	
 	return 0;
 }
