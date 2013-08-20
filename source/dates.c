@@ -92,7 +92,7 @@ char* printDate (date dat, char* format) {
                     strsize += 3;
                     break;
                 case 'N': // full month name
-                    switch (timestruct->tm_mon) {
+                    switch (timestruct->tm_mon - 1) {
                         case 0: // January
                         case 9: // October
                             strsize += 7;
@@ -221,7 +221,7 @@ char* printDate (date dat, char* format) {
                     strpos += sprintf(strpos, "%02d", timestruct->tm_mon);
                     break;
                 case 'n': // abbreviated month name
-                    switch (timestruct->tm_mon) {
+                    switch (timestruct->tm_mon - 1) {
                         case 0:
                             strpos += sprintf(strpos, "Jan");
                             break;
@@ -261,7 +261,7 @@ char* printDate (date dat, char* format) {
                     }
                     break;
                 case 'N': // full month name
-                    switch (timestruct->tm_mon) {
+                    switch (timestruct->tm_mon - 1) {
                         case 0:
                             strpos += sprintf(strpos, "January");
                             break;
@@ -380,7 +380,7 @@ char* printDate (date dat, char* format) {
                     strpos += sprintf(strpos, "%d", timestruct->tm_wday);
                     break;
                 case 'y': // abbreviated year
-                    strpos += sprintf(strpos, "%d", timestruct->tm_year % 1000);
+                    strpos += sprintf(strpos, "%d", timestruct->tm_year % 100);
                     break;
                 case 'Y': // full year
                     strpos += sprintf(strpos, "%d", timestruct->tm_year);
