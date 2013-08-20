@@ -1,7 +1,7 @@
 /*! AppTap.org Tap Processor
     @author Jack Holland <jack@apptap.org>
     @file   constructors_test.c
-    @brief  Tests for constructors.c
+    @brief  Tests for dates.c
     (C) 2011 Jack Holland. All rights reserved.
 */
 

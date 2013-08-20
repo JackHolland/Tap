@@ -39,3 +39,4 @@ void initializeGlobals();
 void freeGlobals();
 
 #endif
+

@@ -15,3 +15,4 @@ if ARGUMENTS.get('testing', 0):
 	env.Program('source/tests/constructors_test', append(sources, 'source/tests/constructors_test.c'))
 	env.Program('source/tests/memory_test', append(sources, 'source/tests/memory_test.c'))
 	env.Program('source/tests/dates_test', append(sources, 'source/tests/dates_test.c'))
+	env.Program('source/tests/engine_test', append(sources, 'source/tests/engine_test.c'))

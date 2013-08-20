@@ -978,39 +978,6 @@ expression* storeExprValue (expression* expr, char* text, int start, int end, ex
     return expr->next;
 }
 
-/*! Returns the size of the string description of the given integer type
-    @param type     the type to print
-    @return         the string description equivalent of the given integer type
-*/
-int printTypeSize (datatype typ) {
-    switch (typ) { // depending on the type
-        case TYPE_NIL:
-            return 3;
-        case TYPE_EXP:
-            return 10;
-        case TYPE_LAZ:
-            return 15;
-        case TYPE_INT:
-            return 7;
-        case TYPE_FLO:
-            return 5;
-        case TYPE_STR:
-            return 6;
-        case TYPE_ARR:
-            return 5;
-        case TYPE_DAT:
-            return 4;
-        case TYPE_OBJ:
-            return 6;
-        case TYPE_FUN:
-            return 8;
-        case TYPE_TYP:
-            return 4;
-        default:
-            return 0;
-    }
-}
-
 /*! Returns the string description of the given integer type
     @param type     the type to print
     @return         the string description equivalent of the given integer type
@@ -1053,6 +1020,39 @@ char* printType (datatype typ) {
         }
     }
     return strDup("unknown type");
+}
+
+/*! Returns the size of the string description of the given integer type
+    @param type     the type to print
+    @return         the string description equivalent of the given integer type
+*/
+int printTypeSize (datatype typ) {
+    switch (typ) { // depending on the type
+        case TYPE_NIL:
+            return 3;
+        case TYPE_EXP:
+            return 10;
+        case TYPE_LAZ:
+            return 15;
+        case TYPE_INT:
+            return 7;
+        case TYPE_FLO:
+            return 5;
+        case TYPE_STR:
+            return 6;
+        case TYPE_ARR:
+            return 5;
+        case TYPE_DAT:
+            return 4;
+        case TYPE_OBJ:
+            return 6;
+        case TYPE_FUN:
+            return 8;
+        case TYPE_TYP:
+            return 4;
+        default:
+            return 0;
+    }
 }
 
 /*! Returns the type corresponding to the given type string (e.g. 'int' returns TYPE_INT) or returns TYPE_UNK if the type is not recognized
@@ -1496,3 +1496,4 @@ void freeGlobals () {
     }
     cerror = NULL;
 }
+
