@@ -104,14 +104,14 @@ DESCRIBE(freeArg, "bool freeArg (argument* arg)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(freeTypelist, "bool freeTypelist(typelist*)")
+DESCRIBE(freeTypelist, "bool freeTypelist (typelist* tl)")
 	IT("Frees the given list of types and their content")
 		typelist* tl = newTypelistWithNext(TYPE_NIL, newTypelist(TYPE_INT));
 		SHOULD_EQUAL(freeTypelist(tl), 0)
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(freeCompTyp, "bool freeCompTyp(type*)")
+DESCRIBE(freeCompTyp, "bool freeCompTyp (type* typ)")
 	IT("Frees the given composite type and its content")
 		string* str = newString(strDup("required-fun"));
 		expression* expr = newExpressionInt(0);
@@ -122,7 +122,7 @@ DESCRIBE(freeCompTyp, "bool freeCompTyp(type*)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(freeTypedefs, "bool freeTypedefs(typedefs*)")
+DESCRIBE(freeTypedefs, "bool freeTypedefs (typedefs* td)")
 	IT("Frees the given list of type definitions and its content")
 		string* str1 = newString(strDup("req1"));
 		string* str2 = newString(strDup("req2"));
@@ -140,7 +140,7 @@ DESCRIBE(freeTypedefs, "bool freeTypedefs(typedefs*)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(freeExprstack, "bool freeExprstack(exprstack*)")
+DESCRIBE(freeExprstack, "bool freeExprstack (exprstack* es)")
 	IT("Frees the given stack of expressions and its content")
 		exprstack* es1 = newExprstack(NULL);
 		es1->expr = newExpressionNil();
@@ -150,14 +150,14 @@ DESCRIBE(freeExprstack, "bool freeExprstack(exprstack*)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(freePrimFun, "bool freePrimFun(tap_prim_fun*)")
+DESCRIBE(freePrimFun, "bool freePrimFun (tap_prim_fun* fun)")
 	IT("Frees the given primitive function and its content")
 		tap_prim_fun* fun = newPrimFunction(prim_iAdd, 1, ARGLEN_INF, newTypelist(TYPE_INT));
 		SHOULD_EQUAL(freePrimFun(fun), 0)
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(freeEnv, "bool freeEnv(environment*)")
+DESCRIBE(freeEnv, "bool freeEnv (environment* env)")
 	IT("Frees the given environment and its content")
 		environment* env = newEnvironment(newHashtable(1000), 0);
 		insertPrimHash(env->variables, "+", newPrimFunction(&prim_iAdd, 1, ARGLEN_INF, newTypelist(TYPE_INT)));
@@ -165,7 +165,7 @@ DESCRIBE(freeEnv, "bool freeEnv(environment*)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(freeStringlist, "bool freeStringlist(stringlist*)")
+DESCRIBE(freeStringlist, "bool freeStringlist (stringlist* sl)")
 	IT("Frees the given list of strings and its content")
 		string* str1 = newString(strDup("a"));
 		string* str2 = newString(strDup("b"));
@@ -176,7 +176,7 @@ DESCRIBE(freeStringlist, "bool freeStringlist(stringlist*)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(freeErrorlist, "bool freeErrorlist(errorlist*)")
+DESCRIBE(freeErrorlist, "bool freeErrorlist (errorlist* el)")
 	IT("Frees the given list of errors and its content")
 		string* message1 = newString(strDup("ERROR"));
 		string* message2 = newString(strDup("ERROR AGAIN"));
