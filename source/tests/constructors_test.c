@@ -241,14 +241,14 @@ END_DESCRIBE
 DESCRIBE(newType, "type* newType (datatype id, char* name, stringlist* required, typelist* inherits, property* properties)")
 	IT("Creates a new composite type")
 		expression* expr = newExpressionNil();
-		string* str1 = newString(strDup("fun1"));
-		type* comptyp = newType(TYPE_COMP_START, "comp", newStringlist(str1, NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_NIL), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
+		string* str = newString(strDup("fun1"));
+		type* comptyp = newType(TYPE_COMP_START, "comp", newStringlist(str, NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_NIL), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
 		SHOULD_EQUAL(strcmp(comptyp->name, "comp"), 0)
 		SHOULD_EQUAL(strcmp(comptyp->required->str->content, "fun1"), 0)
 		SHOULD_EQUAL(comptyp->inherits->type, TYPE_OBJ)
 		SHOULD_EQUAL(comptyp->properties->value->type, TYPE_NIL)
 		freeExpr(expr);
-		freeStr(str1);
+		freeStr(str);
 		freeCompTyp(comptyp);
 	END_IT
 END_DESCRIBE
@@ -377,13 +377,13 @@ END_DESCRIBE
 
 DESCRIBE(newTypedefs, "typedefs* newTypedefs (type* typ)")
 	IT("Creates a new list of composite type definitions")
+		string* str = newString(strDup("bloog"));
 		expression* expr = newExpressionInt(8);
-		string* str1 = newString(strDup("bloog"));
-		type* typ = newType(TYPE_COMP_START, "blah", newStringlist(str1, NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_INT), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
+		type* typ = newType(TYPE_COMP_START, "blah", newStringlist(str, NULL), newTypelist(TYPE_OBJ), newProperty("prop1", newTypelist(TYPE_INT), PROP_PRIVACY_PRIVATE, PROP_RANGE_LOCAL, expr));
 		typedefs* td = newTypedefs(typ);
 		SHOULD_EQUAL(td->type, typ)
+		freeStr(str);
 		freeExpr(expr);
-		freeStr(str1);
 		freeTypedefs(td);
 	END_IT
 END_DESCRIBE
