@@ -427,9 +427,6 @@ void monthOfDate (date dat, monthandday* mad) {
     long days = dat / SEC_IN_DAY;
     mad->day = ((days % DAYS_IN_YEAR - yal.leapyears) + DAYS_IN_YEAR) % DAYS_IN_YEAR + 1;
     mad->dayofyear = mad->day;
-    if (mad->day > 59 && leapYear(yal.year)) {
-        mad->day -= 1;
-    }
     mad->month = 0;
     while (mad->day >= monthdays[mad->month]) {
         mad->month += 1;
