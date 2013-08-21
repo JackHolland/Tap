@@ -30,7 +30,7 @@ void printExprTree (expression* head) {
     @return         nothing
 */
 static void printExprTree_ (expression* expr, int level) {
-    if (expr != NULL) { // if there are more expressions to print
+    if (expr != NULL) {
         if (expr->type == TYPE_EXP) { // if the expression contains other expressions
             printExprTree_(expr->ev.expval, level + 1); // print whatever is inside the expression
         } else if (expr->type != TYPE_NIL) {
@@ -55,7 +55,7 @@ static void printExprTree_ (expression* expr, int level) {
                 printf("; %d", expr->flag);
             }
             printf("]");
-            printf("\n"); // newline
+            printf("\n");
         }
         printExprTree_(expr->next, level); // advance to the next expression in the list
     }
@@ -78,18 +78,21 @@ void printExprList (expression* head) {
     @return         nothing
 */
 static void printExprList_ (expression* expr, int parent, int* id) {
-    if (expr != NULL) { // if the expression isn't null
+    if (expr != NULL) {
         if (expr->type == TYPE_INT || expr->type == TYPE_TYP) {
-            // print the expression's parent, id, type, content, and flag
+            // print the expression's parent, id, type, and content
             printf("[#%d->%d: %d, %ld], ", parent, *id, expr->type, expr->ev.intval);
+        } else if (expr->type == TYPE_FLO) {
+        	// print the expression's parent, id, type, and content
+        	printf("[#%d->%d: %d, %lf], ", parent, *id, expr->type, expr->ev.floval);
         } else if (expr->type == TYPE_NIL) {
             // print the expression's parent, id, and type
             printf("[#%d->%d: %d, NIL], ", parent, *id, expr->type);
         } else if (expr->type == TYPE_STR) {
-            // print the expression's parent, id, type, content, and flag
+            // print the expression's parent, id, type, and content
             printf("[#%d->%d: %d, %s], ", parent, *id, expr->type, expr->ev.strval->content);
         } else {
-            // print the expression's parent, id, type, content, and flag
+            // print the expression's parent, id, type, and content
             printf("[#%d->%d: %d], ", parent, *id, expr->type);
         }
         if (expr->type == TYPE_EXP || expr->type == TYPE_LAZ) { // if the expression contains other expressions
@@ -102,10 +105,8 @@ static void printExprList_ (expression* expr, int parent, int* id) {
             }
             printExprList_(expval, (*id) - 1, id); // call this function with the child expression and this expression's id as the parent
         }
-        if (expr->next != NULL) { // if there is another expression after this one
-            ++(*id); // increment the current id
-            printExprList_(expr->next, parent, id); // call this function with the next expression and the same parent
-        }
+        ++(*id);
+        printExprList_(expr->next, parent, id); // call this function with the next expression and the same parent
     }
 }
 
@@ -126,10 +127,13 @@ void printExprListFlags (expression* head) {
     @return         nothing
 */
 static void printExprListFlags_ (expression* expr, int parent, int* id) {
-    if (expr != NULL) { // if the expression isn't null
+    if (expr != NULL) {
         if (expr->type == TYPE_INT || expr->type == TYPE_TYP) {
             // print the expression's parent, id, type, content, and flag
             printf("[#%d->%d: %d, %ld; %d], ", parent, *id, expr->type, expr->ev.intval, expr->flag);
+        } else if (expr->type == TYPE_FLO) {
+        	// print the expression's parent, id, type, content, and flag
+            printf("[#%d->%d: %d, %lf; %d], ", parent, *id, expr->type, expr->ev.floval, expr->flag);
         } else if (expr->type == TYPE_NIL) {
             // print the expression's parent, id, and type
             printf("[#%d->%d: %d, NIL], ", parent, *id, expr->type);
@@ -150,10 +154,8 @@ static void printExprListFlags_ (expression* expr, int parent, int* id) {
             }
             printExprListFlags_(expval, (*id) - 1, id); // call this function with the child expression and this expression's id as the parent
         }
-        if (expr->next != NULL) { // if there is another expression after this one
-            ++(*id); // increment the current id
-            printExprListFlags_(expr->next, parent, id); // call this function with the next expression and the same parent
-        }
+        ++(*id);
+        printExprListFlags_(expr->next, parent, id); // call this function with the next expression and the same parent
     }
 }
 
@@ -172,7 +174,7 @@ void printExprMemory (expression* expr) {
     @return         nothing
 */
 static void printExprMemory_ (expression* expr, int level) {
-    if (expr != NULL) { // if the expression isn't null
+    if (expr != NULL) {
         exprvals ev = expr->ev;
         int i;
         for (i = 0; i < level; i++) { // print the appropriate number of tabs for the current level
@@ -198,6 +200,7 @@ static void printExprMemory_ (expression* expr, int level) {
                 printf("funval: %p -> body: %p, args: %p\n", ev.funval, ev.funval->body, ev.funval->args);
                 break;
         }
+        printExprMemory_(expr->next, level);
     }
 }
 
@@ -206,7 +209,7 @@ static void printExprMemory_ (expression* expr, int level) {
     @return         nothing
 */
 void printEnvironment (environment* env) {
-    if (env != NULL) { // if the environment isn't null
+    if (env != NULL) {
         printf("--begin environment--\n");
         hashtable* table = env->variables;
         hashelement* element;

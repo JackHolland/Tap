@@ -47,6 +47,9 @@ static expression* parse_(char*, uint, linenum);
     @return             the head of the list of expressions
 */
 expression* parse (char* text) {
+	if (text == NULL) {
+		return NULL;
+	}
     return parse_(text, 0, 1); // start parsing at the beginning
 }
 
@@ -189,7 +192,7 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
                 }
                 break;
             case ';':
-
+                
                 break;
         }
     }
@@ -238,6 +241,7 @@ expression* parsePiece (char* text, expression** tail, linenum startline, uint s
     expression* last = NULL; // used to trim off the last nil expression after parsing the whole piece
     int size = strlen(text); // the size of the given text
     int validexpr = iscont; // whether or not the expression is valid
+    int maybenum = 0; // whether or not the expression may be a number
     int lazy = (ascii == '[' || ascii == ']'); // whether or not the expression is lazy
     uint i = 0;
     i = parseWhitespace(text, i, size); // skip any whitespace
@@ -247,7 +251,7 @@ expression* parsePiece (char* text, expression** tail, linenum startline, uint s
         switch(text[i]) {
             case ' ':
                 // if the function has been validated or the current expression is a string and therefore valid function type
-                if (validexpr || ascii == '{' || ascii == '}' || (expr->type == TYPE_STR && expr->flag == EFLAG_VAR)) {
+                if (validexpr || ascii == '{' || ascii == '}') {
                     // if the expression is a string literal then the wrapper quotation marks need to be removed
                     if (expr->type == TYPE_STR && expr->flag == EFLAG_NONE) {
                         expr = storeExprValue(expr, text, index + 1, i - 1, &last, lazy && validexpr);
@@ -263,7 +267,7 @@ expression* parsePiece (char* text, expression** tail, linenum startline, uint s
                 }
                 i = parseWhitespace(text, i + 1, size) - 1; // skip any whitespace
                 index = i + 1; // advance the index to the next unparsed position
-                parseExprForSign(text, i, size, expr); // determine if the next argument is a sign-specified integer and set its type if it is
+                i = parseExprForSign(text, i, size, expr); // determine if the next argument is a sign-specified integer and set its type if it is
                 break;
             case '\"':
                 expr->type = TYPE_STR; // set the expression to a string literal
@@ -275,8 +279,10 @@ expression* parsePiece (char* text, expression** tail, linenum startline, uint s
                 break;
             default: // insignificant character (i.e. not a control character)
                 // if the expression is currently assumed to be nil, set it to an integer if the current character is numeric
-                if (expr->type == TYPE_NIL && text[i] > '/' && text[i] < ':') {
+                if ((expr->type == TYPE_NIL || maybenum == 1) && text[i] >= '0' && text[i] <= '9') {
+                    maybenum = 0;
                     expr->type = TYPE_INT;
+                    expr->flag = EFLAG_NONE;
                     break;
                 }
                 // if the expression is currently assumed to be nil or an integer, set it to a float if the current character is a period
@@ -296,7 +302,7 @@ expression* parsePiece (char* text, expression** tail, linenum startline, uint s
                 }
                 // if the expression is currently assumed to be nil, an integer, or a float and the current character isn't numeric
                 if ((expr->type == TYPE_NIL || expr->type == TYPE_INT || expr->type == TYPE_FLO)
-                    && ((text[i] > ' ' && text[i] < '-')
+                    && ((text[i] > ' ' && text[i] <= '-')
                         || (text[i] == '/')
                         || (text[i] > ':' && text[i] <= 'Z')
                         || (text[i] == '\\')
@@ -304,8 +310,10 @@ expression* parsePiece (char* text, expression** tail, linenum startline, uint s
                         || (text[i] == '|')
                         || (text[i] == '~')
                         )) {
-                            expr->type = TYPE_STR; // set the current expression's type to a string variable
-                            expr->flag = EFLAG_VAR;
+                            validexpr = 1; // the expression is valid (from a syntactical perspective)
+                            maybenum = 1; // the expression may be a number
+	                        expr->type = TYPE_STR; // set the current expression's type to a string variable
+	                        expr->flag = EFLAG_VAR;
                 }
                 break;
         }
@@ -326,6 +334,10 @@ expression* parsePiece (char* text, expression** tail, linenum startline, uint s
     }
     free(text); // free the substring from memory
     *tail = last; // set the tail to the end of the parsed piece
+    if (last != NULL && last->next != NULL && last->next->type == TYPE_NIL) {
+    	freeExpr(last->next);
+    	last->next = NULL;
+    }
     return head;
 }
 
