@@ -121,7 +121,6 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
                     if (ascii == '[') { // if the expression is lazy
                         // add a lazy expression inside the last one parsed for the content inside its parentheses
                         tempexpr = newExpressionOfType(TYPE_LAZ);
-                        tempexpr->ev.lazval = newLazyExpression();
                         (*current)->next = tempexpr;
                     } else { // if the expression is regular or an array
                         // add an expression inside the last one parsed for the content inside its parentheses
@@ -188,6 +187,7 @@ static expression* parse_ (char* text, uint startindex, linenum startline) {
             case '"':
                 i = parseStringLiteral(text, i + 1, size); // skip the string literal
                 if (i == size) { // if the string literal is never closed
+                	situation = -1;
                     addError(newErrorlist(ERR_UNCLOSED_STR_LIT, newString(strDup(text)), startline, startindex));
                 }
                 break;
@@ -792,6 +792,7 @@ inline void addError (errorlist* error) {
         cerror = errors;
     } else {
         cerror->next = error;
+        cerror = cerror->next;
     }
 }
 

@@ -14,10 +14,13 @@
 #include "../engine.h"
 #include "../constants.h"
 
+extern errorlist* cerror;
+
 DESCRIBE(parse, "expression* parse (char* text)")
 	expression* result;
 	expression* child1;
 	expression* child2;
+	expression* child3;
 	
 	IT("Parses simple expressions")
 		result = parse(NULL);
@@ -117,11 +120,60 @@ DESCRIBE(parse, "expression* parse (char* text)")
 	END_IT
 	
 	IT("Parses anonymous functions")
-		
+		result = parse("((function [x] [(* x 2)]) 4)");
+		SHOULD_EQUAL(result->type, TYPE_EXP)
+		SHOULD_EQUAL(result->next, NULL)
+		child1 = result->ev.expval;
+		SHOULD_EQUAL(child1->type, TYPE_EXP)
+		child2 = child1->ev.expval;
+		SHOULD_EQUAL(child2->type, TYPE_STR)
+		SHOULD_EQUAL(strcmp(child2->ev.strval->content, "function"), 0)
+		child2 = child2->next;
+		SHOULD_EQUAL(child2->type, TYPE_LAZ)
+		child3 = child2->ev.lazval->expval;
+		SHOULD_EQUAL(child3->type, TYPE_STR)
+		SHOULD_EQUAL(strcmp(child3->ev.strval->content, "x"), 0)
+		child2 = child2->next;
+		SHOULD_EQUAL(child2->type, TYPE_LAZ)
+		child2 = child2->ev.lazval->expval;
+		SHOULD_EQUAL(child2->type, TYPE_EXP)
+		SHOULD_EQUAL(child2->next, NULL)
+		child2 = child2->ev.expval;
+		SHOULD_EQUAL(child2->type, TYPE_STR)
+		SHOULD_EQUAL(strcmp(child2->ev.strval->content, "*"), 0)
+		child2 = child2->next;
+		SHOULD_EQUAL(child2->type, TYPE_STR)
+		SHOULD_EQUAL(strcmp(child2->ev.strval->content, "x"), 0)
+		child2 = child2->next;
+		SHOULD_EQUAL(child2->type, TYPE_INT)
+		SHOULD_EQUAL(child2->ev.intval, 2)
+		SHOULD_EQUAL(child2->next, NULL)
+		child1 = child1->next;
+		SHOULD_EQUAL(child1->type, TYPE_INT)
+		SHOULD_EQUAL(child1->ev.intval, 4)
+		SHOULD_EQUAL(child1->next, NULL)
+		freeExpr(result);
 	END_IT
 	
 	IT("Produces errors when given malformed expressions")
-		
+		initializeGlobals();
+		result = parse("(");
+		SHOULD_EQUAL(result->type, TYPE_NIL)
+		SHOULD_EQUAL(cerror->code, ERR_UNCLOSED_PAREN)
+		freeExpr(result);
+		result = parse(")");
+		SHOULD_EQUAL(result->type, TYPE_NIL)
+		SHOULD_EQUAL(cerror->code, ERR_UNMATCHED_PAREN)
+		freeExpr(result);
+		result = parse("()");
+		SHOULD_EQUAL(result->type, TYPE_NIL)
+		SHOULD_EQUAL(cerror->code, ERR_INVALID_NUM_ARGS)
+		freeExpr(result);
+		result = parse("(\"x )");
+		SHOULD_EQUAL(result->type, TYPE_NIL)
+		SHOULD_EQUAL(cerror->code, ERR_UNCLOSED_STR_LIT)
+		freeExpr(result);
+		freeGlobals();
 	END_IT
 END_DESCRIBE
 
