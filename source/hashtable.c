@@ -236,3 +236,4 @@ static void deleteHash_ (hashtable* table, int deletetable) {
         free(table); // free the memory of the table structure
     }
 }
+

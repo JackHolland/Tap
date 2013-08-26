@@ -26,6 +26,8 @@ typedef struct exprstack_ exprstack;
 typedef struct tap_prim_fun_ tap_prim_fun;
 typedef struct stringlist_ stringlist;
 typedef struct errorlist_ errorlist;
+typedef union tap_fun_con_ tap_fun_con;
+typedef struct tap_fun_search_ tap_fun_search;
 
 typedef long tap_int;
 typedef double tap_flo;
@@ -140,6 +142,17 @@ struct errorlist_ {
     linenum line;
     uint index;
     errorlist* next;
+};
+
+union tap_fun_con_ {
+	tap_fun* fun;
+	tap_prim_fun* prim_fun;
+};
+
+struct tap_fun_search_ {
+	int found:1;
+	int prim:1;
+	tap_fun_con funs;
 };
 
 #endif

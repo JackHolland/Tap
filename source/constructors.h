@@ -22,6 +22,7 @@ expression* newExpressionLaz(expression*);
 expression* newExpressionTyp(datatype);
 expression* newExpressionAll(datatype, exprvals*, expression*, linenum);
 expression* copyExpression(expression*);
+expression* copyExpressionNR(expression*);
 tap_laz* newLazyExpression();
 string* newString(char*);
 array* newArray(int);

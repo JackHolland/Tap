@@ -365,7 +365,7 @@ uint parseExprForSign (char* text, uint index, uint size, expression* expr) {
     return index;
 }
 
-/*! Evaluates the given list of expressions and returns the finished result
+/*! Skips past all text until an end quotation is found
     @param text     the character array containing the string literal
     @param index    the index to start parsing at
     @return         the new index to starting parsing at after the function ends
@@ -395,33 +395,18 @@ void storeChildExpression (expression* parent, expression* child) {
     @return         the expression representing the result of the evaluation
 */
 expression* evaluate (expression* head) {
+	expression* result = head;
     if (head != NULL) { // if there is something to evaluate
-        expression* tempexpr1; // a temporary expression pointer
-        expression* tempexpr2; // another temporary expression pointer
-        if (head->type == TYPE_EXP) { // if the expression is of type expression
-            setEnvironment(); // setup a new environment with a blank slate
-            tempexpr1 = head->next; // store the next expression to be evaluated later
-            head = evaluateArgument(head); // evaluate the expression's contents
-            if (tempexpr1 != NULL) {
-                if (tempexpr1->type == TYPE_NIL) { // if there isn't a next expression or it's nil then ignore it and return the head expression
-                    freeExpr(tempexpr1);
-                    return head;
-                // retrieve elements from the array / retrieve properties from the object / evaluate the function
-                } else if (head->type == TYPE_ARR || head->type == TYPE_OBJ || head->type == TYPE_FUN) {
-                    head->next = tempexpr1;
-                    return evaluate(head);
-                } else {
-                    head->next = NULL;
-                	freeExpr(head);
-                	tempexpr1 = evaluate(tempexpr1);
-                	return tempexpr1;
-                }
-            }
-            resetEnvironment(); // clear any variables created in the current environment and reset to the previous one
-        } else if ((head->type == TYPE_STR && head->flag == EFLAG_VAR) || head->type == TYPE_FUN) { // if the expression is a string or a function
-            tap_prim_fun* pfunc = NULL; // a primitive function pointer
-            tap_fun* ufunc = NULL; // a user function pointer
-            hashlist* hl1; // hash elements list used for temporary storage
+        expression* tempexpr1;
+        expression* tempexpr2;
+        if (head->type == TYPE_EXP) {
+            result = evaluateExp(head);
+        } else if ((head->type == TYPE_STR && head->flag == EFLAG_VAR) || head->type == TYPE_FUN) {
+        	result = evaluateFun(head);
+        } else if ((head->type == TYPE_STR && head->flag == EFLAG_VAR) || head->type == TYPE_FUN) {
+            tap_prim_fun* pfunc = NULL;
+            tap_fun* ufunc = NULL;
+            hashlist* hl1;
             hashlist* hl2;
             tempexpr1 = head->next;
             int numargs = 0;
@@ -435,11 +420,9 @@ expression* evaluate (expression* head) {
             int i = 0;
             while (tempexpr2 != NULL) {
                 tempexpr1 = tempexpr2->next;
-                tempexpr2->next = NULL;
-                args[i++] = evaluateArgument(copyExpression(tempexpr2));
+                args[i++] = evaluateArgument(copyExpressionNR(tempexpr2));
                 tempexpr2 = tempexpr1;
             }
-            head->next = NULL; // remove the extraneous link to the rest of the arguments
             int cenv = cenvironment;
             int found = head->type == TYPE_FUN; // a flag indicating if the given function was found
             while (!found && cenv >= 0) {
@@ -508,12 +491,12 @@ expression* evaluate (expression* head) {
             if (found) { // if the function's type requirements have been met and therefore can be called
                 if (pfunc == NULL) { // if the function is user defined
                     if (head->type == TYPE_FUN) {
-                        ufunc = head->ev.funval; // get the function value
+                        ufunc = head->ev.funval;
                         if (ufunc->minargs > numargs || (ufunc->maxargs != ARGLEN_INF && ufunc->maxargs < numargs)) {
                             found = 0;
                             addError(newErrorlist(ERR_INVALID_NUM_ARGS, newString(printExpression(head)), 1, 0));
                         } else {
-                            for (i = 0; i < numargs; ++i) { // for each argument
+                            for (i = 0; i < numargs; ++i) {
                                 typelist* types = ufunc->args[i]->types;
                                 int validtype = 0;
                                 while (types != NULL) {
@@ -539,34 +522,31 @@ expression* evaluate (expression* head) {
                             insertUserHash(environments[cenvironment]->variables, ufunc->args[i]->name->content, args[i]);
                         }
                         expression* cfunction = newExpressionOfType(TYPE_FUN); // insert the special variable "here" that refers to the current function
-                        cfunction->ev.funval = copyTapFunction(ufunc);
+                        cfunction->ev.funval = ufunc;
                         insertUserHash(environments[cenvironment]->variables, "here", cfunction);
                         environments[cenvironment]->numvars += numargs; // indicate how many variables there are in the new environment
-                        tempexpr1 = evaluateLazy(copyExpression(ufunc->body)); // evaluate the function in the new environment
+                        tempexpr1 = evaluateLazy(ufunc->body); // evaluate the function in the new environment
                         if (newenv) {
                             resetEnvironment(); // reset the environment to its previous state
                         }
                     } else {
-                        tempexpr1 = newExpressionOfType(TYPE_NIL);
+                        tempexpr1 = newExpressionNil();
                     }
-                    freeExpr(head); // free the head and set it to the result of the function call
-                    head = tempexpr1;
+                    result = tempexpr1;
                 } else {
-                    datatype returntype = TYPE_NIL;
-                    free(head->ev.strval->content); // free the string content from memory
-                    free(head->ev.strval);
                     setEnvironment(); // set up a new environment with a blank slate
-                    pfunc->address(args, numargs, &(head->ev), &returntype); // call the function, passing it the evaluated arguments and the number of arguments
+                    result = newExpressionNil();
+                    datatype returntype = TYPE_NIL;
+                    pfunc->address(args, numargs, &(result->ev), &returntype); // call the function, passing it the evaluated arguments and the number of arguments
                     resetEnvironment(); // reset the environment to its previous state
-                    head->type = returntype; // set the current head's type to the return type of the function
+                    result->type = returntype; // set the current head's type to the return type of the function
                     for (i = 0; i < numargs; ++i) { // free the arguments from memory
                         freeExprNR(args[i]);
                     }
                 }
-                head->next = NULL; // remove the now-obsolete arguments list
             } else { // return nil if the function can't be called
                 addError(newErrorlist(ERR_UNDEFINED_FUN, newString(printExpression(head)), 1, 0));
-                head = newExpressionOfType(TYPE_NIL);
+                result = newExpressionNil();
             }
         } else if (head->type == TYPE_OBJ) {
             expression* propname = evaluateArgument(head->next);
@@ -576,16 +556,12 @@ expression* evaluate (expression* head) {
                 while (props != NULL) {
                     if (strcmp(pnstr, props->name) == 0) {
                         expression* prop = copyExpression(props->value);
-                        prop->next = head->next->next;
-                        head->next->next = NULL;
-                        freeExpr(head);
-                        return prop;
+                        result = prop;
                     }
                     props = props->next;
                 }
                 addError(newErrorlist(ERR_UNDEFINED_PROP, newString(strDup(pnstr)), 1, 1));
-                freeExpr(head);
-                return newExpressionOfType(TYPE_NIL);
+                result = newExpressionOfType(TYPE_NIL);
             } else {
                 ///error
             }
@@ -596,67 +572,260 @@ expression* evaluate (expression* head) {
                 int index = indexexpr->ev.intval;
                 if (index > arr->start && index < arr->end) {
                     expression* elem = copyExpression(arr->content[index]);
-                    elem->next = head->next->next;
-                    head->next->next = NULL;
-                    freeExpr(head);
-                    return elem;
+                    result = elem;
                 } else {
                     addError(newErrorlist(ERR_OUT_OF_BOUNDS, newString(printExpression(indexexpr)), 1, 1));
-                    freeExpr(head);
-                    return newExpressionOfType(TYPE_NIL);
+                    result = newExpressionNil();
                 }
             } else {
                 ///error
             }
-        } else {
-            return head;
         }
     }
-    return head;
+    return result;
 }
 
-/*! Evaluates the given argument and returns the finished result
+/* Evaluates the given container expression and returns the result
+	@param arg	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
+expression* evaluateExp (expression* expr) {
+	setEnvironment(); // setup a new environment with a blank slate
+	expression* result = NULL;
+	while (1) {
+		expression* next = expr->next; // store the next expression to be evaluated later
+		result = evaluateArgument(expr); // evaluate the expression's contents
+		if (next == NULL) {
+			break;
+		} else {
+			if (expr != result) {
+				freeExpr(result);
+			}
+			expr = next;
+		}
+	}
+    resetEnvironment(); // clear any variables created in the current environment and reset to the previous one
+    return result;
+}
+
+expression* evaluateFun (expression* head) {
+	int numargs = numArgs(head);
+	expression* args[numargs];
+	fillArgs(args, head);
+	tap_fun_search tfs = findFunction(head, args, numargs);
+	expression* result;
+	if (tfs.found) {
+		if (tfs.prim) {
+			result = callPrimFun(tfs.funs.prim_fun, args, numargs);
+		} else {
+			if (validFunCall(tfs.funs.fun, head, args, numargs)) {
+				result = callFun(tfs.funs.fun, args, numargs);
+			} else {
+				result = newExpressionNil();
+			}
+		}
+	} else {
+        result = newExpressionNil();
+	}
+	int i;
+	for (i = 0; i < numargs; ++i) {
+        freeExprNR(args[i]);
+    }
+    return result;
+}
+
+int numArgs (expression* head) {
+	int numargs = 0;
+    expression* expr = head->next;
+    while (expr != NULL) {
+        ++numargs;
+        expr = expr->next;
+    }
+    return numargs;
+}
+
+void fillArgs (expression* args[], expression* head) {
+	expression* expr = head->next;
+    int i = 0;
+    while (expr != NULL) {
+        expression* next = expr->next;
+        args[i++] = evaluateArgument(copyExpressionNR(expr));
+        expr = next;
+    }
+}
+
+tap_fun_search findFunction (expression* head, expression* args[], int numargs) {
+	int cenv = cenvironment;
+    int found = head->type == TYPE_FUN;
+    tap_prim_fun* prim_fun = NULL;
+    tap_fun* fun = NULL;
+    while (!found && cenv >= 0) {
+        hashlist* hl1 = lookupHashes(environments[cenv]->variables, head->ev.strval->content);
+        hashlist* hl2 = hl1;
+        while (hl1 != NULL) {
+            typelist* types;
+            int minargs;
+            if (cenv == 0) { // if the current environment is the root one containing primitive functions
+                prim_fun = hl1->value;
+                if (prim_fun->minargs > numargs || (prim_fun->maxargs != ARGLEN_INF && prim_fun->maxargs < numargs)) {
+                    hl1 = hl1->next;
+                    continue;
+                }
+                types = prim_fun->types;
+                minargs = prim_fun->minargs;
+            } else {
+                expression* expr = (expression*)(hl1->value);
+                if (expr->type == TYPE_FUN) {
+                    fun = expr->ev.funval;
+                    if (fun->minargs > numargs || (fun->maxargs != ARGLEN_INF && fun->maxargs < numargs)) {
+                        hl1 = hl1->next;
+                        continue;
+                    }
+                    types = NULL;
+                    minargs = fun->minargs;
+                } else {
+                    continue;
+                }
+            }
+            int validtypes = 1;
+            int i;
+            for (i = 0; i < minargs; ++i) {
+                if (cenv == 0) {
+                    if (i > 0) {
+                        types = types->next;
+                    }
+                } else {
+                    types = fun->args[i]->types;
+                }
+                int validtype = 0;
+                while (types != NULL) {
+                    if (types->type == TYPE_UNK || args[i]->type == types->type) { // if an argument's type doesn't match the function's requirements
+                        validtype = 1;
+                        break;
+                    }
+                    types = types->next;
+                }
+                if (!validtype) {
+                    validtypes = 0;
+                    break;
+                }
+            }
+            if (validtypes) {
+                found = 1;
+                break;
+            }
+            hl1 = hl1->next;
+        }
+        while (hl2 != NULL) { // free the memory used to store the hashlist
+            hl1 = hl2->next;
+            free(hl2);
+            hl2 = hl1;
+        }
+        cenv = environments[cenv]->parent; // since no function was found, try searching in the parent environment
+    }
+    tap_fun_search tfs;
+    tfs.found = found;
+    int prim = prim_fun != NULL;
+    tfs.prim = prim;
+    if (prim) {
+    	tfs.funs.prim_fun = prim_fun;
+    } else {
+    	tfs.funs.fun = fun;
+    }
+    return tfs;
+}
+
+expression* callPrimFun (tap_prim_fun* prim_fun, expression* args[], int numargs) {
+	setEnvironment(); // set up a new environment with a blank slate
+    expression* result = newExpressionNil();
+    datatype returntype = TYPE_NIL;
+    prim_fun->address(args, numargs, &(result->ev), &returntype); // call the function, passing it the evaluated arguments and the number of arguments
+    resetEnvironment();
+    result->type = returntype;
+    return result;
+}
+
+int validFunCall (tap_fun* fun, expression* head, expression* args[], int numargs) {
+    if (fun->minargs > numargs || (fun->maxargs != ARGLEN_INF && fun->maxargs < numargs)) {
+        addError(newErrorlist(ERR_INVALID_NUM_ARGS, newString(printExpression(head)), 1, 0));
+        return 0;
+    } else {
+    	int i;
+        for (i = 0; i < numargs; ++i) {
+            typelist* types = fun->args[i]->types;
+            int validtype = 0;
+            while (types != NULL) {
+                if (types->type == TYPE_UNK || args[i]->type == types->type) { // if an argument's type doesn't match the function's requirements
+                    validtype = 1;
+                    break;
+                }
+                types = types->next;
+            }
+            if (!validtype) {
+                addError(newErrorlist(ERR_INVALID_ARG, newString(printExpression(head)), 1, 0));
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+expression* callFun (tap_fun* fun, expression* args[], int numargs) {
+	int newenv = environments[cenvironment]->numvars > 0;
+    if (newenv) { // if this isn't a tail call
+        setEnvironment(); // set up a new environment with a blank slate
+    }
+    int i;
+    for (i = 0; i < numargs; ++i) { // add the arguments to the new environment's variables table
+        insertUserHash(environments[cenvironment]->variables, fun->args[i]->name->content, args[i]);
+    }
+    expression* cfunction = newExpressionOfType(TYPE_FUN); // insert the special variable "here" that refers to the current function
+    cfunction->ev.funval = fun;
+    insertUserHash(environments[cenvironment]->variables, "here", cfunction);
+    environments[cenvironment]->numvars += numargs; // indicate how many variables there are in the new environment
+    expression* result = evaluateLazy(fun->body); // evaluate the function in the new environment
+    if (newenv) {
+        resetEnvironment(); // reset the environment to its previous state
+    }
+    return result;
+}
+
+/*! Evaluates the given argument and returns the result
     @param arg  the expression argument to be evaluated
     @return     the expression representing the result of the evaluation
 */
 expression* evaluateArgument (expression* arg) {
-    expression* tempexpr1;
+	expression* result = arg;
     if (arg->type == TYPE_EXP) { // if the argument is an expression
         if (arg->flag == EFLAG_ARR) { // if the expression is an array expression
             int size = 0;
-            tempexpr1 = arg->ev.expval;
-            while (tempexpr1 != NULL) {
+            expression* elem1 = arg->ev.expval;
+            while (elem1 != NULL) {
                 ++size;
-                tempexpr1 = tempexpr1->next;
+                elem1 = elem1->next;
             }
             array* arr = newArray(size);
-            tempexpr1 = arg->ev.expval;
-            expression* tempexpr2;
+            elem1 = arg->ev.expval;
+            expression* elem2;
             size = 0;
-            while (tempexpr1 != NULL) {
-                tempexpr2 = tempexpr1->next;
-                arr->content[size++] = evaluateArgument(tempexpr1);
-                tempexpr1 = tempexpr2;
+            while (elem1 != NULL) {
+                elem2 = elem1->next;
+                arr->content[size++] = evaluateArgument(elem1);
+                elem1 = elem2;
             }
-            arg->type = TYPE_ARR;
-            arg->ev.arrval = arr;
+            result = newExpressionArr(arr);
         } else { // if the expression isn't an array expression
-            tempexpr1 = evaluate(arg->ev.expval); // replace the expression parameter with its evaluated equivalent
-            free(arg); // free the now unnecessary head expression
-            arg = tempexpr1;
+            result = evaluate(arg->ev.expval); // replace the expression parameter with its evaluated equivalent
         }
     } else if (arg->type == TYPE_STR && arg->flag == EFLAG_VAR) {
         string* var = arg->ev.strval;
-        tempexpr1 = copyExpression(getVarValue(var->content));
-        if (tempexpr1 == NULL) {
+        result = copyExpression(getVarValue(var->content));
+        if (result == NULL) {
             addError(newErrorlist(ERR_UNDEFINED_VAR, copyString(var), 0, 0));
-            return newExpressionOfType(TYPE_NIL);
-        } else {
-            freeExprNR(arg);
-            return tempexpr1;
+            return newExpressionNil();
         }
     }
-    return arg;
+    return result;
 }
 
 /*! Evaluates the given lazy expression and returns the finished result

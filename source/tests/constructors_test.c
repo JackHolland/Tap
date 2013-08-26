@@ -102,10 +102,12 @@ DESCRIBE(newExpressionAll, "expression* newExpressionAll (datatype type, exprval
 END_DESCRIBE
 
 DESCRIBE(copyExpression, "expression* copyExpression (expression* expr)")
-	IT("Copies the given expression and its contents")
+	IT("Copies the given list of expressions and their contents")
 		expression* orig1 = newExpressionFlo(5.4);
+		orig1->next = newExpressionFlo(4.5);
 		expression* copied1 = copyExpression(orig1);
 		SHOULD_EQUAL(orig1->ev.floval, copied1->ev.floval)
+		SHOULD_EQUAL(orig1->next->ev.floval, copied1->next->ev.floval)
 		freeExpr(orig1);
 		freeExpr(copied1);
 		expression* orig2 = newExpressionLaz(newExpressionStr(newString(strDup("xyz"))));
@@ -113,6 +115,18 @@ DESCRIBE(copyExpression, "expression* copyExpression (expression* expr)")
 		SHOULD_EQUAL(strcmp(orig2->ev.lazval->expval->ev.strval->content, copied2->ev.lazval->expval->ev.strval->content), 0)
 		freeExpr(orig2);
 		freeExpr(copied2);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(copyExpressionNR, "expression* copyExpressionNR (expression* expr)")
+	IT("Copies the given expression and its contents")
+		expression* orig = newExpressionFlo(5.4);
+		orig->next = newExpressionFlo(4.5);
+		expression* copied = copyExpressionNR(orig);
+		SHOULD_EQUAL(orig->ev.floval, copied->ev.floval)
+		SHOULD_EQUAL(copied->next, NULL)
+		freeExpr(orig);
+		freeExpr(copied);
 	END_IT
 END_DESCRIBE
 
@@ -465,6 +479,7 @@ int main () {
 	CSpec_Run(DESCRIPTION(newExpressionTyp), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newExpressionAll), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(copyExpression), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(copyExpressionNR), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newLazyExpression), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newString), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newArray), CSpec_NewOutputUnit());

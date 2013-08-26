@@ -51,3 +51,4 @@ void clearHash(hashtable*);
 void deleteHash(hashtable*);
 
 #endif
+

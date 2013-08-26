@@ -13,6 +13,8 @@
 
 #include "../engine.h"
 #include "../constants.h"
+#include "../constructors.h"
+#include "../strings.h"
 
 extern errorlist* cerror;
 
@@ -178,38 +180,98 @@ DESCRIBE(parse, "expression* parse (char* text)")
 END_DESCRIBE
 
 DESCRIBE(parsePiece, "expression* parsePiece (char* text, expression** tail, linenum startline, uint startindex, int ascii, int iscont)")
-	IT("")
-		
+	IT("Parses a parentheses-enclosed string")
+		expression* tail = NULL;
+		expression* result = parsePiece(strDup("+ 1 2"), &tail, 1, 1, '(', 0);
+		SHOULD_EQUAL(result->type, TYPE_STR)
+		SHOULD_EQUAL(strcmp(result->ev.strval->content, "+"), 0)
+		expression* next = result->next;
+		SHOULD_EQUAL(next->type, TYPE_INT)
+		SHOULD_EQUAL(next->ev.intval, 1)
+		next = next->next;
+		SHOULD_EQUAL(next->type, TYPE_INT)
+		SHOULD_EQUAL(next->ev.intval, 2)
+		SHOULD_EQUAL(next->next, NULL)
+		SHOULD_EQUAL(next, tail);
+		freeExpr(result);
 	END_IT
 END_DESCRIBE
 
 DESCRIBE(parseWhitespace, "uint parseWhitespace (char* text, uint index, uint end)")
-	IT("")
-		
+	IT("Advances the given index past any whitespace found")
+		uint index = parseWhitespace("hi", 0, 2);
+		SHOULD_EQUAL(index, 0)
+		index = parseWhitespace(" hi", 0, 3);
+		SHOULD_EQUAL(index, 1)
+		index = parseWhitespace("  xyz ", 1, 1);
+		SHOULD_EQUAL(index, 1)
+		index = parseWhitespace("        ", 2, 4);
+		SHOULD_EQUAL(index, 4)
 	END_IT
 END_DESCRIBE
 
 DESCRIBE(parseExprForSign, "uint parseExprForSign (char* text, uint index, uint size, expression* expr)")
-	IT("")
-		
+	IT("Determines if the given text represents a signed number and marks the given expression as an integer")
+		expression* expr = newExpressionNil();
+		uint index = parseExprForSign("+5", 0, 2, expr);
+		SHOULD_EQUAL(index, 1)
+		SHOULD_EQUAL(expr->type, TYPE_INT)
+		expr->type = TYPE_NIL;
+		index = parseExprForSign(" - 2", 1, 4, expr);
+		SHOULD_EQUAL(index, 1)
+		SHOULD_EQUAL(expr->type, TYPE_NIL)
+		freeExpr(expr);
 	END_IT
 END_DESCRIBE
 
 DESCRIBE(parseStringLiteral, "uint parseStringLiteral (char* text, uint index, uint end)")
-	IT("")
-		
+	IT("Skips past text until '\"' is found")
+		uint index = parseStringLiteral("Jack\"", 0, 5);
+		SHOULD_EQUAL(index, 4)
+		index = parseStringLiteral("Jack\"kcaJ", 1, 9);
+		SHOULD_EQUAL(index, 4)
+		index = parseStringLiteral("JackkcaJ", 3, 8);
+		SHOULD_EQUAL(index, 8)
 	END_IT
 END_DESCRIBE
 
 DESCRIBE(storeChildExpression, "void storeChildExpression (expression* parent, expression* child)")
-	IT("")
-		
+	IT("Stores the child expression in the parent expression")
+		expression* parent = newExpressionOfType(TYPE_EXP);
+		expression* child = newExpressionInt(0);
+		storeChildExpression(parent, child);
+		SHOULD_EQUAL(parent->ev.expval, child)
+		freeExpr(parent);
+		parent = newExpressionLaz(NULL);
+		child = newExpressionFlo(1.0);
+		storeChildExpression(parent, child);
+		SHOULD_EQUAL(parent->ev.lazval->expval, child)
+		freeExpr(parent);
 	END_IT
 END_DESCRIBE
 
 DESCRIBE(evaluate, "expression* evaluate (expression* head)")
 	IT("")
 		
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(evaluateExp, "expression* evaluateExp (expression* expr)")
+	IT("Evaluates the given container expression")
+		initializeGlobals();
+		expression* head = newExpressionOfType(TYPE_EXP);
+		expression* child = newExpressionStr(newString(strDup("+")));
+		head->ev.expval = child;
+		child->flag = EFLAG_VAR;
+		child->next = newExpressionInt(1);
+		child = child->next;
+		child->next = newExpressionInt(1);
+		expression* result = evaluateExp(head);
+		SHOULD_EQUAL(result->type, TYPE_INT)
+		SHOULD_EQUAL(result->ev.intval, 2)
+		freeExpr(head);
+		freeExpr(result);
+		freeGlobals();
 	END_IT
 END_DESCRIBE
 
@@ -328,14 +390,15 @@ DESCRIBE(freeGlobals, "void freeGlobals ()")
 END_DESCRIBE
 
 int main () {
-	CSpec_Run(DESCRIPTION(parse), CSpec_NewOutputUnit());
+	/*CSpec_Run(DESCRIPTION(parse), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(parsePiece), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(parseWhitespace), CSpec_NewOutputUnit());
-	/*CSpec_Run(DESCRIPTION(parseExprForSign), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(parseExprForSign), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(parseStringLiteral), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(storeChildExpression), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(evaluate), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(evaluateArgument), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluate), CSpec_NewOutputUnit());*/
+	CSpec_Run(DESCRIPTION(evaluateExp), CSpec_NewOutputUnit());
+	/*CSpec_Run(DESCRIPTION(evaluateArgument), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluateLazy), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(printExpression), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(printErrors), CSpec_NewOutputUnit());

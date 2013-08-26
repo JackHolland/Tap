@@ -15,6 +15,7 @@
 #include "arrays.h"
 #include "dates.h"
 
+static expression* copyExpression_(expression*, int);
 static array* copyArray_(array*, int);
 
 /*! Creates a new expression struct with the default properties (i.e. a nil expression)
@@ -157,15 +158,38 @@ expression* newExpressionAll (datatype type, exprvals* ev, expression* next, lin
     return expr;
 }
 
-/*! Copies the given expression into new memory
-    @param expr     the expression to copy
-    @return         the new, duplicate expression
+/* Copies the given list of expressions
+	@param expr		the expressions to copy
+	@return			the new, duplicate expressions
 */
-expression* copyExpression (expression* expr) {
+inline expression* copyExpression (expression* expr) {
+	return copyExpression_(expr, 1);
+}
+
+/* Copies the given expression
+	@param expr		the expression to copy
+	@return			the new, duplicate expression
+*/
+inline expression* copyExpressionNR (expression* expr) {
+	return copyExpression_(expr, 0);
+}
+
+/*! Copies the given expression or list of expressions, depending on the next flag
+    @param expr     the expression(s) to copy
+    @param next		whether or not to copy the next expression in the list
+    @return         the new, duplicate expression(s)
+*/
+static expression* copyExpression_ (expression* expr, int next) {
     if (expr == NULL) { // if the expression is null then just return null
         return NULL;
     } else {
-        expression* duplicate = newExpressionAll(expr->type, NULL, copyExpression(expr->next), expr->line); // create a new expression with identical properties to the original one
+    	expression* nextexpr;
+    	if (next) {
+    		nextexpr = copyExpression(expr->next);
+    	} else {
+    		nextexpr = NULL;
+    	}
+        expression* duplicate = newExpressionAll(expr->type, NULL, nextexpr, expr->line); // create a new expression with identical properties to the original one
         exprvals* ev1 = &(duplicate->ev);
         exprvals* ev2 = &(expr->ev);
         int i;
