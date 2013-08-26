@@ -105,7 +105,7 @@ long castToInt (expression* expr) {
             return atoi(expr->ev.strval->content);
         }
     } else if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression then evaluate it and try to cast it again
-    	expression* lazy = evaluateLazy(copyExpression(expr));
+    	expression* lazy = evaluateLaz(copyExpression(expr));
         long result = castToInt(lazy);
         freeExpr(lazy);
         return result;
@@ -181,7 +181,7 @@ double castToFlo (expression* expr) {
             return atof(expr->ev.strval->content);
         }
     } else if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression then evaluate it and try to cast it again
-    	expression* lazy = evaluateLazy(copyExpression(expr));
+    	expression* lazy = evaluateLaz(copyExpression(expr));
         double result = castToFlo(lazy);
         freeExpr(lazy);
         return result;
@@ -214,7 +214,7 @@ string* castToStr (expression* expr) {
         sprintf(result, "%f", expr->ev.floval);
         return newString(result);
     } else if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression then evaluate it and try to cast it again
-    	expression* lazy = evaluateLazy(copyExpression(expr));
+    	expression* lazy = evaluateLaz(copyExpression(expr));
         string* result = castToStr(lazy);
         freeExpr(lazy);
         return result;

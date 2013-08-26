@@ -851,7 +851,7 @@ void prim_iIf (expression* args[], int numargs, exprvals* returnval, datatype* r
     expression* result;
     for (i = 0; i < numargs - 1; i += 2) {
         if (i == numargs - 1) {
-            result = evaluateLazy(copyExpression(args[i]));
+            result = evaluateLaz(copyExpression(args[i]));
             *returntype = result->type;
             returnval->intval = result->ev.intval;
             freeExpr(result);
@@ -860,7 +860,7 @@ void prim_iIf (expression* args[], int numargs, exprvals* returnval, datatype* r
             if (result->type != TYPE_INT) {
                 ///error
             } else if (result->ev.intval) {
-                result = evaluateLazy(copyExpression(args[i + 1]));
+                result = evaluateLaz(copyExpression(args[i + 1]));
                 *returntype = result->type;
                 returnval->intval = result->ev.intval;
                 freeExpr(result);

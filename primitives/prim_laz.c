@@ -23,7 +23,7 @@
     @return             nothing
 */
 void prim_lEval (expression* args[], int numargs, exprvals* returnval, datatype* returntype) {
-    expression* result = evaluateLazy(copyExpression(args[0]));
+    expression* result = evaluateLaz(copyExpression(args[0]));
     *returntype = result->type;
     returnval->intval = result->ev.intval;
     freeExpr(result);

@@ -396,71 +396,85 @@ void storeChildExpression (expression* parent, expression* child) {
 */
 expression* evaluate (expression* head) {
 	expression* result = head;
-    if (head != NULL) { // if there is something to evaluate
+    if (head != NULL) {
         if (head->type == TYPE_EXP) {
             result = evaluateExp(head);
+        } else if (head->type == TYPE_INT) {
+        	result = evaluateInt(head);
+        } else if (head->type == TYPE_FLO) {
+        	result = evaluateFlo(head);
         } else if ((head->type == TYPE_STR && head->flag == EFLAG_VAR) || head->type == TYPE_FUN) {
         	result = evaluateFun(head);
-        } else if (head->type == TYPE_OBJ) {
-            expression* propname = evaluateArgument(head->next);
-            if (propname->type == TYPE_STR) {
-                char* pnstr = propname->ev.strval->content;
-                property* props = head->ev.objval->props;
-                while (props != NULL) {
-                    if (strcmp(pnstr, props->name) == 0) {
-                        expression* prop = copyExpression(props->value);
-                        result = prop;
-                    }
-                    props = props->next;
-                }
-                addError(newErrorlist(ERR_UNDEFINED_PROP, newString(strDup(pnstr)), 1, 1));
-                result = newExpressionOfType(TYPE_NIL);
-            } else {
-                ///error
-            }
         } else if (head->type == TYPE_ARR) {
-            expression* indexexpr = evaluateArgument(head->next);
-            if (indexexpr->type == TYPE_INT) {
-                array* arr = head->ev.arrval;
-                int index = indexexpr->ev.intval;
-                if (index > arr->start && index < arr->end) {
-                    expression* elem = copyExpression(arr->content[index]);
-                    result = elem;
-                } else {
-                    addError(newErrorlist(ERR_OUT_OF_BOUNDS, newString(printExpression(indexexpr)), 1, 1));
-                    result = newExpressionNil();
-                }
-            } else {
-                ///error
-            }
+            result = evaluateArr(head);
+        } else if (head->type == TYPE_DAT) {
+        	result = evaluateDat(head);
+        } else if (head->type == TYPE_OBJ) {
+            result = evaluateObj(head);
+        } else if (head->type == TYPE_TYP) {
+        	result = evaluateTyp(head);
+        } else if (head->type >= TYPE_COMP_START) {
+        	result = evaluateCompType(head);
         }
     }
     return result;
 }
 
 /* Evaluates the given container expression and returns the result
-	@param arg	the expression to be evaluated
+	@param head	the expression to be evaluated
 	@return		the expression representing the result of the evaluation
 */
-expression* evaluateExp (expression* expr) {
+expression* evaluateExp (expression* head) {
 	setEnvironment(); // setup a new environment with a blank slate
 	expression* result = NULL;
 	while (1) {
-		expression* next = expr->next; // store the next expression to be evaluated later
-		result = evaluateArgument(expr); // evaluate the expression's contents
+		expression* next = head->next; // store the next expression to be evaluated later
+		result = evaluateArgument(head); // evaluate the expression's contents
 		if (next == NULL) {
 			break;
 		} else {
-			if (expr != result) {
+			if (head != result) {
 				freeExpr(result);
 			}
-			expr = next;
+			head = next;
 		}
 	}
     resetEnvironment(); // clear any variables created in the current environment and reset to the previous one
     return result;
 }
 
+/*! Evaluates the given lazy expression and returns the finished result
+    @param head     the expression to be evaluated
+    @return         the expression representing the result of the evaluation
+*/
+expression* evaluateLaz (expression* head) {
+    if (head->type == TYPE_LAZ) { // if the expression is a lazy expression
+        return evaluate(head->ev.lazval->expval); // evaluate the expression as a regular expression
+    } else { // if the expression isn't a lazy expression then just evaluate it
+        return evaluate(head);
+    }
+}
+
+/* Evaluates the given integer expression and returns the result
+	@param head	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
+expression* evaluateInt (expression* head) {
+	return head;
+}
+
+/* Evaluates the given float expression and returns the result
+	@param head	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
+expression* evaluateFlo (expression* head) {
+	return head;
+}
+
+/* Evaluates the given variable string or function expression and returns the result
+	@param head	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
 expression* evaluateFun (expression* head) {
 	int numargs = numArgs(head);
 	expression* args[numargs];
@@ -487,6 +501,10 @@ expression* evaluateFun (expression* head) {
     return result;
 }
 
+/* Returns the number of expression arguments in the given list
+	@param head	the list of expressions to count
+	@return		the number of arguments found
+*/
 int numArgs (expression* head) {
 	int numargs = 0;
     expression* expr = head->next;
@@ -497,6 +515,11 @@ int numArgs (expression* head) {
     return numargs;
 }
 
+/* Fills in the given arguments array with the given list of expressions
+	@param args	the array of arguments to fill
+	@param head	the list of expressions to pull from
+	@return		the expression representing the result of the evaluation
+*/
 void fillArgs (expression* args[], expression* head) {
 	expression* expr = head->next;
     int i = 0;
@@ -507,6 +530,12 @@ void fillArgs (expression* args[], expression* head) {
     }
 }
 
+/* Finds the function corresponding to the given expression head and returns its data
+	@param head		the expression containing the function (string variable or tap function)
+	@param args		the array of arguments to match the type signature to
+	@param numargs	the number of arguments in the array
+	@return			the tap_fun_search data associated with the found function
+*/
 tap_fun_search findFunction (expression* head, expression* args[], int numargs) {
 	int cenv = cenvironment;
     int found = head->type == TYPE_FUN;
@@ -588,6 +617,12 @@ tap_fun_search findFunction (expression* head, expression* args[], int numargs) 
     return tfs;
 }
 
+/* Calls the given primitive function with the given arguments
+	@param prim_fun	the primitive function to call
+	@param args		the array of arguments to pass to the function
+	@param num_args	the number of arguments in the array
+	@return			the function call's resulting expression
+*/
 expression* callPrimFun (tap_prim_fun* prim_fun, expression* args[], int numargs) {
 	setEnvironment(); // set up a new environment with a blank slate
     expression* result = newExpressionNil();
@@ -598,6 +633,13 @@ expression* callPrimFun (tap_prim_fun* prim_fun, expression* args[], int numargs
     return result;
 }
 
+/* Returns whether or not the given function is being given valid arguments
+	@param fun		the function whose signature to analyze
+	@param head		the function's container expression
+	@param args		the array of arguments being passed to the function
+	@param numargs	the number of arguments in the array
+	@return			1 if valid, 0 otherwise
+*/
 int validFunCall (tap_fun* fun, expression* head, expression* args[], int numargs) {
     if (fun->minargs > numargs || (fun->maxargs != ARGLEN_INF && fun->maxargs < numargs)) {
         addError(newErrorlist(ERR_INVALID_NUM_ARGS, newString(printExpression(head)), 1, 0));
@@ -623,6 +665,12 @@ int validFunCall (tap_fun* fun, expression* head, expression* args[], int numarg
     return 1;
 }
 
+/* Calls the given function with the given arguments
+	@param fun		the function to call
+	@param args		the array of arguments to pass to the function
+	@param num_args	the number of arguments in the array
+	@return			the function call's resulting expression
+*/
 expression* callFun (tap_fun* fun, expression* args[], int numargs) {
 	int newenv = environments[cenvironment]->numvars > 0;
     if (newenv) { // if this isn't a tail call
@@ -636,11 +684,85 @@ expression* callFun (tap_fun* fun, expression* args[], int numargs) {
     cfunction->ev.funval = fun;
     insertUserHash(environments[cenvironment]->variables, "here", cfunction);
     environments[cenvironment]->numvars += numargs; // indicate how many variables there are in the new environment
-    expression* result = evaluateLazy(fun->body); // evaluate the function in the new environment
+    expression* result = evaluateLaz(fun->body); // evaluate the function in the new environment
     if (newenv) {
         resetEnvironment(); // reset the environment to its previous state
     }
     return result;
+}
+
+/* Evaluates the given array expression and returns the result
+	@param arg	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
+expression* evaluateArr (expression* head) {
+	expression* result = NULL;
+	expression* indexexpr = evaluateArgument(head->next);
+    if (indexexpr->type == TYPE_INT) {
+        array* arr = head->ev.arrval;
+        int index = indexexpr->ev.intval;
+        if (index > arr->start && index < arr->end) {
+            expression* elem = copyExpression(arr->content[index]);
+            result = elem;
+        } else {
+            addError(newErrorlist(ERR_OUT_OF_BOUNDS, newString(printExpression(indexexpr)), 1, 1));
+            result = newExpressionNil();
+        }
+    } else {
+        addError(newErrorlist(ERR_INVALID_ARG, newString(printExpression(head)), 1, 1));
+        result = newExpressionNil();
+    }
+    return result;
+}
+
+/* Evaluates the given date expression and returns the result
+	@param head	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
+expression* evaluateDat (expression* head) {
+	return head;
+}
+
+/* Evaluates the given object expression and returns the result
+	@param arg	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
+expression* evaluateObj (expression* head) {
+	expression* result = NULL;
+	expression* propname = evaluateArgument(head->next);
+    if (propname->type == TYPE_STR) {
+        char* pnstr = propname->ev.strval->content;
+        property* props = head->ev.objval->props;
+        while (props != NULL) {
+            if (strcmp(pnstr, props->name) == 0) {
+                expression* prop = copyExpression(props->value);
+                result = prop;
+            }
+            props = props->next;
+        }
+        addError(newErrorlist(ERR_UNDEFINED_PROP, newString(strDup(pnstr)), 1, 1));
+        result = newExpressionNil();
+    } else {
+        addError(newErrorlist(ERR_INVALID_ARG, newString(printExpression(head)), 1, 1));
+        result = newExpressionNil();
+    }
+    return result;
+}
+
+/* Evaluates the given type expression and returns the result
+	@param head	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
+expression* evaluateTyp (expression* head) {
+	return head;
+}
+
+/* Evaluates the given composite type expression and returns the result
+	@param head	the expression to be evaluated
+	@return		the expression representing the result of the evaluation
+*/
+expression* evaluateCompType (expression* head) {
+	return head;
 }
 
 /*! Evaluates the given argument and returns the result
@@ -679,38 +801,6 @@ expression* evaluateArgument (expression* arg) {
         }
     }
     return result;
-}
-
-/*! Evaluates the given lazy expression and returns the finished result
-    @param expr     the expression argument to be evaluated
-    @return         the expression representing the result of the evaluation
-*/
-expression* evaluateLazy (expression* expr) {
-    if (expr->type == TYPE_LAZ) { // if the expression is a lazy expression
-        tap_laz* lazy = expr->ev.lazval;
-        expression* expval = lazy->expval; // change the expression's structure to a regular expression
-        expr->ev.expval = expval;
-        expr->type = TYPE_EXP;
-        expval = evaluate(expr); // evaluate the expression as a regular expression
-        exprstack* es1 = lazy->refs; // the lazy expression's references
-        exprstack* es2;
-        while (es1 != NULL) { // while there are more references
-            if (es1->expr->refs > 0) { // decrement references that still exist
-                --(es1->expr->refs);
-            }
-            if (es1->expr->refs == 0) { // free expressions attached to now defunct references
-                free(es1->expr);
-            }
-            es2 = es1->next; // advance to the next reference
-            free(es1);
-            es1 = es2;
-        }
-        free(lazy->refs); // free the obsolete lazy expression data
-        free(lazy);
-        return expval;
-    } else { // if the expression isn't a lazy expression then just evaluate it
-        return evaluate(expr);
-    }
 }
 
 /*! Prints the given expression in a user friendly format
