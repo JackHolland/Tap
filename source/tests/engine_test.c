@@ -260,18 +260,64 @@ DESCRIBE(evaluateExp, "expression* evaluateExp (expression* expr)")
 	IT("Evaluates the given container expression")
 		initializeGlobals();
 		expression* head = newExpressionOfType(TYPE_EXP);
-		expression* child = newExpressionStr(newString(strDup("+")));
-		head->ev.expval = child;
-		child->flag = EFLAG_VAR;
-		child->next = newExpressionInt(1);
-		child = child->next;
-		child->next = newExpressionInt(1);
+		expression* child1 = newExpressionStr(newString(strDup("+")));
+		head->ev.expval = child1;
+		child1->flag = EFLAG_VAR;
+		child1->next = newExpressionInt(1);
+		child1 = child1->next;
+		child1->next = newExpressionInt(1);
 		expression* result = evaluateExp(head);
 		SHOULD_EQUAL(result->type, TYPE_INT)
 		SHOULD_EQUAL(result->ev.intval, 2)
 		freeExpr(head);
 		freeExpr(result);
+		head = newExpressionOfType(TYPE_EXP);
+		child1 = newExpressionStr(newString(strDup("*")));
+		head->ev.expval = child1;
+		child1->flag = EFLAG_VAR;
+		child1->next = newExpressionOfType(TYPE_EXP);
+		child1 = child1->next;
+		expression* child2 = newExpressionStr(newString(strDup("+")));
+		child1->ev.expval = child2;
+		child2->flag = EFLAG_VAR;
+		child2->next = newExpressionFlo(2.2);
+		child2 = child2->next;
+		child2->next = newExpressionFlo(2.8);
+		child1->next = newExpressionInt(2);
+		result = evaluateExp(head);
+		SHOULD_EQUAL(result->type, TYPE_FLO)
+		SHOULD_EQUAL(result->ev.floval, 10)
+		freeExpr(head);
+		freeExpr(result);
 		freeGlobals();
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(evaluateLaz, "expression* evaluateArgument (expression* arg)")
+	expression* expr1;
+	expression* expr2;
+	expression* result;
+	
+	/*IT("Evaluates the given lazy expression")
+		expr1 = newExpressionStr(newString(strDup("+")));
+		expr1->next = newExpressionInt(10);
+		expr2 = expr1->next;
+		expr2->next = newExpressionInt(1);
+		expr1 = newExpressionLaz(expr1);
+		result = evaluateLaz(expr1);
+		SHOULD_EQUAL(result->type, TYPE_INT)
+		SHOULD_EQUAL(result->ev.intval, 11)
+		freeExpr(expr1);
+		freeExpr(result);
+	END_IT*/
+	
+	IT("Evaluates the given non-lazy expression")
+		expr1 = newExpressionInt(4);
+		result = evaluateLaz(expr1);
+		SHOULD_EQUAL(result->type, TYPE_INT)
+		SHOULD_EQUAL(result->ev.intval, 4)
+		freeExpr(expr1);
+		freeExpr(result);
 	END_IT
 END_DESCRIBE
 
@@ -398,7 +444,22 @@ int main () {
 	CSpec_Run(DESCRIPTION(storeChildExpression), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluate), CSpec_NewOutputUnit());*/
 	CSpec_Run(DESCRIPTION(evaluateExp), CSpec_NewOutputUnit());
-	/*CSpec_Run(DESCRIPTION(evaluateArgument), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateLaz), CSpec_NewOutputUnit());
+	/*CSpec_Run(DESCRIPTION(evaluateInt), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateFlo), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateFun), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(numArgs), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(fillArgs), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(findFunction), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(callPrimFun), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(validFunCall), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(callFun), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateArr), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateDat), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateObj), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateTyp), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateCompType), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateArgument), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluateLazy), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(printExpression), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(printErrors), CSpec_NewOutputUnit());

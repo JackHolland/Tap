@@ -395,7 +395,7 @@ void storeChildExpression (expression* parent, expression* child) {
     @return         the expression representing the result of the evaluation
 */
 expression* evaluate (expression* head) {
-	expression* result = head;
+	expression* result = NULL;
     if (head != NULL) {
         if (head->type == TYPE_EXP) {
             result = evaluateExp(head);
@@ -416,6 +416,9 @@ expression* evaluate (expression* head) {
         } else if (head->type >= TYPE_COMP_START) {
         	result = evaluateCompType(head);
         }
+    }
+    if (result == NULL) {
+    	result = copyExpressionNR(head);
     }
     return result;
 }
@@ -460,7 +463,7 @@ expression* evaluateLaz (expression* head) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateInt (expression* head) {
-	return head;
+	return copyExpressionNR(head);
 }
 
 /* Evaluates the given float expression and returns the result
@@ -468,7 +471,7 @@ expression* evaluateInt (expression* head) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateFlo (expression* head) {
-	return head;
+	return copyExpressionNR(head);
 }
 
 /* Evaluates the given variable string or function expression and returns the result
@@ -476,11 +479,11 @@ expression* evaluateFlo (expression* head) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateFun (expression* head) {
+	expression* result;
 	int numargs = numArgs(head);
 	expression* args[numargs];
 	fillArgs(args, head);
 	tap_fun_search tfs = findFunction(head, args, numargs);
-	expression* result;
 	if (tfs.found) {
 		if (tfs.prim) {
 			result = callPrimFun(tfs.funs.prim_fun, args, numargs);
@@ -525,7 +528,7 @@ void fillArgs (expression* args[], expression* head) {
     int i = 0;
     while (expr != NULL) {
         expression* next = expr->next;
-        args[i++] = evaluateArgument(copyExpressionNR(expr));
+        args[i++] = evaluateArgument(expr);
         expr = next;
     }
 }
@@ -696,7 +699,7 @@ expression* callFun (tap_fun* fun, expression* args[], int numargs) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateArr (expression* head) {
-	expression* result = NULL;
+	expression* result;
 	expression* indexexpr = evaluateArgument(head->next);
     if (indexexpr->type == TYPE_INT) {
         array* arr = head->ev.arrval;
@@ -720,7 +723,7 @@ expression* evaluateArr (expression* head) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateDat (expression* head) {
-	return head;
+	return copyExpressionNR(head);
 }
 
 /* Evaluates the given object expression and returns the result
@@ -728,7 +731,7 @@ expression* evaluateDat (expression* head) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateObj (expression* head) {
-	expression* result = NULL;
+	expression* result;
 	expression* propname = evaluateArgument(head->next);
     if (propname->type == TYPE_STR) {
         char* pnstr = propname->ev.strval->content;
@@ -754,7 +757,7 @@ expression* evaluateObj (expression* head) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateTyp (expression* head) {
-	return head;
+	return copyExpressionNR(head);
 }
 
 /* Evaluates the given composite type expression and returns the result
@@ -762,7 +765,7 @@ expression* evaluateTyp (expression* head) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateCompType (expression* head) {
-	return head;
+	return copyExpressionNR(head);
 }
 
 /*! Evaluates the given argument and returns the result
@@ -770,7 +773,7 @@ expression* evaluateCompType (expression* head) {
     @return     the expression representing the result of the evaluation
 */
 expression* evaluateArgument (expression* arg) {
-	expression* result = arg;
+	expression* result;
     if (arg->type == TYPE_EXP) { // if the argument is an expression
         if (arg->flag == EFLAG_ARR) { // if the expression is an array expression
             int size = 0;
@@ -799,6 +802,8 @@ expression* evaluateArgument (expression* arg) {
             addError(newErrorlist(ERR_UNDEFINED_VAR, copyString(var), 0, 0));
             return newExpressionNil();
         }
+    } else {
+    	result = copyExpression(arg);
     }
     return result;
 }
