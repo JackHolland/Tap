@@ -24,7 +24,7 @@ expression* evaluateInt(expression*);
 expression* evaluateFlo(expression*);
 expression* evaluateFun(expression*);
 int numArgs(expression*);
-void fillArgs(expression*[], expression*);
+void fillArgs(expression*, expression*[], int);
 tap_fun_search findFunction(expression*, expression*[], int);
 expression* callPrimFun(tap_prim_fun*, expression*[], int);
 int validFunCall(tap_fun*, expression*, expression*[], int);

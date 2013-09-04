@@ -452,7 +452,18 @@ expression* evaluateExp (expression* head) {
 */
 expression* evaluateLaz (expression* head) {
     if (head->type == TYPE_LAZ) { // if the expression is a lazy expression
-        return evaluate(head->ev.lazval->expval); // evaluate the expression as a regular expression
+    	expression* expr = head->ev.lazval->expval;
+    	expression* result = NULL;
+    	while (expr != NULL) {
+    		freeExpr(result);
+        	result = evaluate(expr); // evaluate the expression as a regular expression
+        	if (expr->type == TYPE_EXP) {
+        		expr = expr->next;
+        	} else {
+        		break;
+        	}
+        }
+        return result;
     } else { // if the expression isn't a lazy expression then just evaluate it
         return evaluate(head);
     }
@@ -482,7 +493,7 @@ expression* evaluateFun (expression* head) {
 	expression* result;
 	int numargs = numArgs(head);
 	expression* args[numargs];
-	fillArgs(args, head);
+	fillArgs(head, args, numargs);
 	tap_fun_search tfs = findFunction(head, args, numargs);
 	if (tfs.found) {
 		if (tfs.prim) {
@@ -510,11 +521,13 @@ expression* evaluateFun (expression* head) {
 */
 int numArgs (expression* head) {
 	int numargs = 0;
-    expression* expr = head->next;
-    while (expr != NULL) {
-        ++numargs;
-        expr = expr->next;
-    }
+	if (head != NULL) {
+		expression* expr = head->next;
+		while (expr != NULL) {
+			++numargs;
+			expr = expr->next;
+		}
+	}
     return numargs;
 }
 
@@ -523,12 +536,12 @@ int numArgs (expression* head) {
 	@param head	the list of expressions to pull from
 	@return		the expression representing the result of the evaluation
 */
-void fillArgs (expression* args[], expression* head) {
+void fillArgs (expression* head, expression* args[], int numargs) {
 	expression* expr = head->next;
-    int i = 0;
-    while (expr != NULL) {
+	int i;
+    for (i = 0; i < numargs; ++i) {
         expression* next = expr->next;
-        args[i++] = evaluateArgument(expr);
+        args[i] = evaluateArgument(expr);
         expr = next;
     }
 }
@@ -803,7 +816,7 @@ expression* evaluateArgument (expression* arg) {
             return newExpressionNil();
         }
     } else {
-    	result = copyExpression(arg);
+    	result = copyExpressionNR(arg);
     }
     return result;
 }

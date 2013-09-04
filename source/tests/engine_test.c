@@ -296,10 +296,13 @@ END_DESCRIBE
 DESCRIBE(evaluateLaz, "expression* evaluateArgument (expression* arg)")
 	expression* expr1;
 	expression* expr2;
+	expression* expr3;
 	expression* result;
 	
-	/*IT("Evaluates the given lazy expression")
+	IT("Evaluates the given lazy expression")
+		initializeGlobals();
 		expr1 = newExpressionStr(newString(strDup("+")));
+		expr1->flag = EFLAG_VAR;
 		expr1->next = newExpressionInt(10);
 		expr2 = expr1->next;
 		expr2->next = newExpressionInt(1);
@@ -309,7 +312,29 @@ DESCRIBE(evaluateLaz, "expression* evaluateArgument (expression* arg)")
 		SHOULD_EQUAL(result->ev.intval, 11)
 		freeExpr(expr1);
 		freeExpr(result);
-	END_IT*/
+		expr1 = newExpressionOfType(TYPE_EXP);
+		expr2 = newExpressionStr(newString(strDup("*")));
+		expr1->ev.expval = expr2;
+		expr2->flag = EFLAG_VAR;
+		expr2->next = newExpressionFlo(2);
+		expr2 = expr2->next;
+		expr2->next = newExpressionFlo(2.5);
+		expr2 = newExpressionOfType(TYPE_EXP);
+		expr1->next = expr2;
+		expr3 = newExpressionStr(newString(strDup("/")));
+		expr2->ev.expval = expr3;
+		expr3->flag = EFLAG_VAR;
+		expr3->next = newExpressionFlo(2);
+		expr3 = expr3->next;
+		expr3->next = newExpressionFlo(2.5);
+		expr1 = newExpressionLaz(expr1);
+		result = evaluateLaz(expr1);
+		SHOULD_EQUAL(result->type, TYPE_FLO)
+		SHOULD_EQUAL(result->ev.floval, 0.8)
+		freeExpr(expr1);
+		freeExpr(result);
+		freeGlobals();
+	END_IT
 	
 	IT("Evaluates the given non-lazy expression")
 		expr1 = newExpressionInt(4);
@@ -442,8 +467,8 @@ int main () {
 	CSpec_Run(DESCRIPTION(parseExprForSign), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(parseStringLiteral), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(storeChildExpression), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(evaluate), CSpec_NewOutputUnit());*/
-	CSpec_Run(DESCRIPTION(evaluateExp), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluate), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateExp), CSpec_NewOutputUnit());*/
 	CSpec_Run(DESCRIPTION(evaluateLaz), CSpec_NewOutputUnit());
 	/*CSpec_Run(DESCRIPTION(evaluateInt), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluateFlo), CSpec_NewOutputUnit());
