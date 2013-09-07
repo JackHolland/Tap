@@ -52,7 +52,7 @@ struct expression_ {
     exprvals ev;
     expression* next;
     linenum line;
-    int flag:2;
+    signed int flag:2;
     uint isref:1;
     uint refs;
 };
@@ -95,8 +95,8 @@ struct typedefs_ {
 struct property_ {
     char* name;
     typelist* types;
-    int privacy:1;
-    int range:1;
+    uint privacy:1;
+    uint range:1;
     expression* value;
     property* next;
 };
@@ -145,13 +145,13 @@ struct errorlist_ {
 };
 
 union tap_fun_con_ {
-	tap_fun* fun;
 	tap_prim_fun* prim_fun;
+	tap_fun* tap_fun;
 };
 
 struct tap_fun_search_ {
-	int found:1;
-	int prim:1;
+	uint found:1;
+	uint prim:1;
 	tap_fun_con funs;
 };
 

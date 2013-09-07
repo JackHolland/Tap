@@ -75,6 +75,17 @@ inline expression* newExpressionNil () {
 	return newExpressionAll(TYPE_NIL, NULL, NULL, 0);
 }
 
+/*! Creates a new lazy expression struct with the given expression as its value
+    @param value    the lazy expression to be stored in the expression
+    @return         the new expression struct
+*/
+inline expression* newExpressionLaz (expression* value) {
+	exprvals ev;
+	ev.lazval = newLazyExpression();
+	ev.lazval->expval = value;
+    return newExpressionAll(TYPE_LAZ, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+}
+
 /*! Creates a new expression struct with the given integer as its value
     @param value    the integer to be stored in the expression
     @return         the new expression struct
@@ -115,15 +126,14 @@ inline expression* newExpressionArr (array* value) {
     return newExpressionAll(TYPE_ARR, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
-/*! Creates a new lazy expression struct with the given expression as its value
-    @param value    the lazy expression to be stored in the expression
+/*! Creates a new expression struct with the given tap function as its value
+    @param value    the tap function to be stored in the expression
     @return         the new expression struct
 */
-inline expression* newExpressionLaz (expression* value) {
+inline expression* newExpressionFun (tap_fun* value) {
 	exprvals ev;
-	ev.lazval = newLazyExpression();
-	ev.lazval->expval = value;
-    return newExpressionAll(TYPE_LAZ, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
+	ev.funval = value;
+    return newExpressionAll(TYPE_FUN, &ev, NULL, 0); // set the value to null until a real value is given and set the next expression to null
 }
 
 /*! Creates a new type struct with the given type as its value

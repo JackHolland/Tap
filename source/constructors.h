@@ -14,11 +14,12 @@
 expression* newExpression();
 expression* newExpressionOfType(datatype);
 expression* newExpressionNil();
+expression* newExpressionLaz(expression*);
 expression* newExpressionInt(tap_int);
 expression* newExpressionFlo(tap_flo);
 expression* newExpressionStr(string*);
 expression* newExpressionArr(array*);
-expression* newExpressionLaz(expression*);
+expression* newExpressionFun(tap_fun*);
 expression* newExpressionTyp(datatype);
 expression* newExpressionAll(datatype, exprvals*, expression*, linenum);
 expression* copyExpression(expression*);

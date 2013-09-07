@@ -490,28 +490,12 @@ expression* evaluateFlo (expression* head) {
 	@return		the expression representing the result of the evaluation
 */
 expression* evaluateFun (expression* head) {
-	expression* result;
 	int numargs = numArgs(head);
 	expression* args[numargs];
 	fillArgs(head, args, numargs);
 	tap_fun_search tfs = findFunction(head, args, numargs);
-	if (tfs.found) {
-		if (tfs.prim) {
-			result = callPrimFun(tfs.funs.prim_fun, args, numargs);
-		} else {
-			if (validFunCall(tfs.funs.fun, head, args, numargs)) {
-				result = callFun(tfs.funs.fun, args, numargs);
-			} else {
-				result = newExpressionNil();
-			}
-		}
-	} else {
-        result = newExpressionNil();
-	}
-	int i;
-	for (i = 0; i < numargs; ++i) {
-        freeExprNR(args[i]);
-    }
+	expression* result = callFun(tfs, head, args, numargs);
+	freeArgs(args, numargs);
     return result;
 }
 
@@ -532,8 +516,9 @@ int numArgs (expression* head) {
 }
 
 /* Fills in the given arguments array with the given list of expressions
-	@param args	the array of arguments to fill
-	@param head	the list of expressions to pull from
+	@param head		the list of expressions to pull from
+	@param args		the array of arguments to fill
+	@param numargs	the number of arguments in the array
 	@return		the expression representing the result of the evaluation
 */
 void fillArgs (expression* head, expression* args[], int numargs) {
@@ -544,6 +529,18 @@ void fillArgs (expression* head, expression* args[], int numargs) {
         args[i] = evaluateArgument(expr);
         expr = next;
     }
+}
+
+/* Frees the given arguments array and its contents
+	@param args		the array of arguments to free
+	@param numargs	the number of arguments in the array
+*/
+int freeArgs (expression* args[], int numargs) {
+	int i;
+	for (i = 0; i < numargs; ++i) {
+        freeExprNR(args[i]);
+    }
+    return 0;
 }
 
 /* Finds the function corresponding to the given expression head and returns its data
@@ -614,7 +611,7 @@ tap_fun_search findFunction (expression* head, expression* args[], int numargs) 
             }
             hl1 = hl1->next;
         }
-        while (hl2 != NULL) { // free the memory used to store the hashlist
+        while (hl2 != NULL) {
             hl1 = hl2->next;
             free(hl2);
             hl2 = hl1;
@@ -628,15 +625,39 @@ tap_fun_search findFunction (expression* head, expression* args[], int numargs) 
     if (prim) {
     	tfs.funs.prim_fun = prim_fun;
     } else {
-    	tfs.funs.fun = fun;
+    	tfs.funs.tap_fun = fun;
     }
     return tfs;
+}
+
+/* Tries to call the function given by the tap_fun_search (primitive or tap), returning a nil expression on failure
+	@param tfs		tap_fun_search metadata
+	@param args		the array of arguments to pass to the called function
+	@param numargs	the number of arguments in the array
+	@return			the function call's resulting expression
+*/
+expression* callFun (tap_fun_search tfs, expression* head, expression* args[], int numargs) {
+	expression* result;
+	if (tfs.found) {
+		if (tfs.prim) {
+			result = callPrimFun(tfs.funs.prim_fun, args, numargs);
+		} else {
+			if (validFunCall(tfs.funs.tap_fun, head, args, numargs)) {
+				result = callTapFun(tfs.funs.tap_fun, args, numargs);
+			} else {
+				result = newExpressionNil();
+			}
+		}
+	} else {
+        result = newExpressionNil();
+	}
+	return result;
 }
 
 /* Calls the given primitive function with the given arguments
 	@param prim_fun	the primitive function to call
 	@param args		the array of arguments to pass to the function
-	@param num_args	the number of arguments in the array
+	@param numargs	the number of arguments in the array
 	@return			the function call's resulting expression
 */
 expression* callPrimFun (tap_prim_fun* prim_fun, expression* args[], int numargs) {
@@ -681,13 +702,13 @@ int validFunCall (tap_fun* fun, expression* head, expression* args[], int numarg
     return 1;
 }
 
-/* Calls the given function with the given arguments
+/* Calls the given tap function with the given arguments
 	@param fun		the function to call
 	@param args		the array of arguments to pass to the function
-	@param num_args	the number of arguments in the array
+	@param numargs	the number of arguments in the array
 	@return			the function call's resulting expression
 */
-expression* callFun (tap_fun* fun, expression* args[], int numargs) {
+expression* callTapFun (tap_fun* fun, expression* args[], int numargs) {
 	int newenv = environments[cenvironment]->numvars > 0;
     if (newenv) { // if this isn't a tail call
         setEnvironment(); // set up a new environment with a blank slate
@@ -788,37 +809,45 @@ expression* evaluateCompType (expression* head) {
 expression* evaluateArgument (expression* arg) {
 	expression* result;
     if (arg->type == TYPE_EXP) { // if the argument is an expression
-        if (arg->flag == EFLAG_ARR) { // if the expression is an array expression
-            int size = 0;
-            expression* elem1 = arg->ev.expval;
-            while (elem1 != NULL) {
-                ++size;
-                elem1 = elem1->next;
-            }
-            array* arr = newArray(size);
-            elem1 = arg->ev.expval;
-            expression* elem2;
-            size = 0;
-            while (elem1 != NULL) {
-                elem2 = elem1->next;
-                arr->content[size++] = evaluateArgument(elem1);
-                elem1 = elem2;
-            }
-            result = newExpressionArr(arr);
-        } else { // if the expression isn't an array expression
-            result = evaluate(arg->ev.expval); // replace the expression parameter with its evaluated equivalent
+        if (arg->flag == EFLAG_ARR) { // if the expression is an array container expression
+            result = expressionsToArray(arg->ev.expval);
+        } else { // if the expression isn't an array container expression
+            result = evaluate(arg->ev.expval);
         }
-    } else if (arg->type == TYPE_STR && arg->flag == EFLAG_VAR) {
+    } else if (arg->type == TYPE_STR && arg->flag == EFLAG_VAR) { // if the argument is a string variable
         string* var = arg->ev.strval;
-        result = copyExpression(getVarValue(var->content));
+        result = getVarValue(var->content);
         if (result == NULL) {
             addError(newErrorlist(ERR_UNDEFINED_VAR, copyString(var), 0, 0));
-            return newExpressionNil();
+            result = newExpressionNil();
         }
     } else {
     	result = copyExpressionNR(arg);
     }
     return result;
+}
+
+/* Converts the list of expressions into a tap array
+	@param head		the list of expressions to convert
+	@return			an array expression whose array contains each expression
+*/
+expression* expressionsToArray (expression* head) {
+	int size = 0;
+    expression* expr = head;
+    while (expr != NULL) {
+        ++size;
+        expr = expr->next;
+    }
+    array* arr = newArray(size);
+    expr = head;
+    expression* next;
+    size = 0;
+    while (expr != NULL) {
+        next = expr->next;
+        arr->content[size++] = evaluateArgument(expr);
+        expr = next;
+    }
+    return newExpressionArr(arr);
 }
 
 /*! Prints the given expression in a user friendly format
@@ -1038,6 +1067,7 @@ void resetEnvironment () {
     @return         the value mapped to the name
 */
 expression* getVarValue (char* name) {
+	expression* result = NULL;
     expression* found = NULL;
     int cenv = cenvironment;
     while (cenv >= 0) { // while there are more environments to check
@@ -1052,11 +1082,12 @@ expression* getVarValue (char* name) {
                 free(list1); // free the current hash list element
                 list1 = list2; // advance to the next hash list element
             } while (list1 != NULL);
-            return found; // return the found value
+            result = copyExpression(found);
+            break;
         }
         cenv = environments[cenv]->parent; // since the value wasn't found check the parent environment for it
     }
-    return NULL;
+    return result;
 }
 
 /*! If the given expression is a regular or lazy expression, returns the expression value and otherwise returns null

@@ -35,9 +35,27 @@ DESCRIBE(newExpressionOfType, "expression* newExpressionOfType (datatype type)")
 	END_IT
 END_DESCRIBE
 
+DESCRIBE(newExpressionNil, "expression* newExpressionNil ()")
+	IT("Creates a new nil expression")
+		expression* expr = newExpressionNil();
+		SHOULD_EQUAL(expr->type, TYPE_NIL)
+		freeExpr(expr);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(newExpressionLaz, "expression* newExpressionLaz (expression*)")
+	IT("Creates a new lazy expression")
+		expression* expr = newExpressionLaz(newExpressionNil());
+		SHOULD_EQUAL(expr->type, TYPE_LAZ)
+		SHOULD_EQUAL(expr->ev.lazval->expval->type, TYPE_NIL)
+		freeExpr(expr);
+	END_IT
+END_DESCRIBE
+
 DESCRIBE(newExpressionInt, "expression* newExpressionInt (tap_int)")
 	IT("Creates a new integer expression")
 		expression* expr = newExpressionInt(-100);
+		SHOULD_EQUAL(expr->type, TYPE_INT)
 		SHOULD_EQUAL(expr->ev.intval, -100)
 		freeExpr(expr);
 	END_IT
@@ -46,6 +64,7 @@ END_DESCRIBE
 DESCRIBE(newExpressionFlo, "expression* newExpressionFlo (tap_flo)")
 	IT("Creates a new floating point expression")
 		expression* expr = newExpressionFlo(956.2);
+		SHOULD_EQUAL(expr->type, TYPE_FLO)
 		SHOULD_EQUAL(expr->ev.floval, 956.2)
 		freeExpr(expr);
 	END_IT
@@ -54,6 +73,8 @@ END_DESCRIBE
 DESCRIBE(newExpressionStr, "expression* newExpressionStr (string*)")
 	IT("Creates a new string expression")
 		expression* expr = newExpressionStr(newString(strDup("hi")));
+		SHOULD_EQUAL(expr->type, TYPE_STR)
+		SHOULD_EQUAL(expr->ev.strval->size, 2)
 		SHOULD_EQUAL(strcmp(expr->ev.strval->content, "hi"), 0)
 		freeExpr(expr);
 	END_IT
@@ -62,22 +83,33 @@ END_DESCRIBE
 DESCRIBE(newExpressionArr, "expression* newExpressionArr (array*)")
 	IT("Creates a new array expression")
 		expression* expr = newExpressionArr(newArray(5));
+		SHOULD_EQUAL(expr->type, TYPE_ARR)
 		SHOULD_EQUAL(expr->ev.arrval->size, 5)
 		freeExpr(expr);
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(newExpressionLaz, "expression* newExpressionLaz (expression*)")
-	IT("Creates a new lazy expression")
-		expression* expr = newExpressionLaz(newExpressionNil());
-		SHOULD_EQUAL(expr->ev.lazval->expval->type, TYPE_NIL)
-		freeExpr(expr);
+DESCRIBE(newExpressionFun, "expression* newExpressionFun (tap_fun* value)")
+	IT("Creates a new type expression")
+		argument* fun_args[1];
+		fun_args[0] = newArgument(newString(strDup("arg")), newTypelist(TYPE_STR), NULL);
+		expression* expr1 = newExpressionStr(newString(strDup("*")));
+		expr1->flag = EFLAG_VAR;
+		expression* expr2 = newExpressionStr(newString(strDup("arg")));
+		expr1->next = expr2;
+		expr2->next = newExpressionStr(newString(strDup("arg")));
+		tap_fun* fun = newTapFunction(fun_args, 1, 1, newExpressionLaz(expr1));
+		expr1 = newExpressionFun(fun);
+		SHOULD_EQUAL(expr1->type, TYPE_FUN)
+		SHOULD_EQUAL(expr1->ev.funval, fun)
+		freeExpr(expr1);
 	END_IT
 END_DESCRIBE
 
 DESCRIBE(newExpressionTyp, "expression* newExpressionTyp (datatype value)")
 	IT("Creates a new type expression")
 		expression* expr = newExpressionTyp(TYPE_INT);
+		SHOULD_EQUAL(expr->type, TYPE_TYP)
 		SHOULD_EQUAL(expr->ev.intval, TYPE_INT)
 		freeExpr(expr);
 	END_IT
@@ -471,11 +503,13 @@ END_DESCRIBE
 int main () {
 	CSpec_Run(DESCRIPTION(newExpression), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newExpressionOfType), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(newExpressionNil), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(newExpressionLaz), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newExpressionInt), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newExpressionFlo), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newExpressionStr), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newExpressionArr), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(newExpressionLaz), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(newExpressionFun), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newExpressionTyp), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(newExpressionAll), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(copyExpression), CSpec_NewOutputUnit());

@@ -198,7 +198,7 @@ DESCRIBE(parsePiece, "expression* parsePiece (char* text, expression** tail, lin
 END_DESCRIBE
 
 DESCRIBE(parseWhitespace, "uint parseWhitespace (char* text, uint index, uint end)")
-	IT("Advances the given index past any whitespace found")
+	IT("Advances the index past any whitespace found")
 		uint index = parseWhitespace("hi", 0, 2);
 		SHOULD_EQUAL(index, 0)
 		index = parseWhitespace(" hi", 0, 3);
@@ -211,7 +211,7 @@ DESCRIBE(parseWhitespace, "uint parseWhitespace (char* text, uint index, uint en
 END_DESCRIBE
 
 DESCRIBE(parseExprForSign, "uint parseExprForSign (char* text, uint index, uint size, expression* expr)")
-	IT("Determines if the given text represents a signed number and marks the given expression as an integer")
+	IT("Determines if the text represents a signed number and marks the expression as an integer")
 		expression* expr = newExpressionNil();
 		uint index = parseExprForSign("+5", 0, 2, expr);
 		SHOULD_EQUAL(index, 1)
@@ -256,8 +256,8 @@ DESCRIBE(evaluate, "expression* evaluate (expression* head)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(evaluateExp, "expression* evaluateExp (expression* expr)")
-	IT("Evaluates the given container expression")
+DESCRIBE(evaluateExp, "expression* evaluateExp (expression* head)")
+	IT("Evaluates container expressions")
 		initializeGlobals();
 		expression* head = newExpressionOfType(TYPE_EXP);
 		expression* child1 = newExpressionStr(newString(strDup("+")));
@@ -293,13 +293,13 @@ DESCRIBE(evaluateExp, "expression* evaluateExp (expression* expr)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(evaluateLaz, "expression* evaluateArgument (expression* arg)")
+DESCRIBE(evaluateLaz, "expression* evaluateLaz (expression* head)")
 	expression* expr1;
 	expression* expr2;
 	expression* expr3;
 	expression* result;
 	
-	IT("Evaluates the given lazy expression")
+	IT("Evaluates lazy expressions")
 		initializeGlobals();
 		expr1 = newExpressionStr(newString(strDup("+")));
 		expr1->flag = EFLAG_VAR;
@@ -336,7 +336,7 @@ DESCRIBE(evaluateLaz, "expression* evaluateArgument (expression* arg)")
 		freeGlobals();
 	END_IT
 	
-	IT("Evaluates the given non-lazy expression")
+	IT("Evaluates non-lazy expressions")
 		expr1 = newExpressionInt(4);
 		result = evaluateLaz(expr1);
 		SHOULD_EQUAL(result->type, TYPE_INT)
@@ -346,9 +346,144 @@ DESCRIBE(evaluateLaz, "expression* evaluateArgument (expression* arg)")
 	END_IT
 END_DESCRIBE
 
-DESCRIBE(evaluateArgument, "expression* evaluateArgument (expression* arg)")
+DESCRIBE(evaluateInt, "expression* evaluateInt (expression* head)")
 	IT("")
 		
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(evaluateFlo, "expression* evaluateFlo (expression* head)")
+	IT("")
+		
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(evaluateFun, "expression* evaluateFun (expression* head)")
+	IT("")
+		
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(numArgs, "int numArgs (expression* head)")
+	IT("Returns the number of arguments in the list of expressions")
+		int numargs = numArgs(NULL);
+		SHOULD_EQUAL(numargs, 0)
+		expression* expr1 = newExpressionStr(newString(strDup("*")));
+		expression* expr2 = newExpressionInt(4);
+		expr1->next = expr2;
+		expr2->next = newExpressionInt(3);
+		expr2 = expr2->next;
+		expr2->next = newExpressionInt(2);
+		numargs = numArgs(expr1);
+		SHOULD_EQUAL(numargs, 3)
+		freeExpr(expr1);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(fillArgs, "void fillArgs (expression* head, expression* args[], int numargs)")
+	IT("Fills the array of expressions with the list of expressions")
+		expression* expr1 = newExpressionStr(newString(strDup("-")));
+		expression* expr2 = newExpressionInt(2);
+		expr1->next = expr2;
+		expression* expr3 = newExpressionInt(0);
+		expr2->next = expr3;
+		int numargs = numArgs(expr1);
+		expression* args[numargs];
+		fillArgs(expr1, args, numargs);
+		SHOULD_EQUAL(args[0]->type, TYPE_INT)
+		SHOULD_EQUAL(args[0]->ev.intval, 2)
+		SHOULD_NOT_EQUAL(args[0], expr2)
+		SHOULD_EQUAL(args[1]->type, TYPE_INT)
+		SHOULD_EQUAL(args[1]->ev.intval, 0)
+		SHOULD_NOT_EQUAL(args[1], expr3)
+		freeExpr(expr1);
+		freeArgs(args, numargs);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(freeArgs, "void freeArgs (expression* args[], int numargs)")
+	IT("Frees the array of expressions")
+		int numargs = 3;
+		expression* args[numargs];
+		args[0] = newExpressionInt(5);
+		args[1] = newExpressionInt(-5);
+		args[2] = newExpressionFlo(0.0);
+		SHOULD_EQUAL(freeArgs(args, numargs), 0)
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(findFunction, "tap_fun_search findFunction (expression* head, expression* args[], int numargs)")
+	IT("Finds named functions based on string identifiers")
+		
+	END_IT
+	
+	IT("Marks unnamed functions as found")
+		argument* fun_args[2];
+		fun_args[0] = newArgument(newString(strDup("foo")), newTypelist(TYPE_INT), NULL);
+		fun_args[1] = newArgument(newString(strDup("bar")), newTypelistWithNext(TYPE_INT, newTypelist(TYPE_FLO)), newExpressionInt(0));
+		expression* expr1 = newExpressionStr(newString(strDup("+")));
+		expr1->flag = EFLAG_VAR;
+		expression* expr2 = newExpressionStr(newString(strDup("foo")));
+		expr1->next = expr2;
+		expr2->next = newExpressionStr(newString(strDup("bar")));
+		tap_fun* fun = newTapFunction(fun_args, 1, 2, newExpressionLaz(expr1));
+		expr1 = newExpressionFun(fun);
+		expr1->next = newExpressionInt(4);
+		int num_call_args = 1;
+		expression* call_args[num_call_args];
+		call_args[0] = newExpressionInt(1);
+		tap_fun_search tfs = findFunction(expr1, call_args, num_call_args);
+		SHOULD_EQUAL(tfs.found, 1)
+		SHOULD_EQUAL(tfs.prim, 0)
+		freeExpr(expr1);
+		freeArgs(call_args, num_call_args);
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(callFun, "expression* callFun (tap_fun_search tfs, expression* head, expression* args[], int numargs)")
+	IT("")
+		
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(callPrimFun, "expression* callPrimFun (tap_prim_fun* prim_fun, expression* args[], int numargs)")
+	IT("")
+		
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(validFunCall, "int validFunCall (tap_fun* fun, expression* head, expression* args[], int numargs)")
+	IT("")
+		
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(callTapFun, "expression* callTapFun (tap_fun* fun, expression* args[], int numargs)")
+	IT("")
+		
+	END_IT
+END_DESCRIBE
+
+DESCRIBE(evaluateArgument, "expression* evaluateArgument (expression* arg)")
+	expression* expr1;
+	expression* result;
+	
+	IT("Evaluates container expressions")
+		
+	END_IT
+	
+	IT("Evaluates array container expressions")
+		
+	END_IT
+	
+	IT("Evaluates non-container expressions")
+		expr1 = newExpressionInt(10);
+		result = evaluateArgument(expr1);
+		SHOULD_EQUAL(result->type, TYPE_INT)
+		SHOULD_EQUAL(result->ev.intval, 10)
+		SHOULD_NOT_EQUAL(expr1, result)
+		freeExpr(expr1);
+		freeExpr(result);
 	END_IT
 END_DESCRIBE
 
@@ -468,18 +603,20 @@ int main () {
 	CSpec_Run(DESCRIPTION(parseStringLiteral), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(storeChildExpression), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluate), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(evaluateExp), CSpec_NewOutputUnit());*/
+	CSpec_Run(DESCRIPTION(evaluateExp), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluateLaz), CSpec_NewOutputUnit());
-	/*CSpec_Run(DESCRIPTION(evaluateInt), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(evaluateFlo), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateInt), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(evaluateFlo), CSpec_NewOutputUnit());*/
 	CSpec_Run(DESCRIPTION(evaluateFun), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(numArgs), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(fillArgs), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(freeArgs), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(findFunction), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(callFun), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(callPrimFun), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(validFunCall), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(callFun), CSpec_NewOutputUnit());
-	CSpec_Run(DESCRIPTION(evaluateArr), CSpec_NewOutputUnit());
+	CSpec_Run(DESCRIPTION(callTapFun), CSpec_NewOutputUnit());
+	/*CSpec_Run(DESCRIPTION(evaluateArr), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluateDat), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluateObj), CSpec_NewOutputUnit());
 	CSpec_Run(DESCRIPTION(evaluateTyp), CSpec_NewOutputUnit());
